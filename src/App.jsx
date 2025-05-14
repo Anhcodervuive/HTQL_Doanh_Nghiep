@@ -1,8 +1,37 @@
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import { Fragment } from 'react'
+
+import { AdminRoutes } from './routers'
+import DefaultLayout from './layouts/DefaultLayout'
+
 function App() {
   return (
-    <>
-      <h1>Hello world</h1>
-    </>
+    <Router>
+      <div className="app">
+        <Routes>
+          {AdminRoutes.map((route, index) => {
+            const Page = route.component
+            let Layout = DefaultLayout
+            console.log(route)
+
+            if (route.layout) Layout = route.layout
+            else if (route.layout === null) Layout = Fragment
+
+            return (
+              <Route
+                key={index}
+                path={route.path}
+                element={
+                  <Layout>
+                    <Page />
+                  </Layout>
+                }
+              />
+            )
+          })}
+        </Routes>
+      </div>
+    </Router>
   )
 }
 
