@@ -1,0 +1,7 @@
+.wrapper {
+    background-color: rgba(182, 193, 203, 0.13);
+    padding : 40px 40px;
+
+    /* test */
+    min-height: 1500px;
+}

@@ -1,0 +1,41 @@
+.wrapper {
+    --logo-height: 70px;
+    position: relative;
+    border-right: 1px solid rgba(151, 151, 151, 0.25);
+}
+
+.logo {
+    height: var(--logo-height);
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.sidebar-list {
+    margin-top: var(--logo-height);
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar-list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    heihgt: 45px;
+    padding: 10px 20px 10px 20px;
+    cursor: pointer;
+    color: #000;
+    text-decoration: none;
+    font-weight: 400;
+    color: #9B9A9BCC;
+}
+
+.sidebar-list-item-active {
+    color: #4B9FFE;
+    background-color: rgba(56, 149, 255, 0.15);
+}
