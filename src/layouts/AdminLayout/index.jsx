@@ -10,7 +10,10 @@ function AdminLayout({ children }) {
       <SideBar className='c-2' />
       <div className='c-10'>
         <Header />
-        <main>
+        <main style={{
+          backgroundColor: 'rgba(182, 193, 203, 0.13)',
+          padding: '40px',
+        }}>
           {children}
         </main>
       </div>
