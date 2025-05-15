@@ -1,15 +1,17 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import { Fragment } from 'react'
 
-import { AdminRoutes } from './routers'
+import { AdminRoutes, AuthRoutes } from './routers'
 import DefaultLayout from './layouts/DefaultLayout'
+
+const combinedRoutes = [...AdminRoutes, ...AuthRoutes];
 
 function App() {
   return (
     <Router>
       <div className="app">
         <Routes>
-          {AdminRoutes.map((route, index) => {
+          {combinedRoutes.map((route, index) => {
             const Page = route.component
             let Layout = DefaultLayout
             console.log(route)
