@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import { AdminRoutes, AuthRoutes } from './routers'
 import DefaultLayout from './layouts/DefaultLayout'
 
-const combinedRoutes = [...AdminRoutes, ...AuthRoutes];
+const combinedRoutes = [...AdminRoutes, ...AuthRoutes]
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
           {combinedRoutes.map((route, index) => {
             const Page = route.component
             let Layout = DefaultLayout
+
             console.log(route)
 
             if (route.layout) Layout = route.layout

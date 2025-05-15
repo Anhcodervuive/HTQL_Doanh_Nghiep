@@ -1,9 +1,8 @@
-import classNames from 'classnames/bind'
+// import classNames from 'classnames/bind'
 
 import Header from './Header'
-import SideBar from './Sidebar'
+import SideBar from './SideBar'
 
-const cx = classNames.bind()
 
 function AdminLayout({ children }) {
   return (

@@ -1,5 +1,5 @@
-import LoginPage from '../pages/Auth/Login';
-import SignupPage from '../pages/Auth/Signup';
+import LoginPage from '../pages/Auth/Login'
+import SignupPage from '../pages/Auth/Signup'
 
 const AuthRoutes = [
   {
@@ -12,6 +12,6 @@ const AuthRoutes = [
     component: SignupPage,
     layout: null,
   },
-];
+]
 
-export default AuthRoutes;
+export default AuthRoutes
