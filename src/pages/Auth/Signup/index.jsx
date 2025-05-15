@@ -9,9 +9,9 @@ import {
   Typography,
 } from '@mui/material';
 import IconifyIcon from '../IconifyIcon';
-import LoginForm from './LoginForm';
+import SignupForm from './SignupForm';
 
-const LoginPage = () => {
+const SignupPage = () => {
   return (
     <Box
       sx={{
@@ -32,17 +32,17 @@ const LoginPage = () => {
           }}
         >
           <Typography variant="h4" sx={{ mb: 2 }}>
-            Sign In
+            Sign Up
           </Typography>
 
           <Typography variant="body2" sx={{ mb: 3 }}>
-            Don’t have an account?
+            Already have an account?
             <Link
-              href="/register"
+              href="/login"
               underline="hover"
-              sx={{ ml: 0.75 }}
+              sx={{ ml: 0.75, fontWeight: 500 }}
             >
-              Create One Now!
+              Sign In Now!
             </Link>
           </Typography>
 
@@ -50,21 +50,30 @@ const LoginPage = () => {
             <Button
               fullWidth
               variant="outlined"
-              sx={{ borderRadius: 999, p: 1 }}
+              sx={{
+                borderRadius: '999px',
+                p: 1,
+              }}
             >
               <IconifyIcon icon="eva:google-fill" color="error.main" />
             </Button>
             <Button
               fullWidth
               variant="outlined"
-              sx={{ borderRadius: 999, p: 1 }}
+              sx={{
+                borderRadius: '999px',
+                p: 1,
+              }}
             >
               <IconifyIcon icon="gg:facebook" color="primary.main" />
             </Button>
             <Button
               fullWidth
               variant="outlined"
-              sx={{ borderRadius: 999, p: 1 }}
+              sx={{
+                borderRadius: '999px',
+                p: 1,
+              }}
             >
               <IconifyIcon icon="logos:twitter" />
             </Button>
@@ -76,11 +85,11 @@ const LoginPage = () => {
             </Typography>
           </Divider>
 
-          <LoginForm />
+          <SignupForm />
         </Card>
       </Container>
     </Box>
   );
 };
 
-export default LoginPage;
+export default SignupPage;
