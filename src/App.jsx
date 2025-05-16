@@ -15,7 +15,6 @@ function App() {
             const Page = route.component
             let Layout = DefaultLayout
 
-            console.log(route)
 
             if (route.layout) Layout = route.layout
             else if (route.layout === null) Layout = Fragment
