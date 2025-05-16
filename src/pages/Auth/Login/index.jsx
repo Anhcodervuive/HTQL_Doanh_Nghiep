@@ -7,9 +7,9 @@ import {
   Link,
   Stack,
   Typography,
-} from '@mui/material';
-import IconifyIcon from '../IconifyIcon';
-import LoginForm from './LoginForm';
+} from '@mui/material'
+import IconifyIcon from '../IconifyIcon'
+import LoginForm from './LoginForm'
 
 const LoginPage = () => {
   return (
@@ -80,7 +80,7 @@ const LoginPage = () => {
         </Card>
       </Container>
     </Box>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage
