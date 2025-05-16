@@ -19,11 +19,10 @@ function ImageUploader({ onImageUpload }) {
   }
 
   return (
-    <Box>
-      {selectedImage && <img src={selectedImage} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
-      <Avatar alt='Upload new Avatar' src={selectedImage ?? ''} />
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 2, gap: 2 }}>
+      <Avatar alt='Upload new Avatar' src={selectedImage ?? ''} sx={{ height: '200px', width: '200px' }}/>
       <Button variant="contained" component="label">
-              Upload File
+              Upload Avatar
         <input type="file" hidden onChange={handleImageChange}/>
       </Button>
     </Box>

@@ -1,12 +1,15 @@
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
-import { Routes } from '~/config'
+import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import UserForm from '../form'
 
 function UserCreate() {
+  const location = useLocation()
+  const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
+
   return (
     <Box
       sx={{
@@ -14,15 +17,19 @@ function UserCreate() {
       }}
     >
       <Box sx={{ mb: 2 }}>
-        <Button variant='text' color='secondary' component={Link} to={Routes.admin.dashboard}>
-          Admin
-        </Button>
-              &lt;
-        <Button variant='text' color='secondary' component={Link} to={Routes.admin.user.list}>
-          User
-        </Button>
-              &lt;
-        create
+        {breadcrumbs.map((item, index) => (
+          <Button
+            key={index}
+            variant='text'
+            color={location.pathname === item.path ? 'primary' : 'secondary'}
+            disabled={location.pathname === item.path}
+            component={Link}
+            to={item.path}
+          >
+            {item.name}
+            {location.pathname !== item.path && ' > '}
+          </Button>
+        ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 2 }}>
         Add new user
