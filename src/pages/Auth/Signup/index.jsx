@@ -7,9 +7,9 @@ import {
   Link,
   Stack,
   Typography,
-} from '@mui/material';
-import IconifyIcon from '../IconifyIcon';
-import SignupForm from './SignupForm';
+} from '@mui/material'
+import IconifyIcon from '../IconifyIcon'
+import SignupForm from './SignupForm'
 
 const SignupPage = () => {
   return (
@@ -23,7 +23,7 @@ const SignupPage = () => {
         justifyContent: 'center',
       }}
     >
-      <Container maxWidth="sm">
+      <Container sx={{ width: { sm : '40%', lg: '70%' } }}>
         <Card
           sx={{
             p: { xs: 3, sm: 5 },
@@ -31,11 +31,11 @@ const SignupPage = () => {
             boxShadow: 3,
           }}
         >
-          <Typography variant="h4" sx={{ mb: 2 }}>
+          <Typography variant="h4" sx={{ mb: 2, textAlign: 'center' }}>
             Sign Up
           </Typography>
 
-          <Typography variant="body2" sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ mb: 3, textAlign: 'center' }}>
             Already have an account?
             <Link
               href="/login"
@@ -46,33 +46,33 @@ const SignupPage = () => {
             </Link>
           </Typography>
 
-          <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 3, justifyContent: 'center' }}>
             <Button
-              fullWidth
               variant="outlined"
               sx={{
                 borderRadius: '999px',
                 p: 1,
+                width: '200px',
               }}
             >
               <IconifyIcon icon="eva:google-fill" color="error.main" />
             </Button>
             <Button
-              fullWidth
               variant="outlined"
               sx={{
                 borderRadius: '999px',
                 p: 1,
+                width: '200px',
               }}
             >
               <IconifyIcon icon="gg:facebook" color="primary.main" />
             </Button>
             <Button
-              fullWidth
               variant="outlined"
               sx={{
                 borderRadius: '999px',
                 p: 1,
+                width: '200px',
               }}
             >
               <IconifyIcon icon="logos:twitter" />
@@ -89,7 +89,7 @@ const SignupPage = () => {
         </Card>
       </Container>
     </Box>
-  );
-};
+  )
+}
 
-export default SignupPage;
+export default SignupPage
