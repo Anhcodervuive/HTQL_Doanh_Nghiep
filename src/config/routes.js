@@ -5,6 +5,11 @@ export default {
       list: '/admin/user',
       create: '/admin/user/create',
       edit: (id = '') => `/admin/user/${id}/edit`,
+    },
+    supplier: {
+      list: '/admin/supplier',
+      create: '/admin/supplier/create',
+      edit: (id = '') => `/admin/supplier/${id}/edit`,
     }
   },
   auth: {

@@ -34,15 +34,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-function createUser(id, name, email, role, status) {
-  return { id, name, email, role, status }
+function createSupplier(id, name, phone, email) {
+  return { id, name, phone, email }
 }
 
 const rows = [
-  createUser(1, 'John Doe', 'john@example.com', 'Admin', 'Active')
+  createSupplier(1, 'John Doe', '0123456789', 'john@example.com')
 ]
-
-export default function UserList() {
+export default function SupplierList() {
   const location = useLocation()
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
   return (
@@ -63,28 +62,26 @@ export default function UserList() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 2 }}>
-        User List
+        Supplier List
       </Typography>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="user table">
+        <Table sx={{ minWidth: 700 }} aria-label="supplier table">
           <TableHead>
             <TableRow>
               <StyledTableCell>ID</StyledTableCell>
               <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Phone</StyledTableCell>
               <StyledTableCell>Email</StyledTableCell>
-              <StyledTableCell>Role</StyledTableCell>
-              <StyledTableCell>Status</StyledTableCell>
               <StyledTableCell align="center">Action</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((user) => (
-              <StyledTableRow key={user.id}>
-                <StyledTableCell>{user.id}</StyledTableCell>
-                <StyledTableCell>{user.name}</StyledTableCell>
-                <StyledTableCell>{user.email}</StyledTableCell>
-                <StyledTableCell>{user.role}</StyledTableCell>
-                <StyledTableCell>{user.status}</StyledTableCell>
+            {rows.map((supplier) => (
+              <StyledTableRow key={supplier.id}>
+                <StyledTableCell>{supplier.id}</StyledTableCell>
+                <StyledTableCell>{supplier.name}</StyledTableCell>
+                <StyledTableCell>{supplier.phone}</StyledTableCell>
+                <StyledTableCell>{supplier.email}</StyledTableCell>
                 <StyledTableCell align="center">
                   <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
                   <Button variant="outlined" size="small" sx={{ mr: 1 }}>Edit</Button>
