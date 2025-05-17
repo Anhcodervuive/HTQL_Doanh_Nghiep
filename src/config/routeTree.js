@@ -3,7 +3,14 @@ export const routeTree = [
     path: '/admin/dashboard', name: 'Admin', children: [
       {
         path: '/admin/user', name: 'User', children: [
-          { path: '/admin/user/create', name: 'Create' }
+          { path: '/admin/user/create', name: 'Create' },
+          { path: '/admin/user', name: 'List' }
+        ]
+      },
+      {
+        path: '/admin/supplier', name: 'Supplier', children: [
+          { path: '/admin/supplier', name: 'List' },
+          { path: '/admin/supplier/create', name: 'Create' }
         ]
       }
     ]
