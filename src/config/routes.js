@@ -15,5 +15,7 @@ export default {
   auth: {
     login: '/login',
     register: '/register',
+    forgetPassword: '/forgetPassword',
+    resetPassword: '/resetPassword',
   }
 }

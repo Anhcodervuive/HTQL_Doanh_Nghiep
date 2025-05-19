@@ -111,7 +111,7 @@ const LoginForm = () => {
         /> */}
         <Stack direction="row" justifyContent="flex-end">
           <Link
-            href="/forget-password"
+            href="/forgetPassword"
             variant="subtitle2"
             underline="hover"
           >
