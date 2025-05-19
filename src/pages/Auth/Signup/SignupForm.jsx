@@ -216,9 +216,9 @@ const SignupForm = () => {
                     onChange={handleChange}
                     error={!!errors.gender}
                   >
-                    <MenuItem value={'Male'}>Nam</MenuItem>
-                    <MenuItem value={'Female'}>Nữ</MenuItem>
-                    <MenuItem value={'Other'}>Khác</MenuItem>
+                    <MenuItem value={'male'}>Nam</MenuItem>
+                    <MenuItem value={'female'}>Nữ</MenuItem>
+                    <MenuItem value={'other'}>Khác</MenuItem>
                   </Select>
                 )}
               />
