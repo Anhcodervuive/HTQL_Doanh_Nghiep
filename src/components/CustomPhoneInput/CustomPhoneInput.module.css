@@ -1,0 +1,51 @@
+.mui-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 300px;
+    margin: auto;
+  }
+  
+  .mui-select {
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .mui-input-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mui-phone-input {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .mui-phone-input:focus {
+    border-color: #3f51b5;
+    outline: none;
+  }
+  
+  .mui-phone-input.error {
+    border-color: red;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 14px;
+  }
+  
+  .mui-button {
+    background-color: #3f51b5;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .mui-button:hover {
+    background-color: #303f9f;
+  }
