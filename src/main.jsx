@@ -7,14 +7,12 @@ import App from './App.jsx'
 import GlobalStyles from './components/GlobalStyles/index.jsx'
 import theme from './theme.js'
 import { persistor, store } from './redux/store.js'
-import TokenWatcher from './utils/tokenWatcher.js'
 
 createRoot(document.getElementById('root')).render(
   <ThemeProvider theme={theme}>
     <GlobalStyles>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <TokenWatcher />
           <App />
         </PersistGate>
       </Provider>
