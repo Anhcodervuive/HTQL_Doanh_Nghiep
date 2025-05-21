@@ -11,7 +11,16 @@ import {
 import IconifyIcon from '../IconifyIcon'
 import LoginForm from './LoginForm'
 
+import { useDispatch } from 'react-redux'
+import { login } from '~/redux/thunks/user.thunk'
+import { useNavigate } from 'react-router-dom'
+
 const LoginPage = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const handleLogin = async (data) => {
+    dispatch(login({ credentials: data, navigate }))
+  }
   return (
     <Box
       sx={{
@@ -76,7 +85,7 @@ const LoginPage = () => {
             </Typography>
           </Divider>
 
-          <LoginForm />
+          <LoginForm handleLogin={handleLogin}/>
         </Card>
       </Container>
     </Box>

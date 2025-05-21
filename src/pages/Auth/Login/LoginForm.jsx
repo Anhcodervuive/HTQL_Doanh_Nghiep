@@ -7,21 +7,27 @@ import {
   useMediaQuery,
   useTheme,
   Stack,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import IconifyIcon from '../IconifyIcon'
+import { useDeviceId } from '~/hooks/useDeviceId'
 
-const LoginForm = () => {
+const LoginForm = ({ handleLogin }) => {
   const [showPassword, setShowPassword] = useState(false)
   const { control, handleSubmit, formState: { errors } } = useForm()
-  const navigate = useNavigate()
+  const deviceId = useDeviceId()
   const theme = useTheme()
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'))
 
-  const onSubmit = (data) => {
-    console.log(data)
+  const onSubmit = async (data) => {
+    const formData = {
+      ...data,
+      deviceId
+    }
+    await handleLogin(formData)
   }
 
   return (
@@ -82,34 +88,19 @@ const LoginForm = () => {
             />
           )}
         />
-        {/* <TextField
-          fullWidth
-          size={isSmUp ? 'medium' : 'small'}
-          name="password"
-          label="Password"
-          type={showPassword ? 'text' : 'password'}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                  >
-                    <IconifyIcon
-                      icon={
-                        showPassword
-                          ? 'majesticons:eye'
-                          : 'majesticons:eye-off'
-                      }
-                    />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-        /> */}
-        <Stack direction="row" justifyContent="flex-end">
+        <Stack direction="row" justifyContent="flex-end" alignItems='center'>
+          {/* <FormControlLabel control={
+            <Controller
+              name="isRemember"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  {...field}
+                  name="isRemember"
+                />
+              )}
+              z/>
+          } label="Nhớ mật khẩu" /> */}
           <Link
             href="/forgetPassword"
             variant="subtitle2"

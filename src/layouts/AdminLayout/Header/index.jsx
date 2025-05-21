@@ -4,12 +4,32 @@ import { IoIosLogOut } from 'react-icons/io'
 
 import styles from './Header.module.css'
 import Tippy from '@tippyjs/react/headless'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import { useDispatch, useSelector } from 'react-redux'
+import { Button } from '@mui/material'
+import { logout } from '~/redux/thunks/user.thunk'
 const cx = classNames.bind(styles)
 
-const testAvt = 'https://scontent.fvca1-4.fna.fbcdn.net/v/t39.30808-1/495579477_1435183757651498_2825046683832461707_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=101&ccb=1-7&_nc_sid=e99d92&_nc_ohc=YU_P8l67ZH4Q7kNvwFSuIlU&_nc_oc=AdkgUyrI1-mIpl2e6XuN5h0FhVZgldfeMoniEN58orntK3qUDqteN54YaheM8V5KrA8&_nc_zt=24&_nc_ht=scontent.fvca1-4.fna&_nc_gid=oPRwNZwyTNngDx5TMyqR2g&oh=00_AfLCaEmV2KbvkVucXT1iBWHNZa_fevd7b7h7K3FPDVrxdQ&oe=682A121B'
+const testAvt = ''
 
 function Header() {
+  const deviceId = useDeviceId()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const user = useSelector(state => state.user.currentUser)
+
+  const handleLogout = () => {
+    console.log(user)
+
+    dispatch(logout({ credentials: {
+      deviceId,
+      userId: user.USER_ID
+    },
+    navigate
+    }))
+  }
+
   return (
     <header className={cx('wrapper')}>
       <Tippy
@@ -26,7 +46,7 @@ function Header() {
             </div>
             <div className={cx('more-user-infor-item')}>
               <IoIosLogOut />
-              <Link>Đăng xuất</Link>
+              <Button onClick={handleLogout}>Đăng xuất</Button>
             </div>
           </div>
         )}
