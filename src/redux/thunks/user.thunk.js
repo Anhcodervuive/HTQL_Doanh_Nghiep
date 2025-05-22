@@ -1,5 +1,4 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import Cookies from 'js-cookie'
 
 import authService from '~/service/auth.service'
 import { Routes } from '~/config'
@@ -24,15 +23,17 @@ export const logout = createAsyncThunk(
 
   async ({ credentials, navigate }, { getState, rejectWithValue }) => {
     try {
-      const token = getState().user.currentUser.REFRESH_TOKEN_EXPIRY ?? getState().user.currentUser.ACCESS_TOKEN_EXPIRY
-      console.log('flag 1', token)
+      const tokenExpString = getState().user.currentUser.REFRESH_TOKEN_EXPIRY ?? getState().user.currentUser.ACCESS_TOKEN_EXPIRY
+      const tokenExpTime = new Date(tokenExpString)
+      const now = new Date()
 
-      if (!token) {
+      if (now > tokenExpTime) {
+        console.log('logout local ', 'token exp: ', tokenExpTime, 'Now: ', now)
         navigate(Routes.auth.login)
         return 'Logout success'
       }
 
-      console.log('flag 2')
+      console.log('Log out call API server')
       const res = await authService.logout(credentials)
 
       return res

@@ -18,13 +18,6 @@ class AuthService {
       withCredentials: true
     })).data
   }
-
-  async refreshToken(formData) {
-    console.log(formData)
-    return (await this.api.post('/refresh-token', formData, {
-      withCredentials: true
-    })).data
-  }
 }
 
 export default new AuthService

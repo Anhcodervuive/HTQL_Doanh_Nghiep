@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-import authService from './auth.service'
+import { api } from '~/config'
+
 
 const getUserId = () => {
   const state = JSON.parse(localStorage.getItem('persist:root'))
@@ -39,10 +40,14 @@ const apiService = (baseURL) => {
         try {
           // Gửi request refresh token
           const deviceId = localStorage.getItem('device_id')
-          const { data } = await authService.refreshToken({
+          const { data } = await API.post(`${api.baseUrl}/api/auth/refresh-token`, {
             deviceId,
             userId: getUserId()
-          })
+          },
+          {
+            withCredentials: true
+          }
+          )
 
           console.log(data)
 

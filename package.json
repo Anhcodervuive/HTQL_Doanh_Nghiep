@@ -20,6 +20,7 @@
     "@mui/x-date-pickers": "^8.3.1",
     "@reduxjs/toolkit": "^2.8.2",
     "@tippyjs/react": "^4.2.6",
+    "@toolpad/core": "^0.15.0",
     "axios": "^1.9.0",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
