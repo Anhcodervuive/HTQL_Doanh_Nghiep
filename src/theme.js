@@ -6,6 +6,22 @@ const theme = createTheme({
     secondary: {
       main: '#8598AE'
     }
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none'
+        }
+      }
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none'
+        }
+      }
+    }
   }
 })
 
