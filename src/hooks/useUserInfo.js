@@ -24,10 +24,10 @@ function useUserInfo() {
       ACCOUNT_DEVICE
     } = user
     setNameInfo({
-      lastName: NAME.LAST_NAME,
-      firstName: NAME.FIRST_NAME,
-      middleName: NAME.MIDDLE_NAME,
-      fullName: NAME.FULL_NAME
+      lastName: NAME?.LAST_NAME,
+      firstName: NAME?.FIRST_NAME,
+      middleName: NAME?.MIDDLE_NAME,
+      fullName: NAME?.FULL_NAME
     })
     setGender(CURRENT_GENDER)
     setBirthDate(BIRTH_DATE)

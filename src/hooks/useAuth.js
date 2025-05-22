@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 function useAuth() {
@@ -7,6 +7,9 @@ function useAuth() {
   const [isLoading, setIsLoading] = useState(true)
   const user = useSelector((state) => state.user.currentUser)
 
+  const haveOneOfRoles = useCallback((requireRoles = []) => {
+    return roles.some(role => requireRoles.includes(role))
+  }, [roles])
 
   useEffect(() => {
     if (user) {
@@ -29,7 +32,7 @@ function useAuth() {
     setIsLoading(false)
   }, [user])
 
-  return { isAuthenticated, roles, isLoading }
+  return { isAuthenticated, roles, isLoading, haveOneOfRoles }
 }
 
 export default useAuth
