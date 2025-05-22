@@ -3,8 +3,9 @@ import { Fragment } from 'react'
 
 import { AdminRoutes, AuthRoutes } from './routers'
 import DefaultLayout from './layouts/DefaultLayout'
+import PrivateRoute from './components/PrivateRoute'
 
-const combinedRoutes = [...AdminRoutes, ...AuthRoutes]
+const combinedRoutes = [...AuthRoutes]
 
 function App() {
   return (
@@ -27,6 +28,29 @@ function App() {
                   <Layout>
                     <Page />
                   </Layout>
+                }
+              />
+            )
+          })}
+          {AdminRoutes.map((route, index) => {
+            const Page = route.component
+            let Layout = DefaultLayout
+
+            const requires = route.requires ?? {}
+
+            if (route.layout) Layout = route.layout
+            else if (route.layout === null) Layout = Fragment
+
+            return (
+              <Route
+                key={index}
+                path={route.path}
+                element={
+                  <PrivateRoute {...requires}>
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  </PrivateRoute>
                 }
               />
             )
