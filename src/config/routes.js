@@ -17,5 +17,6 @@ export default {
     register: '/register',
     forgetPassword: '/forgetPassword',
     resetPassword: '/resetPassword',
+    changePassword: '/changePassword'
   }
 }
