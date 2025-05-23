@@ -26,8 +26,16 @@ class AuthService {
     })).data
   }
 
-  async register (formData) {
+  async register(formData) {
     return (await this.api.post('/register', formData)).data
+  }
+
+  async forgetPassword(email) {
+    return (await this.api.post('/forget-password', { email })).data
+  }
+
+  async resetPassword(token, newPassword) {
+    return (await this.api.post('/reset-password', { token, newPassword })).data
   }
 }
 

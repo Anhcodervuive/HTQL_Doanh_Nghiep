@@ -7,13 +7,32 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import Link from '@mui/material/Link'
+import { useLocation, useNavigate } from 'react-router-dom'
+import authService from '~/service/auth.service'
 
 const ResetPasswordForm = () => {
   const { control, handleSubmit, watch, formState: { errors } } = useForm()
   const password = watch('password')
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  const onSubmit = (data) => {
-    console.log('Reset password to:', data.password)
+  const queryParams = new URLSearchParams(location.search)
+  const token = queryParams.get('token')
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await authService.resetPassword(token, data.password)
+
+      if (response.success) {
+        alert (response.message || 'Đổi mật khẩu thành công')
+        navigate('/login')
+      } else {
+        alert(response.message || 'Đổi mật khẩu thất bại.')
+      }
+    } catch (error) {
+      console.error('Lỗi đổi mật khẩu', error)
+      alert('Đổi mật khẩu tahats bại')
+    }
   }
 
   return (
@@ -23,13 +42,13 @@ const ResetPasswordForm = () => {
           name="password"
           control={control}
           defaultValue=""
-          rules={{ required: 'Please enter your new password' }}
+          rules={{ required: 'Vui lòng nhập mật khẩu', minLength: { value: 8, message: 'mật khẩu phải có ít nhất 8 ký tự' } }}
           render={({ field }) => (
             <TextField
               {...field}
               fullWidth
               type="password"
-              label="New Password"
+              label="Mật khẩu mới"
               error={!!errors.password}
               helperText={errors.password ? errors.password.message : ''}
             />
@@ -41,15 +60,15 @@ const ResetPasswordForm = () => {
           control={control}
           defaultValue=""
           rules={{
-            required: 'Please confirm your password',
-            validate: (value) => value === password || 'Passwords do not match'
+            required: 'Vui lòng xác nhận lại mật khẩu',
+            validate: (value) => value === password || 'Mật khẩu không khớp'
           }}
           render={({ field }) => (
             <TextField
               {...field}
               fullWidth
               type="password"
-              label="Confirm New Password"
+              label="Xác nhận mật khẩu"
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword ? errors.confirmPassword.message : ''}
             />
