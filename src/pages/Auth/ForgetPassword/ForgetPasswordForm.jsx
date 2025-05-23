@@ -4,12 +4,24 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import authService from '~/service/auth.service'
 
 const ForgetPasswordForm = () => {
   const { control, handleSubmit, formState: { errors } } = useForm()
 
-  const onSubmit = (data) => {
-    console.log('Reset password for:', data.email)
+  const onSubmit = async (data) => {
+    try {
+      const response = await authService.forgetPassword(data.email)
+
+      if (response.success) {
+        alert(response.message || 'Link reset mật khẩu đã được gửi đến email của bạn.')
+      } else {
+        alert(response.message || 'Gửi yêu cầu thất bại.')
+      }
+    } catch (error) {
+      console.error('Forget password error:', error)
+      alert('Đã xảy ra lỗi, vui lòng thử lại.')
+    }
   }
 
   return (
