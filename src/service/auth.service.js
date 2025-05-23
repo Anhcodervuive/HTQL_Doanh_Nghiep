@@ -37,6 +37,21 @@ class AuthService {
   async resetPassword(token, newPassword) {
     return (await this.api.post('/reset-password', { token, newPassword })).data
   }
+
+  async changePassword(oldPassword, newPassword, deviceId, userId) {
+    console.log('service: ', oldPassword, newPassword, deviceId, userId)
+
+    return (
+      await this.api.put(
+        '/change-password',
+        { oldPassword, newPassword, deviceId, userId },
+        {
+          withCredentials: true
+        }
+      )
+    ).data
+  }
+
 }
 
 export default new AuthService
