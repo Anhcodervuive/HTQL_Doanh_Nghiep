@@ -47,7 +47,20 @@ function UserMenu() {
         </Box>
       </Button>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={handleClose}>Thông tin cá nhân</MenuItem>
+        <MenuItem onClick={() => {
+          navigate('/profile')
+          handleClose()
+        }}
+        >
+          Thông tin cá nhân
+        </MenuItem>
+        <MenuItem onClick={() => {
+          navigate('/changePassword')
+          handleClose()
+        }}
+        >
+          Đổi mật khẩu
+        </MenuItem>
         <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
       </Menu>
     </>
