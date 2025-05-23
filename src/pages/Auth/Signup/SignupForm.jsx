@@ -20,12 +20,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { useForm, Controller } from 'react-hook-form'
 import { emailRegex } from '~/config/formValidateRegex'
+import { MuiTelInput } from 'mui-tel-input'
 
 import IconifyIcon from '../IconifyIcon'
+import authService from '~/service/auth.service'
 
 const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const [gender, setGender] = useState('')
+  const [countryCode, setCountryCode] = useState('+84')
+  //const [gender, setGender] = useState('')
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
   const { control, handleSubmit, watch, formState: { errors } } = useForm()
@@ -42,20 +45,68 @@ const SignupForm = () => {
     }
     return age >= 16 ? true : 'Bạn phải đủ 16 tuổi'
   }
+  const handlePhoneChange = (value, onChange) => {
+    onChange(value)
 
-
-  const sumbmit = (data) => {
-    console.log(data)
+    // Lấy mã quốc gia từ đầu chuỗi
+    const countryMatch = value.match(/^(\+\d{1,4})/)
+    if (countryMatch) {
+      setCountryCode(countryMatch[1])
+    }
   }
 
-  const handleChange = (event) => {
-    setGender(event.target.value)
+
+  const submit = async (data) => {
+    const fullPhone = data.phoneNumber.replace(/\D/g, '') // Chỉ giữ số
+    const countryCodeDigits = countryCode.replace(/\D/g, '') // +84 → 84
+
+    let localPhone = fullPhone
+    if (fullPhone.startsWith(countryCodeDigits)) {
+      localPhone = fullPhone.slice(countryCodeDigits.length)
+    }
+
+    const areaCode = localPhone.slice(0, 2) // Lấy 2 số đầu
+    const phoneNumber = localPhone
+    console.log('Full Phone:', data.phoneNumber)
+    console.log('Country Code:', countryCode)
+    console.log('Local Phone:', localPhone)
+    console.log('Area Code:', areaCode)
+    console.log('Phone Number:', phoneNumber)
+    const payload = {
+      username: data.username,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      gender: data.gender,
+      email: data.email,
+      dob: data.dob.format('YYYY-MM-DD'),
+      countryCode,
+      areaCode,
+      phoneNumber
+    }
+
+    try {
+      const response = await authService.register(payload)
+      if (response.success) {
+        alert(response.message || 'Đăng ký thành công!')
+        navigate('/login')
+      } else {
+        alert(response.message || 'Đăng ký thất bại.')
+      }
+    } catch (error) {
+      console.error('Lỗi đăng ký:', error)
+      alert('Đã xảy ra lỗi, vui lòng thử lại sau.')
+    }
   }
+
+  // const handleChange = (event) => {
+  //   setGender(event.target.value)
+  // }
 
   return (
-    <form onSubmit={handleSubmit(sumbmit)}>
+    <form onSubmit={handleSubmit(submit)}>
       <Grid container spacing={2.5} sx={{ mb: 3, p: 2, overflowY: 'auto', height: { xs: '300px', lg: 'auto' } }}>
-        <Grid size={{ xs: 12, lg : 6 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Controller
             name="email"
             control={control}
@@ -66,7 +117,7 @@ const SignupForm = () => {
                 {...field}
                 fullWidth
                 name="email"
-                label="Email address"
+                label="Địa chỉ email"
                 size="medium"
                 error={!!errors.email}
                 helperText={errors.email ? errors.email.message : ''}
@@ -74,16 +125,39 @@ const SignupForm = () => {
             )}
           />
           <Controller
+            name="phoneNumber"
+            control={control}
+            defaultValue=""
+            rules={{
+              required: 'Vui lòng nhập Số điện thoại',
+              validate: (value) => value.trim() !== '' || 'Số điện thoại không hợp lệ'
+            }}
+
+            render={({ field: { onChange, ...field } }) => (
+              <MuiTelInput
+                {...field}
+                fullWidth
+                name="phoneNumber"
+                label="Số điện thoại"
+                value={field.value}
+                onChange={(value) => handlePhoneChange(value, onChange)}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber?.message}
+              />
+            )}
+          />
+
+          <Controller
             name="password"
             control={control}
             defaultValue=""
-            rules={{ required: 'Vui lòng nhập password', minLength: { value: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự' } }}
+            rules={{ required: 'Vui lòng nhập mật khẩu', minLength: { value: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự' } }}
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
                 name="password"
-                label="Password"
+                label="Mật khẩu"
                 type={showPassword ? 'text' : 'password'}
                 size="medium"
                 slotProps={{
@@ -109,15 +183,16 @@ const SignupForm = () => {
             control={control}
             defaultValue=""
             rules={{
-              required: 'Vui lòng nhập password',
+              required: 'Vui lòng nhập mật khẩu',
               minLength: { value: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự' },
-              validate: value => value === watch('password') || 'Mật khẩu không khớp' }}
+              validate: value => value === watch('password') || 'Mật khẩu không khớp'
+            }}
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
                 name="confirmPassword"
-                label="Confirm Password"
+                label="Xác nhận mật khẩu"
                 type={showConfirmPassword ? 'text' : 'password'}
                 size="medium"
                 slotProps={{
@@ -142,7 +217,7 @@ const SignupForm = () => {
             )}
           />
         </Grid>
-        <Grid size={{ xs: 12, lg : 6 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Controller
             name="username"
             control={control}
@@ -160,44 +235,44 @@ const SignupForm = () => {
               />
             )}
           />
+
+          <Controller
+            name="firstName"
+            control={control}
+            defaultValue=""
+            rules={{ required: 'Vui lòng nhập họ', }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                name="firstName"
+                label="Họ"
+                size="medium"
+                error={!!errors.firstName}
+                helperText={errors.firstName ? errors.firstName.message : ''}
+              />
+            )}
+          />
+          <Controller
+            name="lastName"
+            control={control}
+            defaultValue=""
+            rules={{ required: 'Vui lòng nhập Tên', }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                name="lastName"
+                label="Tên"
+                size="medium"
+                error={!!errors.lastName}
+                helperText={errors.lastName ? errors.lastName.message : ''}
+              />
+            )}
+          />
+
           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-            <Controller
-              name="firstName"
-              control={control}
-              defaultValue=""
-              rules={{ required: 'Vui lòng nhập họ', }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  name="firstName"
-                  label="Họ"
-                  size="medium"
-                  error={!!errors.firstName}
-                  helperText={errors.firstName ? errors.firstName.message : ''}
-                />
-              )}
-            />
-            <Controller
-              name="lastName"
-              control={control}
-              defaultValue=""
-              rules={{ required: 'Vui lòng nhập Tên', }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  name="lastName"
-                  label="Tên"
-                  size="medium"
-                  error={!!errors.lastName}
-                  helperText={errors.lastName ? errors.lastName.message : ''}
-                />
-              )}
-            />
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-            <FormControl fullWidth>
+            <FormControl fullWidth error={!!errors.gender}>
               <InputLabel id="signup-gender-label">Giới tính</InputLabel>
               <Controller
                 name="gender"
@@ -210,15 +285,12 @@ const SignupForm = () => {
                     sx={{ height: '100%' }}
                     labelId="signup-gender-label"
                     id="gender"
-                    value={gender}
-                    label="giới tính"
+                    label="Giới tính"
                     name='gender'
-                    onChange={handleChange}
-                    error={!!errors.gender}
                   >
-                    <MenuItem value={'male'}>Nam</MenuItem>
-                    <MenuItem value={'female'}>Nữ</MenuItem>
-                    <MenuItem value={'other'}>Khác</MenuItem>
+                    <MenuItem value={'Nam'}>Nam</MenuItem>
+                    <MenuItem value={'Nữ'}>Nữ</MenuItem>
+                    <MenuItem value={'Khác'}>Khác</MenuItem>
                   </Select>
                 )}
               />
@@ -230,7 +302,7 @@ const SignupForm = () => {
                   <Controller
                     name="dob"
                     control={control}
-                    rules={{ required: 'Vui lòng chọn ngày sinh', validate: validateAge }}
+                    rules={{ required: 'Vui lòng chọn ngày sinh' }}
                     render={({ field }) => (
                       <DatePicker
                         {...field}
@@ -269,7 +341,7 @@ const SignupForm = () => {
           },
         }}
       >
-        Sign Up
+        Đăng ký
       </Button>
     </form>
   )

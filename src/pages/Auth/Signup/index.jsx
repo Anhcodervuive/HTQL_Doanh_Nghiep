@@ -32,17 +32,17 @@ const SignupPage = () => {
           }}
         >
           <Typography variant="h4" sx={{ mb: 2, textAlign: 'center' }}>
-            Sign Up
+            Đăng ký
           </Typography>
 
           <Typography variant="body2" sx={{ mb: 3, textAlign: 'center' }}>
-            Already have an account?
+            Bạn đã có tài khoản?
             <Link
               href="/login"
               underline="hover"
               sx={{ ml: 0.75, fontWeight: 500 }}
             >
-              Sign In Now!
+              Đăng nhập
             </Link>
           </Typography>
 
@@ -81,7 +81,7 @@ const SignupPage = () => {
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              OR
+              HOẶC
             </Typography>
           </Divider>
 
