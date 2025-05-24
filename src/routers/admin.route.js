@@ -5,6 +5,7 @@ import SupplierList from '~/pages/Admin/Supplier/list'
 import SupplierCreate from '~/pages/Admin/Supplier/create'
 import UserCreate from '~/pages/Admin/User/Create'
 import UserList from '~/pages/Admin/User/list'
+import SupplierEdit from '~/pages/Admin/Supplier/edit'
 
 export default [
   {
@@ -21,7 +22,7 @@ export default [
     component: UserCreate,
     requires: {
       requireAuth: true,
-      requiredRoles: ['manager'],
+      // requiredRoles: ['manager'],
     },
   },
   {
@@ -44,6 +45,14 @@ export default [
     path: Routes.admin.supplier.create,
     layout: AdminLayout,
     component: SupplierCreate,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.supplier.edit(),
+    layout: AdminLayout,
+    component: SupplierEdit,
     requires: {
       requireAuth: true,
     },

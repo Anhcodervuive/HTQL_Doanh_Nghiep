@@ -13,7 +13,7 @@ function UserMenu() {
   const [anchorEl, setAnchorEl] = useState(null)
   const user = useSelector(state => state.user.currentUser)
   const dispatch = useDispatch()
-  const deviceId = useDeviceId()
+  const device_id = useDeviceId()
   const navigate = useNavigate()
   const { roles } = useAuth()
   const { nameInfo, avatarImgUrl } = useUserInfo()
@@ -28,8 +28,8 @@ function UserMenu() {
   }
 
   const handleLogout = () => {
-    const userId = user.USER_ID
-    dispatch(logout({ credentials: { userId, deviceId }, navigate }))
+    const user_id = user.USER_ID
+    dispatch(logout({ credentials: { user_id, device_id }, navigate }))
     handleClose()
   }
 

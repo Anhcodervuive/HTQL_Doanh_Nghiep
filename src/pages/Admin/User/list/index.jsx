@@ -11,8 +11,10 @@ import Button from '@mui/material/Button'
 import { Link, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import AddIcon from '@mui/icons-material/Add'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
+import { Routes } from '~/config'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -62,9 +64,20 @@ export default function UserList() {
           </Button>
         ))}
       </Box>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        User List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
+          Supplier List
+        </Typography>
+        <Button
+          LinkComponent={Link}
+          to={Routes.admin.user.create}
+          variant='contained'
+          color='success'
+          startIcon={<AddIcon />}
+        >
+          New
+        </Button>
+      </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="user table">
           <TableHead>

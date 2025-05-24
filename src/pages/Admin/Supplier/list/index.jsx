@@ -1,4 +1,4 @@
-import * as React from 'react'
+
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -11,8 +11,19 @@ import Button from '@mui/material/Button'
 import { Link, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import AddIcon from '@mui/icons-material/Add'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
+import { Routes } from '~/config'
+import { useQuery } from '@tanstack/react-query'
+import supplierService from '~/service/admin/supplier.service'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import { CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Pagination, Select, TableFooter, TextField } from '@mui/material'
+import { useState } from 'react'
+import SearchIcon from '@mui/icons-material/Search'
+import useDebounce from '~/hooks/useDebounce'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -25,6 +36,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }))
 
+const showdRecordOption = [2, 5, 10, 25]
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
@@ -34,16 +47,48 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-function createSupplier(id, name, phone, email) {
-  return { id, name, phone, email }
-}
-
-const rows = [
-  createSupplier(1, 'John Doe', '0123456789', 'john@example.com')
-]
 export default function SupplierList() {
+  const [showedRecord, setShowedRecord] = useState(2)
+  const [searchValue, setSearchValue] = useState('')
+  const searchValueDebounce = useDebounce(searchValue, 1000)
+  const [page, setPage] = useState(1)
   const location = useLocation()
+  const deviceId = useDeviceId()
+  const userId = useSelector(state => state.user.currentUser.USER_ID)
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['supplierList', page, showedRecord, searchValueDebounce],
+    enabled: !!deviceId,
+    queryFn: () => supplierService.search({
+      user_id: userId,
+      device_id: deviceId
+    }, {
+      limit: showedRecord,
+      page,
+      search: searchValueDebounce
+    }),
+    retry: false,
+    refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
+    // staleTime: 1000 * 60 * 3
+  })
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
+
+  const handleDelete = async (id) => {
+    supplierService.delete({
+      user_id: userId,
+      device_id: deviceId
+    }, id)
+      .then(() => {
+        toast.success('Xóa nhà cung ứng thành công')
+        refetch()
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error(err.response.data.message)
+      })
+  }
+
+  if (error) return <div>Error: {error.message}</div>
+
   return (
     <Box>
       <Box sx={{ mb: 2 }}>
@@ -61,35 +106,98 @@ export default function SupplierList() {
           </Button>
         ))}
       </Box>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        Supplier List
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
+          Supplier List
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <TextField
+            label="Nhập vào tên nhà cung ứng"
+            size='small'
+            sx={{ m: 1, width: '25ch' }}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            slotProps={{
+              input: {
+                startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
+                endAdornment: <InputAdornment position="end">{isLoading && <CircularProgress />}</InputAdornment>,
+              },
+            }}
+          />
+          <Button
+            LinkComponent={Link}
+            to={Routes.admin.supplier.create}
+            variant='contained'
+            color='success'
+            startIcon={<AddIcon />}
+          >
+            New
+          </Button>
+        </Box>
+      </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="supplier table">
           <TableHead>
             <TableRow>
               <StyledTableCell>ID</StyledTableCell>
-              <StyledTableCell>Name</StyledTableCell>
-              <StyledTableCell>Phone</StyledTableCell>
+              <StyledTableCell>Tên</StyledTableCell>
+              <StyledTableCell>Số điện thoại</StyledTableCell>
               <StyledTableCell>Email</StyledTableCell>
               <StyledTableCell align="center">Action</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((supplier) => (
-              <StyledTableRow key={supplier.id}>
-                <StyledTableCell>{supplier.id}</StyledTableCell>
-                <StyledTableCell>{supplier.name}</StyledTableCell>
-                <StyledTableCell>{supplier.phone}</StyledTableCell>
-                <StyledTableCell>{supplier.email}</StyledTableCell>
-                <StyledTableCell align="center">
-                  <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
-                  <Button variant="outlined" size="small" sx={{ mr: 1 }}>Edit</Button>
-                  <Button variant="contained" size="small" color="error">Delete</Button>
-                </StyledTableCell>
-              </StyledTableRow>
-            ))}
+            {isLoading
+              ? <CircularProgress color="inherit" />
+              : data?.data?.suppliers?.map((supplier) => (
+                <StyledTableRow key={supplier._id}>
+                  <StyledTableCell>{supplier._id}</StyledTableCell>
+                  <StyledTableCell>{supplier.SUPPLIER_NAME}</StyledTableCell>
+                  <StyledTableCell>{supplier.SUPPLIER_PHONE}</StyledTableCell>
+                  <StyledTableCell>{supplier.SUPPLIER_EMAIL}</StyledTableCell>
+                  <StyledTableCell align="center">
+                    <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
+                    <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.supplier.edit(supplier._id)}>Edit</Button>
+                    <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                  </StyledTableCell>
+                </StyledTableRow>
+              ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={5}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '100%' }}>
+                  <Box sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <InputLabel id="showedRecord-select-standard-label">Số dòng:</InputLabel>
+                    <FormControl variant="standard" >
+                      <Select
+                        labelId="showedRecord-select-standard-label"
+                        id="showedRecord-select-standard"
+                        value={showedRecord}
+                        onChange={(event) => {
+                          setShowedRecord(event.target.value)
+                        }}
+                        label="Số dòng"
+                      >
+                        {showdRecordOption.map((value, index) => (
+                          <MenuItem key={index} value={value}>{value}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                  <Pagination
+                    defaultPage={data?.data?.page}
+                    count={Math.ceil(data?.data?.total / showedRecord)}
+                    color="primary" sx={{ my: 1, }}
+                    onChange={(event, value) => {
+                      console.log('Trang mới:', value)
+                      setPage(value)
+                    }}
+                  />
+                </Box>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </TableContainer>
     </Box>

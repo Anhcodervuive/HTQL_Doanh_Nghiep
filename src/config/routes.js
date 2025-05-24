@@ -4,12 +4,12 @@ export default {
     user: {
       list: '/admin/user',
       create: '/admin/user/create',
-      edit: (id = '') => `/admin/user/${id}/edit`,
+      edit: (id = '') => `/admin/user/${id || ':id'}/edit`,
     },
     supplier: {
       list: '/admin/supplier',
       create: '/admin/supplier/create',
-      edit: (id = '') => `/admin/supplier/${id}/edit`,
+      edit: (id = '') => `/admin/supplier/${id || ':id'}/edit`,
     }
   },
   auth: {

@@ -161,6 +161,11 @@ function UserForm() {
                   } }}
                 render={({ field, fieldState }) => (
                   <LocationSelector
+                    value={{
+                      city: 'Cần Thơ',
+                      district: 'Ninh Kiều',
+                      ward: 'An Khánh',
+                    }}
                     onChange={field.onChange}
                     error={fieldState.error}
                   />

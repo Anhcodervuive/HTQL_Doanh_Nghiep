@@ -13,8 +13,11 @@ class AuthService {
     })).data
   }
 
-  async logout(formData) {
-    return (await this.api.post('/logout', formData, {
+  async logout(credential) {
+    return (await this.api.post('/logout', {}, {
+      headers: {
+        ...credential
+      },
       withCredentials: true
     })).data
   }

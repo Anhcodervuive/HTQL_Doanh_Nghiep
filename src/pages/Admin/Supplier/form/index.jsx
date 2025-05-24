@@ -4,23 +4,33 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { useForm, Controller } from 'react-hook-form'
+import { matchIsValidTel, MuiTelInput } from 'mui-tel-input'
+import { emailRegex } from '~/config/formValidateRegex'
 
-function SupplierForm() {
+function SupplierForm({ submit, data }) {
   const {
     control,
     handleSubmit,
     formState: { errors }
   } = useForm()
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log('Supplier data:', data)
+
+    await submit({
+      SUPPLIER_NAME: data.name,
+      SUPPLIER_PHONE: data.phoneNumber,
+      SUPPLIER_ADDRESS: data.address,
+      SUPPLIER_EMAIL: data.email,
+      SUPPLIER_TAX_CODE: data.taxCode,
+      SUPPLIER_CONTACT_PERSON_NAME: data.contactPerson
+    })
   }
   return (
     <Box
       sx={{
         backgroundColor: '#fff',
         minHeight: '400px',
-        p: 3,
       }}
     >
       <Typography
@@ -33,7 +43,7 @@ function SupplierForm() {
           height: 'fit-content',
         }}
       >
-        Supplier Info
+          Supplier Info
       </Typography>
 
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -44,12 +54,12 @@ function SupplierForm() {
                 <Controller
                   name="name"
                   control={control}
-                  defaultValue=""
-                  rules={{ required: 'Please enter supplier name' }}
+                  defaultValue={data?.SUPPLIER_NAME}
+                  rules={{ required: 'Vui lòng nhập tên nhà cung ứng' }}
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Supplier Name"
+                      label="Tên nhà cung ứng"
                       fullWidth
                       error={!!errors.name}
                       helperText={errors.name?.message}
@@ -59,17 +69,18 @@ function SupplierForm() {
               </Grid>
               <Grid size={6}>
                 <Controller
-                  name="phone"
+                  name="phoneNumber"
                   control={control}
-                  defaultValue=""
-                  rules={{ required: 'Please enter phone number' }}
+                  defaultValue={data?.SUPPLIER_PHONE}
+                  rules={{ required: 'Vui lòng nhập Số điện thoại', validate: (value) => { if (!matchIsValidTel(value)) return 'Số điện thoại không hợp lệ' } }}
                   render={({ field }) => (
-                    <TextField
+                    <MuiTelInput
                       {...field}
-                      label="Phone"
                       fullWidth
-                      error={!!errors.phone}
-                      helperText={errors.phone?.message}
+                      name='phoneNumber'
+                      label='Số điện thoại'
+                      error={!!errors.phoneNumber}
+                      helperText={errors.phoneNumber ? errors.phoneNumber.message : ''}
                     />
                   )}
                 />
@@ -78,12 +89,12 @@ function SupplierForm() {
                 <Controller
                   name="address"
                   control={control}
-                  defaultValue=""
-                  rules={{ required: 'Please enter address' }}
+                  defaultValue={data?.SUPPLIER_ADDRESS}
+                  rules={{ required: 'Vui lòng nhập địa chỉ', }}
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Address"
+                      label="Địa chỉ"
                       fullWidth
                       error={!!errors.address}
                       helperText={errors.address?.message}
@@ -95,8 +106,8 @@ function SupplierForm() {
                 <Controller
                   name="email"
                   control={control}
-                  defaultValue=""
-                  rules={{ required: 'Please enter email' }}
+                  defaultValue={data?.SUPPLIER_EMAIL}
+                  rules={{ required: 'Vui lòng nhập email', pattern: { value: emailRegex, message: 'Email không hợp lệ' } }}
                   render={({ field }) => (
                     <TextField
                       {...field}
@@ -113,12 +124,12 @@ function SupplierForm() {
                 <Controller
                   name="taxCode"
                   control={control}
-                  defaultValue=""
-                  rules={{ required: 'Please enter tax code' }}
+                  defaultValue={data?.SUPPLIER_TAX_CODE}
+                  rules={{ required: 'Vui lòng nhập mã số thuế' }}
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Tax Code"
+                      label="Mã số thuế"
                       fullWidth
                       error={!!errors.taxCode}
                       helperText={errors.taxCode?.message}
@@ -130,7 +141,7 @@ function SupplierForm() {
                 <Controller
                   name="contactPerson"
                   control={control}
-                  defaultValue=""
+                  defaultValue={data?.SUPPLIER_CONTACT_PERSON_NAME}
                   rules={{ required: 'Please enter contact person' }}
                   render={({ field }) => (
                     <TextField
@@ -151,7 +162,7 @@ function SupplierForm() {
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Note"
+                      label="Ghi chú"
                       multiline
                       rows={3}
                       fullWidth
