@@ -10,6 +10,7 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout'
 import PeopleIcon from '@mui/icons-material/People'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
+import HandshakeIcon from '@mui/icons-material/Handshake'
 
 import UserMenu from './UserMenu'
 import { Routes } from '~/config'
@@ -70,6 +71,18 @@ const NAVIGATION = [
     segment: Routes.admin.user.list.slice(1),
     title: 'user',
     icon: <PeopleIcon />,
+  },
+  {
+    kind: 'divider',
+  },
+  {
+    kind: 'header',
+    title: 'Other',
+  },
+  {
+    segment: Routes.admin.supplier.list.slice(1),
+    title: 'Supplier',
+    icon: <HandshakeIcon />
   }
 ]
 

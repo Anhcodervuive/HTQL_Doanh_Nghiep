@@ -10,7 +10,8 @@ export const routeTree = [
       {
         path: '/admin/supplier', name: 'Supplier', children: [
           { path: '/admin/supplier', name: 'List' },
-          { path: '/admin/supplier/create', name: 'Create' }
+          { path: '/admin/supplier/create', name: 'Create' },
+          { path: '/admin/supplier/:id/edit', name: 'Edit' }
         ]
       }
     ]

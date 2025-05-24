@@ -1,12 +1,33 @@
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { Box, Button, Typography } from '@mui/material'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import SupplierForm from '../form'
+import supplierService from '~/service/admin/supplier.service'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import { useSelector } from 'react-redux'
+import { Routes } from '~/config'
+import { toast } from 'react-toastify'
 
 function SupplierCreate() {
   const location = useLocation()
+  const device_id = useDeviceId()
+  const user_id = useSelector(state => state.user.currentUser.USER_ID)
+  const navigate = useNavigate()
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
+
+  const submit = async (data) => {
+    supplierService.create({ device_id, user_id, }, data)
+      .then(res => {
+        toast.success('Tạo nhà cung ứng thành công')
+        navigate(Routes.admin.supplier.list)
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error(err.response.data.message)
+      })
+  }
 
   return (
     <Box sx={{ minHeight: '700px' }}>
@@ -28,7 +49,7 @@ function SupplierCreate() {
       <Typography variant="h4" sx={{ mb: 2 }}>
         Add new supplier
       </Typography>
-      <SupplierForm />
+      <SupplierForm submit={submit} />
     </Box>
   )
 }
