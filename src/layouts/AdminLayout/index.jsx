@@ -11,6 +11,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import HandshakeIcon from '@mui/icons-material/Handshake'
+import CategoryIcon from '@mui/icons-material/Category'
 
 import UserMenu from './UserMenu'
 import { Routes } from '~/config'
@@ -71,6 +72,18 @@ const NAVIGATION = [
     segment: Routes.admin.user.list.slice(1),
     title: 'user',
     icon: <PeopleIcon />,
+  },
+  {
+    kind: 'divider'
+  },
+  {
+    kind: 'header',
+    title: 'Hàng hóa',
+  },
+  {
+    segment: Routes.admin.itemType.list.slice(1),
+    title: 'Loại hàng hóa',
+    icon: <CategoryIcon />
   },
   {
     kind: 'divider',

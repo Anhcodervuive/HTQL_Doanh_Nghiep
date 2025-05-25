@@ -16,14 +16,12 @@ import AddIcon from '@mui/icons-material/Add'
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
-import supplierService from '~/service/admin/supplier.service'
+import itemTypeService from '~/service/admin/itemType.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Pagination, Select, TableFooter, TextField } from '@mui/material'
-import { useState } from 'react'
-import SearchIcon from '@mui/icons-material/Search'
-import useDebounce from '~/hooks/useDebounce'
+import { CircularProgress } from '@mui/material'
+import ProgressBar from '~/components/ProgressBar'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -36,8 +34,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }))
 
-const showdRecordOption = [2, 5, 10, 25]
-
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
@@ -47,24 +43,16 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-export default function SupplierList() {
-  const [showedRecord, setShowedRecord] = useState(2)
-  const [searchValue, setSearchValue] = useState('')
-  const searchValueDebounce = useDebounce(searchValue, 1000)
-  const [page, setPage] = useState(1)
+export default function ItemTypeList() {
   const location = useLocation()
   const deviceId = useDeviceId()
   const userId = useSelector(state => state.user.currentUser.USER_ID)
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['supplierList', page, showedRecord, searchValueDebounce],
+    queryKey: ['itemTypeList'],
     enabled: !!deviceId,
-    queryFn: () => supplierService.search({
+    queryFn: () => itemTypeService.search({
       user_id: userId,
       device_id: deviceId
-    }, {
-      limit: showedRecord,
-      page,
-      search: searchValueDebounce
     }),
     retry: false,
     refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
@@ -73,12 +61,12 @@ export default function SupplierList() {
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
   const handleDelete = async (id) => {
-    supplierService.delete({
+    itemTypeService.delete({
       user_id: userId,
       device_id: deviceId
     }, id)
       .then(() => {
-        toast.success('Xóa nhà cung ứng thành công')
+        toast.success('Xóa Loại hàng hóa thành công')
         refetch()
       })
       .catch(err => {
@@ -91,6 +79,7 @@ export default function SupplierList() {
 
   return (
     <Box>
+      <ProgressBar isLoading={isLoading} />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button
@@ -108,25 +97,12 @@ export default function SupplierList() {
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
-          Supplier List
+          Danh sách loại hàng
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <TextField
-            label="Nhập vào tên nhà cung ứng"
-            size='small'
-            sx={{ m: 1, width: '25ch' }}
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
-                endAdornment: <InputAdornment position="end">{isLoading && <CircularProgress />}</InputAdornment>,
-              },
-            }}
-          />
           <Button
             LinkComponent={Link}
-            to={Routes.admin.supplier.create}
+            to={Routes.admin.itemType.create}
             variant='contained'
             color='success'
             startIcon={<AddIcon />}
@@ -136,13 +112,12 @@ export default function SupplierList() {
         </Box>
       </Box>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="supplier table">
+        <Table sx={{ minWidth: 700 }} aria-label="itemType table">
           <TableHead>
             <TableRow>
               <StyledTableCell>ID</StyledTableCell>
               <StyledTableCell>Tên</StyledTableCell>
-              <StyledTableCell>Số điện thoại</StyledTableCell>
-              <StyledTableCell>Email</StyledTableCell>
+              <StyledTableCell>Tên tiếng Anh</StyledTableCell>
               <StyledTableCell align="center">Action</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -156,55 +131,19 @@ export default function SupplierList() {
                   </Box>
                 </ TableCell>
               </ TableRow>
-              : data?.data?.suppliers?.map((supplier) => (
-                <StyledTableRow key={supplier._id}>
-                  <StyledTableCell>{supplier._id}</StyledTableCell>
-                  <StyledTableCell>{supplier.SUPPLIER_NAME}</StyledTableCell>
-                  <StyledTableCell>{supplier.SUPPLIER_PHONE}</StyledTableCell>
-                  <StyledTableCell>{supplier.SUPPLIER_EMAIL}</StyledTableCell>
+              : data?.data?.itemTypes?.map((itemType) => (
+                <StyledTableRow key={itemType._id}>
+                  <StyledTableCell>{itemType._id}</StyledTableCell>
+                  <StyledTableCell>{itemType.ITEM_TYPE_NAME}</StyledTableCell>
+                  <StyledTableCell>{itemType.ITEM_TYPE_NAME_EN}</StyledTableCell>
                   <StyledTableCell align="center">
                     <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
-                    <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.supplier.edit(supplier._id)}>Edit</Button>
-                    <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                    <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.itemType.edit(itemType._id)}>Edit</Button>
+                    <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemType._id)}>Delete</Button>
                   </StyledTableCell>
                 </StyledTableRow>
               ))}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={5}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '100%' }}>
-                  <Box sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <InputLabel id="showedRecord-select-standard-label">Số dòng:</InputLabel>
-                    <FormControl variant="standard" >
-                      <Select
-                        labelId="showedRecord-select-standard-label"
-                        id="showedRecord-select-standard"
-                        value={showedRecord}
-                        onChange={(event) => {
-                          setShowedRecord(event.target.value)
-                        }}
-                        label="Số dòng"
-                      >
-                        {showdRecordOption.map((value, index) => (
-                          <MenuItem key={index} value={value}>{value}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Box>
-                  <Pagination
-                    defaultPage={data?.data?.page}
-                    count={Math.ceil(data?.data?.total / showedRecord)}
-                    color="primary" sx={{ my: 1, }}
-                    onChange={(event, value) => {
-                      console.log('Trang mới:', value)
-                      setPage(value)
-                    }}
-                  />
-                </Box>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
         </Table>
       </TableContainer>
     </Box>

@@ -6,6 +6,9 @@ import SupplierCreate from '~/pages/Admin/Supplier/create'
 import UserCreate from '~/pages/Admin/User/Create'
 import UserList from '~/pages/Admin/User/list'
 import SupplierEdit from '~/pages/Admin/Supplier/edit'
+import ItemTypeList from '~/pages/Admin/ItemType/list'
+import ItemTypeCreate from '~/pages/Admin/ItemType/create'
+import ItemTypeEdit from '~/pages/Admin/ItemType/edit'
 
 export default [
   {
@@ -53,6 +56,30 @@ export default [
     path: Routes.admin.supplier.edit(),
     layout: AdminLayout,
     component: SupplierEdit,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.itemType.list,
+    layout: AdminLayout,
+    component: ItemTypeList,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.itemType.create,
+    layout: AdminLayout,
+    component: ItemTypeCreate,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.itemType.edit(),
+    layout: AdminLayout,
+    component: ItemTypeEdit,
     requires: {
       requireAuth: true,
     },

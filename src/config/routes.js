@@ -10,6 +10,11 @@ export default {
       list: '/admin/supplier',
       create: '/admin/supplier/create',
       edit: (id = '') => `/admin/supplier/${id || ':id'}/edit`,
+    },
+    itemType: {
+      list : '/admin/item-type',
+      create: '/admin/item-type/create',
+      edit: (id = '') => `/admin/item-type/${id || ':id'}/edit`,
     }
   },
   auth: {

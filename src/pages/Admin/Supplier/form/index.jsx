@@ -1,6 +1,5 @@
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { useForm, Controller } from 'react-hook-form'
@@ -33,19 +32,6 @@ function SupplierForm({ submit, data }) {
         minHeight: '400px',
       }}
     >
-      <Typography
-        variant="h6"
-        sx={{
-          color: '#4A4A4A',
-          fontWeight: 400,
-          textTransform: 'uppercase',
-          pb: 4,
-          height: 'fit-content',
-        }}
-      >
-          Supplier Info
-      </Typography>
-
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={2}>
           <Grid size={12}>

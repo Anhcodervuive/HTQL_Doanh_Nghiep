@@ -13,6 +13,13 @@ export const routeTree = [
           { path: '/admin/supplier/create', name: 'Create' },
           { path: '/admin/supplier/:id/edit', name: 'Edit' }
         ]
+      },
+      {
+        path: '/admin/item-type', name: 'Item type', children: [
+          { path: '/admin/item-type', name: 'List' },
+          { path: '/admin/item-type/create', name: 'Create' },
+          { path: '/admin/item-type/:id/edit', name: 'Edit' }
+        ]
       }
     ]
   }

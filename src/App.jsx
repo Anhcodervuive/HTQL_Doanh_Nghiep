@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 
 import { AdminRoutes, AuthRoutes } from './routers'
 import DefaultLayout from './layouts/DefaultLayout'
-import PrivateRoute from './components/PrivateRoute'
+import PrivateRoute from './routers/PrivateRoute'
 
 const combinedRoutes = [...AuthRoutes]
 
