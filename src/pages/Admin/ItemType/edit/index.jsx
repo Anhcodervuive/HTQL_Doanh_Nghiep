@@ -2,34 +2,34 @@ import { useLocation, Link, useNavigate, useParams, matchPath } from 'react-rout
 import { Box, Button, Typography } from '@mui/material'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
-import SupplierForm from '../form'
-import supplierService from '~/service/admin/supplier.service'
+import itemTypeService from '~/service/admin/itemType.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { useSelector } from 'react-redux'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
+import ItemTypeForm from '../form'
 
-function SupplierEdit() {
+function ItemTypeEdit() {
   const { id } = useParams()
   const location = useLocation()
   const device_id = useDeviceId()
   const user_id = useSelector(state => state.user.currentUser.USER_ID)
   const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
-    queryKey: ['supplier', id],
+    queryKey: ['itemType', id],
     enabled: !!user_id && !!device_id,
-    queryFn: () => supplierService.getById({ device_id, user_id, }, id),
+    queryFn: () => itemTypeService.getById({ device_id, user_id, }, id),
     retry: false,
     refetchOnWindowFocus: false,
   })
-  const breadcrumbs = findBreadcrumbs(Routes.admin.supplier.edit(), routeTree)
+  const breadcrumbs = findBreadcrumbs(Routes.admin.itemType.edit(), routeTree)
 
   const submit = async (data) => {
-    supplierService.update({ device_id, user_id, }, id, data)
+    itemTypeService.update({ device_id, user_id, }, id, data)
       .then(res => {
-        navigate(Routes.admin.supplier.list)
-        toast.success('Cập nhật nhà cung ứng thành công')
+        navigate(Routes.admin.itemType.list)
+        toast.success('Cập nhật loại hàng hóa thành công')
         console.log(res)
       })
       .catch(err => {
@@ -60,11 +60,11 @@ function SupplierEdit() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Update new supplier
+        Chỉnh sửa loại hàng hóa
       </Typography>
-      <SupplierForm submit={submit} data={data?.data}/>
+      <ItemTypeForm submit={submit} data={data?.data}/>
     </Box>
   )
 }
 
-export default SupplierEdit
+export default ItemTypeEdit
