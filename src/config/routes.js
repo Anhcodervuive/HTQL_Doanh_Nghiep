@@ -1,3 +1,4 @@
+
 export default {
   admin : {
     dashboard: '/admin/dashboard',
@@ -23,6 +24,9 @@ export default {
     forgetPassword: '/forgetPassword',
     resetPassword: '/resetPassword',
     changePassword: '/changePassword'
+  },
+  user: {
+    profile: '/profile'
   },
   error: {
     notFound404: '*',

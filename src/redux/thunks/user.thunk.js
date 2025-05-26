@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import authService from '~/service/auth.service'
 import { Routes } from '~/config'
+import userService from '~/service/user.service'
 
 export const login = createAsyncThunk(
   'user/login',
@@ -37,6 +38,21 @@ export const logout = createAsyncThunk(
       const res = await authService.logout(credentials)
 
       return res
+    } catch (error) {
+      return rejectWithValue(error)
+    }
+  }
+)
+
+export const updateProfile = createAsyncThunk(
+  'user/updateProfile',
+  async ({ credentials, payload, navigate }, { rejectWithValue }) => {
+    try {
+      const res = await userService.updateProfile(payload, credentials)
+
+
+      navigate(Routes.user.profile)
+      return res?.data?.user_data
     } catch (error) {
       return rejectWithValue(error)
     }

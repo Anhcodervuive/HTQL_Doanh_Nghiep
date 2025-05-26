@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { login, logout } from '../thunks/user.thunk'
+import { login, logout, updateProfile } from '../thunks/user.thunk'
 
 const initState = {
   currentUser: null,
@@ -33,6 +33,16 @@ const userSlice = createSlice({
       })
       .addCase(logout.fulfilled, () => {
         return initState
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.status = 'success'
+        state.currentUser = action.payload
+      })
+      .addCase(updateProfile.rejected, (state) => {
+        state.status = 'error'
       })
   }
 })
