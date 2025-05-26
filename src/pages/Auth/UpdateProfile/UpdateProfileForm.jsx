@@ -18,6 +18,10 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import userService from '~/service/user.service'
 import { updateProfile } from '~/redux/thunks/user.thunk'
 import { useNavigate } from 'react-router-dom'
+import ImageUploader from '~/components/ImageUploader'
+import { useState } from 'react'
+import { toast } from 'react-toastify'
+import imageService from '~/service/image.service'
 
 function UpdateProfileForm() {
   const {
@@ -27,6 +31,7 @@ function UpdateProfileForm() {
     phoneNumberInfo
   } = useUserInfo()
 
+  const [avatarFile, setAvatarFile] = useState(null)
   const { control, handleSubmit, setValue, formState: { errors } } = useForm()
 
   const user = useSelector(state => state.user.currentUser)
@@ -80,10 +85,14 @@ function UpdateProfileForm() {
 
       //await userService.updateProfile(payload, userId, deviceId)
       dispatch(updateProfile({ credentials: { user_Id: userId, device_Id: deviceId }, payload, navigate }))
-      alert('Cập nhật thành công!')
+      if (avatarFile) {
+        const avatarUrl = await imageService.uploadAvatar(avatarFile, userId, user.AVATAR_IMG_URL)
+        console.log('Uploaded avatar:', avatarUrl.data.url)
+      }
+      toast.success('Cập nhật thành công!')
     } catch (error) {
       console.error('Lỗi cập nhật:', error)
-      alert('Cập nhật thất bại!')
+      toast.error('Cập nhật thất bại!')
     }
   }
 
@@ -195,11 +204,11 @@ function UpdateProfileForm() {
           </Grid>
 
         </Grid>
-        {/* <Grid item xs={12} md={6}>
-          <ImageUploader onImageUpload={(data) => { console.log('Uploaded avatar:', data) }} />
-        </Grid> */}
-      </Grid>
+        <Grid item xs={12} md={6}>
+          <ImageUploader onImageUpload={(file) => setAvatarFile(file)} />
+        </Grid>
 
+      </Grid>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
         <Button variant="outlined" color="secondary">Huỷ</Button>
