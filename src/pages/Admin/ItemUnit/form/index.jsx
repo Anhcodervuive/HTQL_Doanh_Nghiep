@@ -4,7 +4,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { useForm, Controller } from 'react-hook-form'
 
-function ItemTypeForm({ submit, data }) {
+function ItemUnitForm({ submit, data }) {
   const {
     control,
     handleSubmit,
@@ -14,10 +14,7 @@ function ItemTypeForm({ submit, data }) {
   const onSubmit = async (data) => {
     console.log('data:', data)
 
-    await submit({
-      itemTypeName: data.typeName,
-      itemTypeNameEn: data.typeNameEN,
-    })
+    await submit(data)
   }
   return (
     <Box
@@ -32,37 +29,56 @@ function ItemTypeForm({ submit, data }) {
             <Grid container spacing={2}>
               <Grid size={6}>
                 <Controller
-                  name="typeName"
+                  name="unitItemName"
                   control={control}
-                  defaultValue={data?.ITEM_TYPE_NAME}
-                  rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
+                  defaultValue={data?.UNIT_ITEM_NAME}
+                  rules={{ required: 'Vui lòng nhập tên đơn vị tính', }}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       label="Tên"
-                      name='typeName'
+                      name='unitItemName'
                       fullWidth
-                      error={!!errors.typeName}
-                      helperText={errors.typeName?.message}
+                      error={!!errors.unitItemName}
+                      helperText={errors.unitItemName?.message}
                     />
                   )}
                 />
               </Grid>
               <Grid size={6}>
                 <Controller
-                  name="typeNameEN"
+                  name="unitItemNameEN"
                   control={control}
-                  defaultValue={data?.ITEM_TYPE_NAME_EN}
-                  rules={{ required: 'Vui lòng nhập tên tiếng Anh của loại mặt hàng' }}
+                  defaultValue={data?.UNIT_ITEM_NAME_EN}
+                  rules={{ required: 'Vui lòng nhập tên tiếng Anh của đơn vị tính' }}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       label="Tên tiếng anh"
-                      name='typeNameEN'
+                      name='unitItemNameEN'
                       type="text"
                       fullWidth
-                      error={!!errors.typeNameEN}
-                      helperText={errors.typeNameEN?.message}
+                      error={!!errors.unitItemNameEN}
+                      helperText={errors.unitItemNameEN?.message}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid size={6}>
+                <Controller
+                  name="unitItemAbb"
+                  control={control}
+                  defaultValue={data?.UNIT_ITEM_ABB}
+                  rules={{ required: 'Vui lòng nhập tên viết tắt của đơn vị tính' }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Tên tiếng viết tắt"
+                      name='unitItemAbb'
+                      type="text"
+                      fullWidth
+                      error={!!errors.unitItemAbb}
+                      helperText={errors.unitItemAbb?.message}
                     />
                   )}
                 />
@@ -84,4 +100,4 @@ function ItemTypeForm({ submit, data }) {
   )
 }
 
-export default ItemTypeForm
+export default ItemUnitForm

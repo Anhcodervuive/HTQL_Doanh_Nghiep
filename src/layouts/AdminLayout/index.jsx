@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import HandshakeIcon from '@mui/icons-material/Handshake'
 import CategoryIcon from '@mui/icons-material/Category'
+import BalanceIcon from '@mui/icons-material/Balance'
 
 import UserMenu from './UserMenu'
 import { Routes } from '~/config'
@@ -84,6 +85,11 @@ const NAVIGATION = [
     segment: Routes.admin.itemType.list.slice(1),
     title: 'Loại hàng hóa',
     icon: <CategoryIcon />
+  },
+  {
+    segment: Routes.admin.itemUnit.list.slice(1),
+    title: 'Đơn vị tính',
+    icon: <BalanceIcon />
   },
   {
     kind: 'divider',

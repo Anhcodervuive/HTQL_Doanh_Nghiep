@@ -2,34 +2,34 @@ import { useLocation, Link, useNavigate, useParams, matchPath } from 'react-rout
 import { Box, Button, Typography } from '@mui/material'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
-import itemTypeService from '~/service/admin/itemType.service'
+import itemUnitService from '~/service/admin/itemUnit.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
-import ItemTypeForm from '../form'
+import ItemUnitForm from '../form'
 import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 
-function ItemTypeEdit() {
+function ItemUnitEdit() {
   const { id } = useParams()
   const location = useLocation()
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
-    queryKey: ['itemType', id],
+    queryKey: ['itemUnit', id],
     enabled: !!user_id && !!device_id,
-    queryFn: () => itemTypeService.getById({ device_id, user_id, }, id),
+    queryFn: () => itemUnitService.getById({ device_id, user_id, }, id),
     retry: false,
     refetchOnWindowFocus: false,
   })
-  const breadcrumbs = findBreadcrumbs(Routes.admin.itemType.edit(), routeTree)
+  const breadcrumbs = findBreadcrumbs(Routes.admin.itemUnit.edit(), routeTree)
 
   const submit = async (data) => {
-    itemTypeService.update({ device_id, user_id, }, id, data)
+    itemUnitService.update({ device_id, user_id, }, id, data)
       .then(res => {
-        navigate(Routes.admin.itemType.list)
+        navigate(Routes.admin.itemUnit.list)
         toast.success('Cập nhật loại hàng hóa thành công')
         console.log(res)
       })
@@ -62,11 +62,11 @@ function ItemTypeEdit() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Chỉnh sửa loại hàng hóa
+        Chỉnh sửa đơn vị tính
       </Typography>
-      <ItemTypeForm submit={submit} data={data?.data}/>
+      <ItemUnitForm submit={submit} data={data?.data}/>
     </Box>
   )
 }
 
-export default ItemTypeEdit
+export default ItemUnitEdit

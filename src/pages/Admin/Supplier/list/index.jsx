@@ -18,7 +18,6 @@ import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import supplierService from '~/service/admin/supplier.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
-import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Pagination, Select, TableFooter, TextField } from '@mui/material'
 import { useState } from 'react'
@@ -26,6 +25,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import useDebounce from '~/hooks/useDebounce'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import ProgressBar from '~/components/ProgressBar'
+import useUserInfo from '~/hooks/useUserInfo'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -56,12 +56,12 @@ export default function SupplierList() {
   const [page, setPage] = useState(1)
   const location = useLocation()
   const deviceId = useDeviceId()
-  const userId = useSelector(state => state.user.currentUser.USER_ID)
+  const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['supplierList', page, showedRecord, searchValueDebounce],
     enabled: !!deviceId,
     queryFn: () => supplierService.search({
-      user_id: userId,
+      user_id,
       device_id: deviceId
     }, {
       limit: showedRecord,
@@ -76,7 +76,7 @@ export default function SupplierList() {
 
   const handleDelete = async (id) => {
     supplierService.delete({
-      user_id: userId,
+      user_id,
       device_id: deviceId
     }, id)
       .then(() => {

@@ -1,14 +1,14 @@
 import { api } from '~/config'
 import createApiClient from '../api.service'
 
-class ItemTypeService {
+class ItemUnitService {
   constructor() {
-    const baseUrl = `${api.baseUrl}/api/item-types`
+    const baseUrl = `${api.baseUrl}/api/unit-items`
     this.api = createApiClient(baseUrl)
   }
 
   async search(credential, options = {}) {
-    return (await this.api.get('/', {
+    return (await this.api.get('/21321/3213', {
       params: {
         ...options
       },
@@ -56,4 +56,4 @@ class ItemTypeService {
   }
 }
 
-export default new ItemTypeService
+export default new ItemUnitService

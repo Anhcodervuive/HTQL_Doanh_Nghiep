@@ -16,7 +16,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
-import itemTypeService from '~/service/admin/itemType.service'
+import itemUnitService from '~/service/admin/itemUnit.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { toast } from 'react-toastify'
 import { CircularProgress } from '@mui/material'
@@ -44,14 +44,14 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-export default function ItemTypeList() {
+export default function ItemUnitList() {
   const location = useLocation()
   const deviceId = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['itemTypeList'],
+    queryKey: ['itemUnitList'],
     enabled: !!deviceId,
-    queryFn: () => itemTypeService.search({
+    queryFn: () => itemUnitService.search({
       user_id,
       device_id: deviceId
     }),
@@ -62,12 +62,12 @@ export default function ItemTypeList() {
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
   const handleDelete = async (id) => {
-    itemTypeService.delete({
+    itemUnitService.delete({
       user_id,
       device_id: deviceId
     }, id)
       .then(() => {
-        toast.success('Xóa Loại hàng hóa thành công')
+        toast.success('Xóa đơn vị tính thành công')
         refetch()
       })
       .catch(err => {
@@ -98,12 +98,12 @@ export default function ItemTypeList() {
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
-          Danh sách loại hàng
+          Danh sách đơn vị tính
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Button
             LinkComponent={Link}
-            to={Routes.admin.itemType.create}
+            to={Routes.admin.itemUnit.create}
             variant='contained'
             color='success'
             startIcon={<AddIcon />}
@@ -119,6 +119,7 @@ export default function ItemTypeList() {
               <StyledTableCell>ID</StyledTableCell>
               <StyledTableCell>Tên</StyledTableCell>
               <StyledTableCell>Tên tiếng Anh</StyledTableCell>
+              <StyledTableCell>Tên viết tắt</StyledTableCell>
               <StyledTableCell align="center">Action</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -132,17 +133,18 @@ export default function ItemTypeList() {
                   </Box>
                 </ TableCell>
               </ TableRow>
-              : (data?.data?.itemTypes.length === 0
+              : (data?.data?.length === 0
                 ? <SearchResultNotFound />
-                : data?.data?.itemTypes?.map((itemType) => (
-                  <StyledTableRow key={itemType._id}>
-                    <StyledTableCell>{itemType._id}</StyledTableCell>
-                    <StyledTableCell>{itemType.ITEM_TYPE_NAME}</StyledTableCell>
-                    <StyledTableCell>{itemType.ITEM_TYPE_NAME_EN}</StyledTableCell>
+                : data?.data?.map((itemUnit) => (
+                  <StyledTableRow key={itemUnit._id}>
+                    <StyledTableCell>{itemUnit._id}</StyledTableCell>
+                    <StyledTableCell>{itemUnit.UNIT_ITEM_NAME}</StyledTableCell>
+                    <StyledTableCell>{itemUnit.UNIT_ITEM_NAME_EN}</StyledTableCell>
+                    <StyledTableCell>{itemUnit.UNIT_ITEM_ABB}</StyledTableCell>
                     <StyledTableCell align="center">
                       <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
-                      <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.itemType.edit(itemType._id)}>Edit</Button>
-                      <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemType._id)}>Delete</Button>
+                      <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.itemUnit.edit(itemUnit._id)}>Edit</Button>
+                      <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemUnit._id)}>Delete</Button>
                     </StyledTableCell>
                   </StyledTableRow>
                 ))

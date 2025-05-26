@@ -9,6 +9,9 @@ import SupplierEdit from '~/pages/Admin/Supplier/edit'
 import ItemTypeList from '~/pages/Admin/ItemType/list'
 import ItemTypeCreate from '~/pages/Admin/ItemType/create'
 import ItemTypeEdit from '~/pages/Admin/ItemType/edit'
+import ItemUnitList from '~/pages/Admin/ItemUnit/list'
+import ItemUnitCreate from '~/pages/Admin/ItemUnit/create'
+import ItemUnitEdit from '~/pages/Admin/ItemUnit/edit'
 
 export default [
   {
@@ -83,5 +86,29 @@ export default [
     requires: {
       requireAuth: true,
     },
-  }
+  },
+  {
+    path: Routes.admin.itemUnit.list,
+    layout: AdminLayout,
+    component: ItemUnitList,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.itemUnit.create,
+    layout: AdminLayout,
+    component: ItemUnitCreate,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.itemUnit.edit(),
+    layout: AdminLayout,
+    component: ItemUnitEdit,
+    requires: {
+      requireAuth: true,
+    },
+  },
 ]

@@ -2,15 +2,15 @@ import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { Box, Button, Typography } from '@mui/material'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
-import SupplierForm from '../form'
-import supplierService from '~/service/admin/supplier.service'
+import itemUnitService from '~/service/admin/itemUnit.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
+import ItemUnitForm from '../form'
 import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 
-function SupplierCreate() {
+function ItemUnitCreate() {
   const location = useLocation()
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
@@ -18,10 +18,10 @@ function SupplierCreate() {
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
   const submit = async (data) => {
-    supplierService.create({ device_id, user_id, }, data)
+    itemUnitService.create({ device_id, user_id, }, data)
       .then(res => {
-        toast.success('Tạo nhà cung ứng thành công')
-        navigate(Routes.admin.supplier.list)
+        navigate(Routes.admin.itemUnit.list)
+        toast.success('Tạo Đơn vị tính thành công')
         console.log(res)
       })
       .catch(err => {
@@ -49,11 +49,11 @@ function SupplierCreate() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 2 }}>
-        Add new supplier
+        Add new item unit
       </Typography>
-      <SupplierForm submit={submit} />
+      <ItemUnitForm submit={submit} />
     </Box>
   )
 }
 
-export default SupplierCreate
+export default ItemUnitCreate
