@@ -3,6 +3,9 @@ import SignupPage from '../pages/Auth/Signup'
 import ForgetPasswordPage from '../pages/Auth/ForgetPassword'
 import ResetPasswordPage from '../pages/Auth/ResetPassword'
 import ChangePasswordPage from '~/pages/Auth/ChangePassword'
+import ProfilePage from '~/pages/Auth/Profile'
+import AdminLayout from '~/layouts/AdminLayout'
+import UpdateProfilePage from '~/pages/Auth/UpdateProfile'
 
 const AuthRoutes = [
   {
@@ -28,8 +31,18 @@ const AuthRoutes = [
   {
     path: '/changePassword',
     component: ChangePasswordPage,
-    layout: null,
-  }
+    layout: AdminLayout,
+  },
+  {
+    path: '/profile',
+    component: ProfilePage,
+    layout: AdminLayout,
+  },
+  {
+    path: '/updateProfile',
+    component: UpdateProfilePage,
+    layout: AdminLayout,
+  },
 ]
 
 export default AuthRoutes
