@@ -4,18 +4,18 @@ import { Box, Button, Typography } from '@mui/material'
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import itemTypeService from '~/service/admin/itemType.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
-import { useSelector } from 'react-redux'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import ItemTypeForm from '../form'
 import ProgressBar from '~/components/ProgressBar'
+import useUserInfo from '~/hooks/useUserInfo'
 
 function ItemTypeEdit() {
   const { id } = useParams()
   const location = useLocation()
   const device_id = useDeviceId()
-  const user_id = useSelector(state => state.user.currentUser.USER_ID)
+  const { userId: user_id } = useUserInfo()
   const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
     queryKey: ['itemType', id],

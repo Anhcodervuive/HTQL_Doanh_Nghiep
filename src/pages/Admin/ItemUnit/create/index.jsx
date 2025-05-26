@@ -4,16 +4,16 @@ import { Box, Button, Typography } from '@mui/material'
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import itemUnitService from '~/service/admin/itemUnit.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
-import { useSelector } from 'react-redux'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
 import ItemUnitForm from '../form'
 import ProgressBar from '~/components/ProgressBar'
+import useUserInfo from '~/hooks/useUserInfo'
 
 function ItemUnitCreate() {
   const location = useLocation()
   const device_id = useDeviceId()
-  const user_id = useSelector(state => state.user.currentUser.USER_ID)
+  const { userId: user_id } = useUserInfo()
   const navigate = useNavigate()
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
