@@ -1,18 +1,18 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import { Fragment } from 'react'
 
-import { AdminRoutes, AuthRoutes } from './routers'
+import { AdminRoutes, AuthRoutes, ErrorRoutes } from './routers'
 import DefaultLayout from './layouts/DefaultLayout'
 import PrivateRoute from './routers/PrivateRoute'
 
-const combinedRoutes = [...AuthRoutes]
+const publicRoutes = [...AuthRoutes, ...ErrorRoutes]
 
 function App() {
   return (
     <Router>
       <div className="app">
         <Routes>
-          {combinedRoutes.map((route, index) => {
+          {publicRoutes.map((route, index) => {
             const Page = route.component
             let Layout = DefaultLayout
 
@@ -55,6 +55,7 @@ function App() {
               />
             )
           })}
+
         </Routes>
       </div>
     </Router>

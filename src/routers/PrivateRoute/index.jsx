@@ -16,7 +16,7 @@ function PrivateRoute({ children, requireAuth, requiredRoles = [] }) {
 
   if (requiredRoles.length > 0 && haveOneOfRoles(requiredRoles)) {
     console.log('Người dùng không đủ quyền hạn')
-    return <Navigate to={Routes.auth.login} replace />
+    return <Navigate to={Routes.error.forbidden403} replace />
   }
 
   return children

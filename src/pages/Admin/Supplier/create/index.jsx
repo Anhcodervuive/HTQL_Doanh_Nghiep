@@ -8,6 +8,7 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import { useSelector } from 'react-redux'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
+import ProgressBar from '~/components/ProgressBar'
 
 function SupplierCreate() {
   const location = useLocation()
@@ -31,6 +32,7 @@ function SupplierCreate() {
 
   return (
     <Box sx={{ minHeight: '700px' }}>
+      <ProgressBar />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

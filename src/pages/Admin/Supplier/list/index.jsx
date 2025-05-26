@@ -24,6 +24,8 @@ import { CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Pa
 import { useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
 import useDebounce from '~/hooks/useDebounce'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
+import ProgressBar from '~/components/ProgressBar'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -91,6 +93,7 @@ export default function SupplierList() {
 
   return (
     <Box>
+      <ProgressBar isLoading={isLoading} />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button
@@ -112,7 +115,7 @@ export default function SupplierList() {
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
-            label="Nhập vào tên nhà cung ứng"
+            label="Tìm kiếm theo tên"
             size='small'
             sx={{ m: 1, width: '25ch' }}
             value={searchValue}
@@ -151,24 +154,31 @@ export default function SupplierList() {
               ? <TableRow>
                 <TableCell colSpan={5}>
                   <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', mt: 5 }}>
-                    <CircularProgress />
+                    <CircularProgress size={20}/>
                     <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
                   </Box>
                 </ TableCell>
               </ TableRow>
-              : data?.data?.suppliers?.map((supplier) => (
-                <StyledTableRow key={supplier._id}>
-                  <StyledTableCell>{supplier._id}</StyledTableCell>
-                  <StyledTableCell>{supplier.SUPPLIER_NAME}</StyledTableCell>
-                  <StyledTableCell>{supplier.SUPPLIER_PHONE}</StyledTableCell>
-                  <StyledTableCell>{supplier.SUPPLIER_EMAIL}</StyledTableCell>
-                  <StyledTableCell align="center">
-                    <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
-                    <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.supplier.edit(supplier._id)}>Edit</Button>
-                    <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
+              : (data?.data?.suppliers?.length === 0
+                ? <TableRow>
+                  <TableCell colSpan={5}>
+                    <SearchResultNotFound message='Không tìm thấy nhà cung ứng'/>
+                  </TableCell>
+                </TableRow>
+                : data?.data?.suppliers?.map((supplier) => (
+                  <StyledTableRow key={supplier._id}>
+                    <StyledTableCell>{supplier._id}</StyledTableCell>
+                    <StyledTableCell>{supplier.SUPPLIER_NAME}</StyledTableCell>
+                    <StyledTableCell>{supplier.SUPPLIER_PHONE}</StyledTableCell>
+                    <StyledTableCell>{supplier.SUPPLIER_EMAIL}</StyledTableCell>
+                    <StyledTableCell align="center">
+                      <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
+                      <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.supplier.edit(supplier._id)}>Edit</Button>
+                      <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))
+              )}
           </TableBody>
           <TableFooter>
             <TableRow>

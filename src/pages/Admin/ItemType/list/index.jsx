@@ -22,6 +22,7 @@ import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { CircularProgress } from '@mui/material'
 import ProgressBar from '~/components/ProgressBar'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -126,23 +127,26 @@ export default function ItemTypeList() {
               ? <TableRow>
                 <TableCell colSpan={5}>
                   <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', mt: 5 }}>
-                    <CircularProgress />
+                    <CircularProgress size={20}/>
                     <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
                   </Box>
                 </ TableCell>
               </ TableRow>
-              : data?.data?.itemTypes?.map((itemType) => (
-                <StyledTableRow key={itemType._id}>
-                  <StyledTableCell>{itemType._id}</StyledTableCell>
-                  <StyledTableCell>{itemType.ITEM_TYPE_NAME}</StyledTableCell>
-                  <StyledTableCell>{itemType.ITEM_TYPE_NAME_EN}</StyledTableCell>
-                  <StyledTableCell align="center">
-                    <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
-                    <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.itemType.edit(itemType._id)}>Edit</Button>
-                    <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemType._id)}>Delete</Button>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
+              : (data?.data?.itemTypes.length === 0
+                ? <SearchResultNotFound />
+                : data?.data?.itemTypes?.map((itemType) => (
+                  <StyledTableRow key={itemType._id}>
+                    <StyledTableCell>{itemType._id}</StyledTableCell>
+                    <StyledTableCell>{itemType.ITEM_TYPE_NAME}</StyledTableCell>
+                    <StyledTableCell>{itemType.ITEM_TYPE_NAME_EN}</StyledTableCell>
+                    <StyledTableCell align="center">
+                      <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
+                      <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.itemType.edit(itemType._id)}>Edit</Button>
+                      <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemType._id)}>Delete</Button>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))
+              )}
           </TableBody>
         </Table>
       </TableContainer>

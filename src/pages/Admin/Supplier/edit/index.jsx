@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
+import ProgressBar from '~/components/ProgressBar'
 
 function SupplierEdit() {
   const { id } = useParams()
@@ -44,6 +45,7 @@ function SupplierEdit() {
 
   return (
     <Box sx={{ minHeight: '700px', p: 3 }}>
+      <ProgressBar isLoading={isLoading} />
       <Box sx={{}}>
         {breadcrumbs.map((item, index) => (
           <Button

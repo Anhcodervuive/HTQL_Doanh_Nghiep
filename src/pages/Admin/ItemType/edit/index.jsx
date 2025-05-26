@@ -9,6 +9,7 @@ import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import ItemTypeForm from '../form'
+import ProgressBar from '~/components/ProgressBar'
 
 function ItemTypeEdit() {
   const { id } = useParams()
@@ -44,6 +45,7 @@ function ItemTypeEdit() {
 
   return (
     <Box sx={{ minHeight: '700px', p: 3 }}>
+      <ProgressBar isLoading={isLoading} />
       <Box sx={{}}>
         {breadcrumbs.map((item, index) => (
           <Button

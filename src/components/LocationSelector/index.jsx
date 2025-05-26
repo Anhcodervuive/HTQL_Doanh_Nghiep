@@ -89,7 +89,8 @@ function LocationSelector({ value, onChange, error }) {
           }
         })
     }
-  }, [value])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!location.city?.name) {
@@ -100,6 +101,7 @@ function LocationSelector({ value, onChange, error }) {
             ...locationOption,
             city: data?.data?.data
           })
+          setTab(0)
         })
     } else if (location?.city?.name && !location.district?.name) {
       locationService.getDistrictByProvince(location?.city.code)
@@ -125,7 +127,6 @@ function LocationSelector({ value, onChange, error }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location])
 
-  // console.log(getPathLocation())
 
   const handleChangTab = (event, newValue) => {
     if (newValue > 0 && !location?.city?.name) {
@@ -149,7 +150,6 @@ function LocationSelector({ value, onChange, error }) {
   const handleSelectLocation = (option) => {
     if (option?.type === 'tinh' || option?.type === 'thanh-pho' && !option?.parent_code) {
       const newLocation = {
-        ...location,
         city: option,
         district: {},
         ward: {}
@@ -172,7 +172,6 @@ function LocationSelector({ value, onChange, error }) {
       setLocation(newLocation)
       onChange(newLocation)
     }
-    // searchInputRef.current.value = ''
   }
 
   return (
@@ -211,7 +210,7 @@ function LocationSelector({ value, onChange, error }) {
         autoSelect
         disablePortal
         getOptionLabel={(option) => option.name || ''}
-        options={locationOption[Object.keys(locationOption)[tab]]}
+        options={locationOption[Object.keys(locationOption)[tab]] ?? []}
         inputValue={searchInput}
         onInputChange={(event, newValue) => setSearchInput(newValue)}
         renderInput={(params) =>(

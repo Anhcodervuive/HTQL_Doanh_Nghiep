@@ -151,11 +151,11 @@ function UserForm() {
                 control={control}
                 rules={{
                   validate: (value) => {
-                    if (!value || Object.keys(value?.city).length === 0) {
+                    if (!value || Object.keys(value?.city)?.length === 0) {
                       return 'Vui lòng nhập vào Thành phố/Tỉnh'
-                    } else if (Object.keys(value?.district).length === 0) {
+                    } else if (Object.keys(value?.district)?.length === 0) {
                       return 'Vui lòng chọn Quận/Huyện'
-                    } else if (Object.keys(value?.ward).length === 0) {
+                    } else if (Object.keys(value?.ward)?.length === 0) {
                       return 'Vui lòng nhập vào Phường, Thị xã,...'
                     }
                   } }}

@@ -23,5 +23,9 @@ export default {
     forgetPassword: '/forgetPassword',
     resetPassword: '/resetPassword',
     changePassword: '/changePassword'
+  },
+  error: {
+    notFound404: '*',
+    forbidden403: '/forbidden'
   }
 }
