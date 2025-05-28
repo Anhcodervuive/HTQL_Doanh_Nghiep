@@ -23,8 +23,15 @@ export default {
       edit: (id = '') => `/admin/item-unit/${id || ':id'}/edit`,
     },
     item : {
-      create : '/admin/item/create'
-    }
+      list : '/admin/item',
+      create : '/admin/item/create',
+      edit: (id = '') => `/admin/item/${id || ':id'}/edit`,
+    },
+    unitInvoice: {
+      list : '/admin/invoice-unit',
+      create: '/admin/invoice-unit/create',
+      edit: (id = '') => `/admin/invoice-unit/${id || ':id'}/edit`,
+    },
   },
   auth: {
     login: '/login',

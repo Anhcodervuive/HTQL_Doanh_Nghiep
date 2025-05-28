@@ -2,15 +2,15 @@ import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { Box, Button, Typography } from '@mui/material'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
-import itemService from '~/service/admin/item.service'
+import SupplierForm from '../form'
+import unitInvoiceService from '~/service/admin/unitInvoice.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
-import ItemForm from '../form/create'
 import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 
-function ItemCreate() {
+function UnitInvoiceCreate() {
   const location = useLocation()
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
@@ -18,10 +18,10 @@ function ItemCreate() {
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
   const submit = async (data) => {
-    itemService.create({ device_id, user_id, }, data)
+    unitInvoiceService.create({ device_id, user_id, }, data)
       .then(res => {
-        navigate(Routes.admin.itemType.list)
-        toast.success('Tạo hàng hóa thành công')
+        toast.success('Tạo đơn vị tiền tệ thành công')
+        navigate(Routes.admin.unitInvoice.list)
         console.log(res)
       })
       .catch(err => {
@@ -33,7 +33,7 @@ function ItemCreate() {
   return (
     <Box sx={{ minHeight: '700px' }}>
       <ProgressBar />
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button
             key={index}
@@ -48,12 +48,12 @@ function ItemCreate() {
           </Button>
         ))}
       </Box>
-      <Typography variant="h4" sx={{ mb: 5 }}>
-        Add new Item
+      <Typography variant="h4" sx={{ mb: 2 }}>
+        Add new Unit invoice
       </Typography>
-      <ItemForm submit={submit} />
+      <SupplierForm submit={submit} />
     </Box>
   )
 }
 
-export default ItemCreate
+export default UnitInvoiceCreate
