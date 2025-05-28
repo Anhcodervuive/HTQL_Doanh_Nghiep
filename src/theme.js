@@ -8,6 +8,11 @@ const theme = createTheme({
     }
   },
   components: {
+    MuiButtonBase: {
+      defaultProps: {
+        focusVisibleClassName: 'focus-visible',
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {

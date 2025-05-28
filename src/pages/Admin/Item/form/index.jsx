@@ -1,0 +1,250 @@
+import TextField from '@mui/material/TextField'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import { useForm, Controller } from 'react-hook-form'
+import { Card, CardContent, CardHeader, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+import ImageUploader from '~/components/ImagesUploader'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import useUserInfo from '~/hooks/useUserInfo'
+import itemTypeService from '~/service/admin/itemType.service'
+import ProgressBar from '~/components/ProgressBar'
+import MyEditor from '~/components/MyEditor'
+
+function ItemForm({ submit, data }) {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm()
+  const [itemAvtFile, setItemAvtFile] = useState(null)
+  const [itemDescImgFiles, setItemDescImgFiles] = useState([])
+  const device_id = useDeviceId()
+  const { userId: user_id } = useUserInfo()
+  const { data: dataItemType, isLoading : isLoadingItemType, error: errorItemType } = useQuery({
+    queryKey: ['itemTypeList'],
+    enabled: !!device_id,
+    queryFn: () => itemTypeService.search({
+      user_id,
+      device_id
+    }),
+    retry: false,
+    refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
+    // staleTime: 1000 * 60 * 3
+  })
+
+  const onSubmit = async (data) => {
+    console.log('data:', data)
+
+    await submit({
+      ...data,
+      itemAvtFile,
+      itemDescImgFiles
+    })
+  }
+
+  const handleChangeFiles = (files) => {
+    console.log('files:', files)
+    if (files.length > 0) {
+      setItemAvtFile(files[0])
+    } else {
+      setItemAvtFile(null)
+    }
+  }
+
+  const handleChangeDescFiles = (files) => {
+    console.log('des img files:', files)
+    if (files.length > 0) {
+      setItemDescImgFiles(files)
+    } else {
+      setItemDescImgFiles([])
+    }
+  }
+
+  return (
+    <Box
+      sx={{
+        backgroundColor: '#fff',
+        minHeight: '400px',
+      }}
+    >
+      <ProgressBar/>
+      <form noValidate onSubmit={handleSubmit(onSubmit)}>
+        <Grid container spacing={2}>
+          <Grid size={12}>
+            <Grid container spacing={2}>
+              <Grid size={7}>
+                <Card>
+                  <CardHeader
+                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Thông tin cơ bản</Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  >
+                  </CardHeader>
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Controller
+                      name="itemName"
+                      control={control}
+                      defaultValue={data?.ITEM_TYPE_NAME}
+                      rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Tên"
+                          name='itemName'
+                          fullWidth
+                          error={!!errors.itemName}
+                          helperText={errors.itemName?.message}
+                        />
+                      )}
+                    />
+                    <Controller
+                      name="itemNameEn"
+                      control={control}
+                      defaultValue={data?.ITEM_TYPE_NAME}
+                      rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Tên tiếng Anh"
+                          name='itemNameEn'
+                          fullWidth
+                          error={!!errors.itemNameEn}
+                          helperText={errors.itemNameEn?.message}
+                        />
+                      )}
+                    />
+                    {/* <Controller
+                      name="description"
+                      control={control}
+                      defaultValue={data?.ITEM_TYPE_NAME}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Mô tả"
+                          name='description'
+                          multiline
+                          rows={3}
+                          fullWidth
+                          error={!!errors.description}
+                          helperText={errors.description?.message}
+                        />
+                      )}
+                    /> */}
+                    {!isLoadingItemType && !errorItemType && <FormControl>
+                      <InputLabel id="itemType">loại</InputLabel>
+                      <Controller
+                        name="itemType"
+                        control={control}
+                        defaultValue={data?.itemType || ''}
+                        rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            sx={{ height: '100%' }}
+                            id="itemType"
+                            label="Loại hàng hóa"
+                            labelId="itemType"
+                            name='itemType'
+                            error={!!errors.itemType}
+                          >
+                            {dataItemType?.data?.itemTypes?.map((itemType) => (
+                              <MenuItem key={itemType._id} value={itemType._id}>
+                                {itemType.ITEM_TYPE_NAME}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        )}
+                      />
+                    </FormControl>
+                    }
+                    {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
+                    {errors.gender && <Typography variant='body1' color='error'>{errors.gender.message}</Typography>}
+                    <MyEditor />
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={5}>
+                <Card>
+                  <CardHeader
+                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Giá cả: </Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  >
+                  </CardHeader>
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Controller
+                      name="itemName"
+                      control={control}
+                      defaultValue={data?.ITEM_TYPE_NAME}
+                      rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Tên"
+                          name='itemName'
+                          fullWidth
+                          error={!!errors.itemName}
+                          helperText={errors.itemName?.message}
+                        />
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={6}>
+                <Card>
+                  <CardHeader
+                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Thêm ảnh đại diện</Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  />
+                  <CardContent>
+                    <ImageUploader handleChange={handleChangeFiles} limit={1}/>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={6}>
+                <Card>
+                  <CardHeader
+                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Thêm ảnh mô tả</Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  />
+                  <CardContent>
+                    <ImageUploader handleChange={handleChangeDescFiles} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
+          <Button variant="outlined" color="secondary" type="reset">
+            Cancel
+          </Button>
+          <Button variant="contained" color="primary" type="submit">
+            Save
+          </Button>
+        </Box>
+      </form>
+    </Box>
+  )
+}
+
+export default ItemForm

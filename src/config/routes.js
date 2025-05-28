@@ -21,6 +21,9 @@ export default {
       list : '/admin/item-unit',
       create: '/admin/item-unit/create',
       edit: (id = '') => `/admin/item-unit/${id || ':id'}/edit`,
+    },
+    item : {
+      create : '/admin/item/create'
     }
   },
   auth: {
