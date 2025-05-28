@@ -12,6 +12,7 @@ import ItemTypeEdit from '~/pages/Admin/ItemType/edit'
 import ItemUnitList from '~/pages/Admin/ItemUnit/list'
 import ItemUnitCreate from '~/pages/Admin/ItemUnit/create'
 import ItemUnitEdit from '~/pages/Admin/ItemUnit/edit'
+import ItemCreate from '~/pages/Admin/Item/create'
 
 export default [
   {
@@ -107,6 +108,14 @@ export default [
     path: Routes.admin.itemUnit.edit(),
     layout: AdminLayout,
     component: ItemUnitEdit,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.item.create,
+    layout: AdminLayout,
+    component: ItemCreate,
     requires: {
       requireAuth: true,
     },
