@@ -13,6 +13,10 @@ import ItemUnitList from '~/pages/Admin/ItemUnit/list'
 import ItemUnitCreate from '~/pages/Admin/ItemUnit/create'
 import ItemUnitEdit from '~/pages/Admin/ItemUnit/edit'
 import ItemCreate from '~/pages/Admin/Item/create'
+import UnitInvoiceList from '~/pages/Admin/UnitInvoice/list'
+import UnitInvoiceCreate from '~/pages/Admin/UnitInvoice/create'
+import UnitInvoiceEdit from '~/pages/Admin/UnitInvoice/edit'
+import ItemList from '~/pages/Admin/Item/list'
 
 export default [
   {
@@ -113,9 +117,41 @@ export default [
     },
   },
   {
+    path: Routes.admin.item.list,
+    layout: AdminLayout,
+    component: ItemList,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
     path: Routes.admin.item.create,
     layout: AdminLayout,
     component: ItemCreate,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.unitInvoice.list,
+    layout: AdminLayout,
+    component: UnitInvoiceList,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.unitInvoice.create,
+    layout: AdminLayout,
+    component: UnitInvoiceCreate,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.unitInvoice.edit(),
+    layout: AdminLayout,
+    component: UnitInvoiceEdit,
     requires: {
       requireAuth: true,
     },

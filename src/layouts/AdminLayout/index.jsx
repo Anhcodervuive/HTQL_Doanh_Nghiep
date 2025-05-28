@@ -13,6 +13,8 @@ import { Box } from '@mui/material'
 import HandshakeIcon from '@mui/icons-material/Handshake'
 import CategoryIcon from '@mui/icons-material/Category'
 import BalanceIcon from '@mui/icons-material/Balance'
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
+import InventoryIcon from '@mui/icons-material/Inventory'
 
 import UserMenu from './UserMenu'
 import { Routes } from '~/config'
@@ -82,6 +84,11 @@ const NAVIGATION = [
     title: 'Hàng hóa',
   },
   {
+    segment: Routes.admin.item.list.slice(1),
+    title: 'Hàng hóa',
+    icon: <InventoryIcon />
+  },
+  {
     segment: Routes.admin.itemType.list.slice(1),
     title: 'Loại hàng hóa',
     icon: <CategoryIcon />
@@ -100,8 +107,13 @@ const NAVIGATION = [
   },
   {
     segment: Routes.admin.supplier.list.slice(1),
-    title: 'Supplier',
+    title: 'Nhà cung ứng',
     icon: <HandshakeIcon />
+  },
+  {
+    segment: Routes.admin.unitInvoice.list.slice(1),
+    title: 'Đơn vị tiền tệ',
+    icon: <AttachMoneyIcon />
   }
 ]
 
@@ -159,7 +171,7 @@ export default function DashboardLayoutBasic(props) {
           ),
         }}
       >
-        <Box sx={{ mx: 1, px: 3, pt: 3 }}>
+        <Box sx={{ mx: 1, px: 3, pt: 3, backgroundColor: '#f5f7fa' }}>
           {props.children}
         </Box>
       </DashboardLayout>

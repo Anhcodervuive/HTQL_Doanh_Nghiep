@@ -22,7 +22,6 @@ function ItemTypeForm({ submit, data }) {
   return (
     <Box
       sx={{
-        backgroundColor: '#fff',
         minHeight: '400px',
       }}
     >
