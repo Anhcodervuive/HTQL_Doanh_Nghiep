@@ -31,7 +31,9 @@ export default {
     changePassword: '/changePassword'
   },
   user: {
-    profile: '/profile'
+    profile: '/profile',
+    userDetailPath: '/admin/user/:id',
+    userDetail: (id) => `/admin/user/${id}`
   },
   error: {
     notFound404: '*',
