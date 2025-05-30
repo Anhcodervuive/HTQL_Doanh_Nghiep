@@ -14,6 +14,7 @@ import unitInvoiceService from '~/service/admin/unitInvoice.service'
 import ProgressBar from '~/components/ProgressBar'
 import MyEditor from '~/components/MyEditor'
 import itemUnitService from '~/service/admin/itemUnit.service'
+import BomMaterial from './BomMaterial'
 
 function ItemForm({ submit, data }) {
   const {
@@ -23,6 +24,7 @@ function ItemForm({ submit, data }) {
   } = useForm()
   const [itemAvtFile, setItemAvtFile] = useState(null)
   const [itemDescImgFiles, setItemDescImgFiles] = useState([])
+  const [bomMaterials, setBomMaterials] = useState([])
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const { data: dataItemType, isLoading : isLoadingItemType, error: errorItemType } = useQuery({
@@ -57,12 +59,18 @@ function ItemForm({ submit, data }) {
   })
 
   const onSubmit = async (data) => {
-    console.log('data:', data)
+    console.log('data:', {
+      ...data,
+      itemAvtFile,
+      itemDescImgFiles,
+      bomMaterials
+    })
 
     await submit({
       ...data,
       itemAvtFile,
-      itemDescImgFiles
+      itemDescImgFiles,
+      bomMaterials
     })
   }
 
@@ -84,21 +92,32 @@ function ItemForm({ submit, data }) {
     }
   }
 
+  const handleChangBomMaterial = (materialItems) => {
+    // setBomMaterials(materialItems?.map(materialItem => ({
+    //   QUANTITY: materialItem.QUANTITY,
+    //   ITEM_CODE: materialItem.ITEM_CODE
+    // })))
+    setBomMaterials(materialItems)
+  }
+
+  console.log(bomMaterials)
+
   return (
     <Box
       sx={{
         minHeight: '400px',
       }}
+      pb={20}
     >
       <ProgressBar/>
-      <form noValidate onSubmit={handleSubmit(onSubmit)}>
+      <form noValidate onSubmit={handleSubmit(onSubmit)} id='form-create-item'>
         <Grid container spacing={2}>
           <Grid size={12}>
             <Grid container spacing={2}>
               <Grid size={7}>
                 <Card>
                   <CardHeader
-                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Thông tin cơ bản</Typography>}
+                    title={<Typography variant="body1" fontWeight={600}>Thông tin cơ bản</Typography>}
                     sx={{
                       color: 'gray',
                       bgcolor: 'rgb(249, 250, 253)',
@@ -175,7 +194,7 @@ function ItemForm({ submit, data }) {
               <Grid size={5}>
                 <Card>
                   <CardHeader
-                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Giá cả: </Typography>}
+                    title={<Typography variant="body1" fontWeight={600}>Giá cả: </Typography>}
                     sx={{
                       color: 'gray',
                       bgcolor: 'rgb(249, 250, 253)',
@@ -263,34 +282,16 @@ function ItemForm({ submit, data }) {
                 </Card>
               </Grid>
               <Grid size={6}>
-                <Card>
-                  <CardHeader
-                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Thêm ảnh đại diện</Typography>}
-                    sx={{
-                      color: 'gray',
-                      bgcolor: 'rgb(249, 250, 253)',
-                      padding: 2,
-                    }}
-                  />
-                  <CardContent>
-                    <ImageUploader handleChange={handleChangeFiles} limit={1}/>
-                  </CardContent>
-                </Card>
+                <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh đại diện</Typography>
+                <ImageUploader handleChange={handleChangeFiles} limit={1}/>
               </Grid>
               <Grid size={6}>
-                <Card>
-                  <CardHeader
-                    title={<Typography variant="body1" sx={{ fontSize: '1rem' }}>Thêm ảnh mô tả</Typography>}
-                    sx={{
-                      color: 'gray',
-                      bgcolor: 'rgb(249, 250, 253)',
-                      padding: 2,
-                    }}
-                  />
-                  <CardContent>
-                    <ImageUploader handleChange={handleChangeDescFiles} />
-                  </CardContent>
-                </Card>
+                <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh mô tả</Typography>
+                <ImageUploader handleChange={handleChangeDescFiles} />
+              </Grid>
+              <Grid size={12}>
+                <Typography variant="h6" mb={2} fontWeight={600}>Thành phần sản xuất</Typography>
+                <BomMaterial changeBomMaterials={handleChangBomMaterial}/>
               </Grid>
             </Grid>
           </Grid>

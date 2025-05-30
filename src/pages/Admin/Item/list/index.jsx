@@ -39,7 +39,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }))
 
-const showdRecordOption = [2, 5, 10, 25]
+const showdRecordOption = [5, 10, 25]
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
@@ -51,7 +51,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }))
 
 export default function ItemList() {
-  const [showedRecord, setShowedRecord] = useState(2)
+  const [showedRecord, setShowedRecord] = useState(showdRecordOption[0])
   const [searchValue, setSearchValue] = useState('')
   const searchValueDebounce = useDebounce(searchValue, 1000)
   const [itemTypeId, setItemTypeId] = useState('')
@@ -88,7 +88,7 @@ export default function ItemList() {
     refetchOnWindowFocus: false,
   })
   const { data: dataQuantityIsUnAvailableStock, isLoading: isLoadingIsUnAvailableStock, isError: isErrorIsUnAvailableStock } = useQuery({
-    queryKey: ['itemList',],
+    queryKey: ['itemQuantityIsUnAvailableStock',],
     enabled: !!deviceId,
     queryFn: () => itemService.search({
       user_id,
@@ -100,7 +100,7 @@ export default function ItemList() {
     refetchOnWindowFocus: false,
   })
   const { data: dataQuantityIsActive, isLoading: isLoadingQuantityIsActive, isError: isErrorQuantityIsActive } = useQuery({
-    queryKey: ['itemList',],
+    queryKey: ['itemQuantityIsActive',],
     enabled: !!deviceId,
     queryFn: () => itemService.search({
       user_id,
@@ -234,6 +234,7 @@ export default function ItemList() {
               sx={{ height: '100%' }}
               labelId="itemType"
             >
+              <MenuItem value=''>Tất cả</MenuItem>
               {dataItemType?.data?.itemTypes?.map((itemType) => (
                 <MenuItem key={itemType._id} value={itemType._id}>
                   {itemType.ITEM_TYPE_NAME}
@@ -280,27 +281,33 @@ export default function ItemList() {
                     <SearchResultNotFound message='Không tìm thấy nhà cung ứng'/>
                   </TableCell>
                 </TableRow>
-                : data?.data?.items?.map((supplier) => (
-                  <StyledTableRow key={supplier._id}>
-                    <StyledTableCell>{supplier.ITEM_CODE}</StyledTableCell>
-                    <StyledTableCell>{supplier.ITEM_NAME}</StyledTableCell>
-                    <StyledTableCell>{supplier.ITEM_NAME_EN}</StyledTableCell>
-                    <StyledTableCell>{supplier.ITEM_TYPE_NAME}</StyledTableCell>
-                    <StyledTableCell>{supplier.PRICE.at(-1).PRICE_AMOUNT + '' + supplier.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
-                      <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(supplier._id)}>Edit</Button>
-                      <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
-                    </StyledTableCell>
-                  </StyledTableRow>
-                ))
+                : (data?.data?.total === 0
+                  ? <TableRow>
+                    <TableCell colSpan={5}>
+                      <SearchResultNotFound message='Không tìm thấy nhà hàng hóa'/>
+                    </TableCell>
+                  </TableRow>
+                  : data?.data?.items?.map((supplier) => (
+                    <StyledTableRow key={supplier._id}>
+                      <StyledTableCell>{supplier.ITEM_CODE}</StyledTableCell>
+                      <StyledTableCell>{supplier.ITEM_NAME}</StyledTableCell>
+                      <StyledTableCell>{supplier.ITEM_NAME_EN}</StyledTableCell>
+                      <StyledTableCell>{supplier.ITEM_TYPE_NAME}</StyledTableCell>
+                      <StyledTableCell>{supplier.PRICE.at(-1).PRICE_AMOUNT + '' + supplier.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
+                      <StyledTableCell align="center">
+                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
+                        <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(supplier._id)}>Edit</Button>
+                        <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                      </StyledTableCell>
+                    </StyledTableRow>)
+                  ))
               )}
           </TableBody>
           <TableFooter>
             <TableRow>
               <TableCell colSpan={6}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <Typography variant='body1'>{`${(page - 1) * data?.data?.limit + 1} to ${page * data?.data?.limit} item of ${data?.data?.total}`}</Typography>
+                  <Typography variant='body1'>{`${(page - 1) * data?.data?.limit + 1} to ${page * data?.data?.limit} items of ${data?.data?.total}`}</Typography>
                   <Box sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Box sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
                       <InputLabel id="showedRecord-select-standard-label">Số dòng:</InputLabel>

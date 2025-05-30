@@ -60,6 +60,7 @@ const ImagesUploader = ({ handleChange, limit }) => {
 
   return (
     <Uploady autoUpload={false}>
+      <Typography variant='body1' color='textDisabled'>Định dạng(.jpg, .jpeg, .png) và dung lượng &lt; 2MB</Typography>
       <UploadListener uploadyFiles={uploadyFiles} setUploadyFiles={setUploadyFiles} limit={limit} handleChange={handleChange}/>
       <UploadDropZone
         onDragOverClassName={cx('drag-over')}
