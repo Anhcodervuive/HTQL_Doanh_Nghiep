@@ -72,12 +72,22 @@ function UpdateProfileForm() {
         phoneNumber: number
       }
 
+      let newAvt = null
+      
+      if (avatarFile) {
+        const avatarUrl = await imageService.uploadAvatar(avatarFile, userId, user.AVATAR_IMG_URL)
+        console.log('Uploaded avatar:', avatarUrl.data.url)
+        newAvt = avatarUrl.data.url
+        // window.location.reload()
+      }
+
       const payload = {
         firstName: data.firstname,
         lastName: data.lastname,
         gender: data.gender,
         addressSelector: data.addressSelector,
-        phoneNumber: phone
+        phoneNumber: phone,
+        avatar: newAvt || user.AVATAR_IMG_URL
       }
 
       console.log('Payload gửi về server:', payload)
@@ -85,16 +95,15 @@ function UpdateProfileForm() {
 
       //await userService.updateProfile(payload, userId, deviceId)
       dispatch(updateProfile({ credentials: { user_Id: userId, device_Id: deviceId }, payload, navigate }))
-      if (avatarFile) {
-        const avatarUrl = await imageService.uploadAvatar(avatarFile, userId, user.AVATAR_IMG_URL)
-        console.log('Uploaded avatar:', avatarUrl.data.url)
-      }
+      
       toast.success('Cập nhật thành công!')
     } catch (error) {
       console.error('Lỗi cập nhật:', error)
       toast.error('Cập nhật thất bại!')
     }
   }
+
+  // console.log("submit data: ", submit)
 
   return (
     <form style={{ backgroundColor: '#fff', padding: '24px' }} onSubmit={handleSubmit(submit)}>
