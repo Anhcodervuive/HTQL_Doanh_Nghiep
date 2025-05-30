@@ -55,6 +55,14 @@ class AuthService {
     ).data
   }
 
+  async createStaff(payload, headers) {
+    console.log('payload từ service: ', payload)
+    return await this.api.post('/staffs', payload, {
+      headers,
+      withCredentials: true
+    }).then(res => res.data)
+  }
+
 }
 
 export default new AuthService
