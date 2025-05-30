@@ -31,6 +31,9 @@ const UserDetailPage = () => {
   const address = user?.ADDRESS || {}
   const role = user?.ROLE || {}
   const [deactivationReason, setDeactivationReason] = useState('')
+  const [suppendedReason, setSuppendedReason] = useState('')
+  const [confirmSuspend, setConfirmSuspend] = useState('')
+
   console.log('user: ', user)
 
   const [roles, setRoles] = useState({
@@ -75,11 +78,11 @@ const UserDetailPage = () => {
   })
 
   const mutation = useMutation({
-    mutationFn: ({ isActive, reason }) =>
+    mutationFn: ({ isActive, banReason }) =>
       accountService.updateAccountActiveStatus(
         user?.USERNAME,
         isActive,
-        reason,
+        banReason,
         {
           user_id: userId,
           device_id: deviceId
@@ -91,6 +94,25 @@ const UserDetailPage = () => {
     },
     onError: () => {
       toast.error('Cập nhật trạng thái thất bại')
+    }
+  })
+  const suspendMutation = useMutation({
+    mutationFn: ({ isSuspended, banReason }) =>
+      accountService.suspendAccountPermanently(
+        user?.USERNAME,
+        isSuspended,
+        banReason,
+        {
+          user_id: userId,
+          device_id: deviceId
+        }
+      ),
+    onSuccess: (res) => {
+      toast.success(res.message || 'Cập nhật thành công')
+      refetch()
+    },
+    onError: () => {
+      toast.error('Cập nhật thất bại')
     }
   })
 
@@ -135,7 +157,8 @@ const UserDetailPage = () => {
         <Grid item xs={12}>
           <Grid item xs={6}>
             <Typography variant="h6">Địa chỉ</Typography>
-            <Typography>Địa chỉ 1: {`${address.ADDRESS_1}, ${address.ADDRESS_2}`}</Typography>
+            <Typography>Địa chỉ 1: {`${address.ADDRESS_1}`}</Typography>
+            <Typography>Địa chỉ 2: {`${address.ADDRESS_2}`}</Typography>
             <Typography>{`${address.WARD}, ${address.DISTRICT}, ${address.CITY}, ${address.STATE}`}</Typography>
           </Grid>
 
@@ -146,7 +169,7 @@ const UserDetailPage = () => {
               {role.IS_MANAGER && <Chip label="Manager" color="success" />}
               {role.IS_SERVICE_STAFF && <Chip label="Staff" color="warning" />}
               {role.IS_CUSTOMER && <Chip label="Customer" color="info" />}
-              {!role.IS_ACTIVE && <Chip label="Ngừng hoạt động" color="error" />}
+              {!user.IS_ACTIVE && <Chip label="Ngừng hoạt động" color="error" />}
             </Box>
 
             <FormControlLabel
@@ -172,7 +195,7 @@ const UserDetailPage = () => {
             </Box>
           </Grid>
           <Grid item xs={6}>
-            {role.IS_ACTIVE && (
+            {user.IS_ACTIVE && (
               <TextField
                 label="Lý do vô hiệu hóa"
                 multiline
@@ -186,22 +209,74 @@ const UserDetailPage = () => {
             <Box mt={1}>
               <Button
                 variant='contained'
-                color={role.IS_ACTIVE ? 'error' : 'success'}
+                color={user.IS_ACTIVE ? 'error' : 'success'}
                 onClick={() => {
-                  if (role.IS_ACTIVE && !deactivationReason.trim()) {
+                  if (user.IS_ACTIVE && !deactivationReason.trim()) {
                     toast.error('Vui lòng nhập lý do vô hiệu hóa!')
                     return
                   }
 
                   mutation.mutate({
-                    isActive: !role.IS_ACTIVE,
-                    reason: deactivationReason.trim()
+                    isActive: !user.IS_ACTIVE,
+                    banReason: deactivationReason.trim()
                   })
                 }}
               >
-                {role.IS_ACTIVE ? 'Vô hiệu hóa tài khoản' : 'Kích hoạt tài khoản'}
+                {user.IS_ACTIVE ? 'Vô hiệu hóa tài khoản' : 'Kích hoạt tài khoản'}
               </Button>
             </Box>
+            {!user.IS_SUSPENDED && (
+              <Box mt={2}>
+                {!confirmSuspend ? (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => setConfirmSuspend(true)}
+                  >
+                    Cấm vĩnh viễn tài khoản
+                  </Button>
+                ) : (
+                  <Box>
+                    <Typography color="error" sx={{ mb: 1 }}>
+                      Bạn có chắc chắn muốn **cấm vĩnh viễn** tài khoản này? Hành động này không thể hoàn tác!
+                    </Typography>
+                    <TextField
+                      label="Lý do cấm tài khoản"
+                      multiline
+                      fullWidth
+                      rows={3}
+                      value={suppendedReason}
+                      onChange={(e) => setSuppendedReason(e.target.value)}
+                      sx={{ mt: 2 }}
+                    />
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => {
+                        if (!suppendedReason.trim()) {
+                          toast.error('Vui lòng nhập lý do cấm tài khoản!')
+                          return
+                        }
+
+                        suspendMutation.mutate({
+                          isSuspended: true,
+                          banReason: suppendedReason.trim()
+                        })
+                      }}
+
+                      disabled={suspendMutation.isLoading}
+                      sx={{ mr: 1 }}
+                    >
+                      {suspendMutation.isLoading ? 'Đang xử lý...' : 'Xác nhận cấm'}
+                    </Button>
+                    <Button variant="text" onClick={() => setConfirmSuspend(false)}>
+                      Hủy
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+            )}
+
           </Grid>
         </Grid>
 

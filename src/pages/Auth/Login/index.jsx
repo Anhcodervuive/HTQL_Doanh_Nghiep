@@ -7,21 +7,25 @@ import {
   Link,
   Stack,
   Typography,
+  Backdrop,
+  CircularProgress
 } from '@mui/material'
 import IconifyIcon from '../IconifyIcon'
 import LoginForm from './LoginForm'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { login } from '~/redux/thunks/user.thunk'
 import { useNavigate } from 'react-router-dom'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const status = useSelector((state) => state.user.status)
   const handleLogin = async (data) => {
-    dispatch(login({ credentials: data, navigate }))
+    await dispatch(login({ credentials: data, navigate }))
   }
   return (
+
     <Box
       sx={{
         width: '100%',
@@ -88,7 +92,14 @@ const LoginPage = () => {
           <LoginForm handleLogin={handleLogin}/>
         </Card>
       </Container>
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={status === 'loading'}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Box>
+
   )
 }
 
