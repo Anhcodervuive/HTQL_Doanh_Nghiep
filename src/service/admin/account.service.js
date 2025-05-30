@@ -7,11 +7,24 @@ class AccountService {
     this.api = createApiClient(baseUrl)
   }
 
-  async updateAccountActiveStatus(username, isActive, reason, headers = {}) {
+  async updateAccountActiveStatus(username, isActive, banReason, headers = {}) {
     console.log('username từ account service: ', username)
-    console.log('isActive từ account service: ', isActive, reason)
+    console.log('isActive từ account service: ', isActive)
+    console.log('banReason từ account service: ', banReason)
+    const response = await this.api.put('/active', { username, isActive, banReason }, {
+      headers: {
+        ...headers
+      },
+      withCredentials: true
+    })
+    return response.data
+  }
 
-    const response = await this.api.put('/active', { username, isActive, reason }, {
+  async suspendAccountPermanently(username, isSuspended, banReason, headers = {}) {
+    console.log('username từ account service: ', username)
+    console.log('isActive từ account service: ', isSuspended)
+    console.log('banReason từ account service: ', banReason)
+    const response = await this.api.put('/suspended', { username, isSuspended, banReason }, {
       headers: {
         ...headers
       },

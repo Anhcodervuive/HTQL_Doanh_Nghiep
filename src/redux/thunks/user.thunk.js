@@ -10,12 +10,18 @@ export const login = createAsyncThunk(
   async ({ credentials, navigate }, { rejectWithValue }) => {
     try {
       const res = await authService.login(credentials)
-      navigate(Routes.admin.dashboard)
+      if (res.success) {
+        navigate(Routes.admin.dashboard)
+        return res.data
+      } else {
+        toast.error(res.message || 'Đăng nhập thất bại!')
+        return rejectWithValue(res.message || 'Đăng nhập thất bại!')
+      }
 
-      return res.data
     } catch (error) {
-      toast.error(error)
-      return rejectWithValue(error)
+      const errorMessage = error?.response?.data?.message || error.message || 'Đăng nhập thất bại!'
+      toast.error(errorMessage)
+      return rejectWithValue(errorMessage)
     }
   }
 )
