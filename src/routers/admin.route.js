@@ -13,6 +13,7 @@ import ItemUnitList from '~/pages/Admin/ItemUnit/list'
 import ItemUnitCreate from '~/pages/Admin/ItemUnit/create'
 import ItemUnitEdit from '~/pages/Admin/ItemUnit/edit'
 import UserDetailPage from '~/pages/Admin/User/detail'
+import PurchaseInvoiceList from '~/pages/Admin/PurchaseInvoices/list'
 
 export default [
   {
@@ -120,4 +121,12 @@ export default [
       requireAuth: true,
     },
   },
+  {
+    path: Routes.admin.purchaseInvoices.list,
+    layout: AdminLayout,
+    component: PurchaseInvoiceList,
+    requires: {
+      requireAuth: true,
+    },
+  }
 ]
