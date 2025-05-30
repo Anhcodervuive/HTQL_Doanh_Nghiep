@@ -20,7 +20,7 @@ const LoginForm = ({ handleLogin }) => {
   const { control, handleSubmit, formState: { errors } } = useForm()
   const deviceId = useDeviceId()
   const theme = useTheme()
-  const isSmUp = useMediaQuery(theme.breakpoints.up('sm'))
+  const isSmUp = useMediaQuery(theme.breakpoints. up('sm'))
 
   const onSubmit = async (data) => {
     const formData = {
