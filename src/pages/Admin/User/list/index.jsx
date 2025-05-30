@@ -12,9 +12,18 @@ import { Link, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
+import dayjs from 'dayjs'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import { Routes } from '~/config'
+
+import { useQuery } from '@tanstack/react-query'
+import userService from '~/service/user.service'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import { CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Pagination, Select, TableFooter, TextField } from '@mui/material'
+import { useState } from 'react'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
+import useUserInfo from '~/hooks/useUserInfo'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -27,6 +36,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }))
 
+const showdRecordOption = [2, 5, 10, 25]
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
@@ -36,16 +47,31 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-function createUser(id, name, email, role, status) {
-  return { id, name, email, role, status }
-}
-
-const rows = [
-  createUser(1, 'John Doe', 'john@example.com', 'Admin', 'Active')
-]
 
 export default function UserList() {
+  const [showedRecord, setShowedRecord] = useState(2)
+  const [page, setPage] = useState(1)
+  const [selectedRole, setSelectedRole] = useState('all')
   const location = useLocation()
+  const deviceId = useDeviceId()
+  const { userId: user_id } = useUserInfo()
+
+  const roleParam = selectedRole !== 'all' ? { role: selectedRole } : {}
+
+  console.log('Vai trò đã chọn:', selectedRole)
+  console.log('Query gửi lên:', roleParam)
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['userList', page, showedRecord, selectedRole],
+    enabled: !!deviceId,
+    queryFn: () => userService.search(
+      { user_id, device_id: deviceId },
+      { limit: showedRecord, page: selectedRole != 'all'? 1 : page, ...roleParam }
+    ),
+    retry: false,
+    refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
+    // staleTime: 1000 * 60 * 3
+  })
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
   return (
     <Box>
@@ -66,46 +92,137 @@ export default function UserList() {
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
-          Supplier List
+          Danh sách người dùng
         </Typography>
-        <Button
-          LinkComponent={Link}
-          to={Routes.admin.user.create}
-          variant='contained'
-          color='success'
-          startIcon={<AddIcon />}
-        >
-          New
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <FormControl size="small">
+            <InputLabel id="role-select-label">Vai trò</InputLabel>
+            <Select
+              labelId="role-select-label"
+              value={selectedRole}
+              label="Vai trò"
+              onChange={(e) => setSelectedRole(e.target.value)}
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="all">Tất cả</MenuItem>
+              <MenuItem value="admin">Quản trị viên</MenuItem>
+              <MenuItem value="manager">Người quản lý</MenuItem>
+              <MenuItem value="staff">Nhân viên</MenuItem>
+              <MenuItem value="customer">Khách hàng</MenuItem>
+            </Select>
+          </FormControl>
+          <Button
+            LinkComponent={Link}
+            to={Routes.admin.user.create}
+            variant='contained'
+            color='success'
+            startIcon={<AddIcon />}
+          >
+            Thêm người dùng
+          </Button>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="user table">
           <TableHead>
             <TableRow>
-              <StyledTableCell>ID</StyledTableCell>
-              <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>STT</StyledTableCell>
+              <StyledTableCell>Họ tên</StyledTableCell>
+              <StyledTableCell>Giới tính</StyledTableCell>
+              <StyledTableCell>Ngày sinh</StyledTableCell>
               <StyledTableCell>Email</StyledTableCell>
-              <StyledTableCell>Role</StyledTableCell>
-              <StyledTableCell>Status</StyledTableCell>
-              <StyledTableCell align="center">Action</StyledTableCell>
+              <StyledTableCell>Số điện thoại</StyledTableCell>
+              <StyledTableCell align="center"></StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((user) => (
-              <StyledTableRow key={user.id}>
-                <StyledTableCell>{user.id}</StyledTableCell>
-                <StyledTableCell>{user.name}</StyledTableCell>
-                <StyledTableCell>{user.email}</StyledTableCell>
-                <StyledTableCell>{user.role}</StyledTableCell>
-                <StyledTableCell>{user.status}</StyledTableCell>
-                <StyledTableCell align="center">
-                  <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
-                  <Button variant="outlined" size="small" sx={{ mr: 1 }}>Edit</Button>
-                  <Button variant="contained" size="small" color="error">Delete</Button>
-                </StyledTableCell>
-              </StyledTableRow>
-            ))}
+            {isLoading
+              ? <TableRow>
+                <TableCell colSpan={5}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', mt: 5 }}>
+                    <CircularProgress size={20}/>
+                    <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
+                  </Box>
+                </ TableCell>
+              </ TableRow>
+              : (data?.data?.users?.length === 0
+                ? <TableRow>
+                  <TableCell colSpan={5}>
+                    <SearchResultNotFound message='Không tìm thấy người dùng'/>
+                  </TableCell>
+                </TableRow>
+                : data?.data?.users.map((user, index) => (
+                  <StyledTableRow key={user._id}>
+                    <StyledTableCell>{(page - 1) * showedRecord + index + 1}</StyledTableCell>
+                    <StyledTableCell>
+                      {user.LIST_NAME?.at(-1)?.LAST_NAME || ''} {user.LIST_NAME?.at(-1)?.FIRST_NAME || ''}
+                    </StyledTableCell>
+
+                    <StyledTableCell>{user.CURRENT_GENDER}</StyledTableCell>
+                    <StyledTableCell>
+                      {user.BIRTH_DATE ? dayjs(user.BIRTH_DATE).format('DD/MM/YYYY') : ''}
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      {user.LIST_EMAIL?.[0]?.EMAIL || ''}
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      {user.LIST_PHONE_NUMBER?.[0]?.PHONE_NUMBER || ''}
+                    </StyledTableCell>
+                    {/* <StyledTableCell>{user.ROLE}</StyledTableCell> */}
+                    <StyledTableCell align="center">
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        color="info"
+                        component={Link}
+                        to={Routes.user.userDetail(user._id)}
+                      >
+                        Chi tiết
+                      </Button>
+                      <Button variant="outlined" size="small" sx={{ mr: 1 }}>Sửa</Button>
+                      <Button variant="contained" size="small" color="error">Xóa</Button>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                )))}
           </TableBody>
+
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={5}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '100%' }}>
+                  <Box sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <InputLabel id="showedRecord-select-standard-label">Số dòng:</InputLabel>
+                    <FormControl variant="standard" >
+                      <Select
+                        labelId="showedRecord-select-standard-label"
+                        id="showedRecord-select-standard"
+                        value={showedRecord}
+                        onChange={(event) => {
+                          setShowedRecord(event.target.value)
+                        }}
+                        label="Số dòng"
+                      >
+                        {showdRecordOption.map((value, index) => (
+                          <MenuItem key={index} value={value}>{value}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                  <Pagination
+                    defaultPage={data?.data?.page}
+                    count={Math.ceil(data?.data?.total / showedRecord)}
+                    color="primary" sx={{ my: 1, }}
+                    onChange={(event, value) => {
+                      console.log('Trang mới:', value)
+                      setPage(value)
+                    }}
+                  />
+                </Box>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+
         </Table>
       </TableContainer>
     </Box>

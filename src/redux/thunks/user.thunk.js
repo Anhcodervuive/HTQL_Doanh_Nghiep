@@ -3,17 +3,18 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import authService from '~/service/auth.service'
 import { Routes } from '~/config'
 import userService from '~/service/user.service'
+import { toast } from 'react-toastify'
 
 export const login = createAsyncThunk(
   'user/login',
   async ({ credentials, navigate }, { rejectWithValue }) => {
     try {
       const res = await authService.login(credentials)
-
       navigate(Routes.admin.dashboard)
 
       return res.data
     } catch (error) {
+      toast.error(error)
       return rejectWithValue(error)
     }
   }
