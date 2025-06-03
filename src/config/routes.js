@@ -26,6 +26,7 @@ export default {
       list : '/admin/item',
       create : '/admin/item/create',
       edit: (id = '') => `/admin/item/${id || ':id'}/edit`,
+      detail: (id = '') => `/admin/item/${id || ':id'}/detail`,
     },
     unitInvoice: {
       list : '/admin/invoice-unit',

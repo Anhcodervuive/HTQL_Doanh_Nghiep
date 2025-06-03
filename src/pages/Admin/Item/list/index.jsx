@@ -27,6 +27,7 @@ import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 import itemTypeService from '~/service/admin/itemType.service'
+import PriceRangeInput from '~/components/Admin/PriceRangeInput'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -56,12 +57,14 @@ export default function ItemList() {
   const searchValueDebounce = useDebounce(searchValue, 1000)
   const [itemTypeId, setItemTypeId] = useState('')
   const [filter, setFilter] = useState({})
+  const [priceRange, setPriceRange] = useState(null)
+  const priceRangeDebounce = useDebounce(priceRange, 1000)
   const [page, setPage] = useState(1)
   const location = useLocation()
   const deviceId = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['itemList', page, showedRecord, searchValueDebounce, itemTypeId, filter],
+    queryKey: ['itemList', page, showedRecord, searchValueDebounce, itemTypeId, filter, priceRangeDebounce],
     enabled: !!deviceId,
     queryFn: () => itemService.search({
       user_id,
@@ -71,7 +74,8 @@ export default function ItemList() {
       page,
       search: searchValueDebounce,
       itemTypeId,
-      ...filter
+      ...filter,
+      ...priceRangeDebounce,
     }),
     retry: false,
     refetchOnWindowFocus: false,
@@ -222,7 +226,7 @@ export default function ItemList() {
             slotProps={{
               input: {
                 startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
-                endAdornment: <InputAdornment position="end">{isLoading && <CircularProgress />}</InputAdornment>,
+                endAdornment: <InputAdornment position="end">{isLoading && <CircularProgress size={20}/>}</InputAdornment>,
               },
             }}
           />
@@ -242,6 +246,7 @@ export default function ItemList() {
               ))}
             </Select>
           </FormControl>}
+          <PriceRangeInput onChange={priceRange => setPriceRange(priceRange)}/>
         </Box>
         <Button
           LinkComponent={Link}
@@ -295,7 +300,7 @@ export default function ItemList() {
                       <StyledTableCell>{supplier.ITEM_TYPE_NAME}</StyledTableCell>
                       <StyledTableCell>{supplier.PRICE.at(-1).PRICE_AMOUNT + '' + supplier.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
                       <StyledTableCell align="center">
-                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
+                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info" LinkComponent={Link} to={Routes.admin.item.detail(supplier._id)}>Detail</Button>
                         <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(supplier._id)}>Edit</Button>
                         <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
                       </StyledTableCell>
@@ -328,7 +333,6 @@ export default function ItemList() {
                       </FormControl>
                     </Box>
                     <Pagination
-                      defaultPage={data?.data?.page}
                       count={Math.ceil(data?.data?.total / showedRecord)}
                       color="primary" sx={{ my: 1, }}
                       onChange={(event, value) => {

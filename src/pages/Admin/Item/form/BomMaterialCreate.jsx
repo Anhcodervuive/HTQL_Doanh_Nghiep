@@ -10,13 +10,12 @@ import SearchItemInput from '~/components/Admin/SearchItemInput'
 import { IconButton, TextField } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 
-export default function BomMaterial({ data = [], changeBomMaterials }) {
+export default function BomMaterialCreate({ data = [], changeBomMaterials }) {
   const [itemMaterials, setItemMaterials] = useState(data)
 
   useEffect(() => {
-    const form = document.getElementById('form-create-item')
+    const form = document.getElementById('form-create-update-item')
     const handleSubmit = () => {
-      console.log('Component con bắt được submit')
       changeBomMaterials(itemMaterials)
     }
 
@@ -95,7 +94,7 @@ export default function BomMaterial({ data = [], changeBomMaterials }) {
           ))}
           <TableRow>
             <TableCell >{itemMaterials?.length + 1}</TableCell>
-            <TableCell padding='none'>
+            <TableCell>
               <SearchItemInput onItemClick={handleAddItem}/>
             </TableCell>
           </TableRow>

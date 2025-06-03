@@ -2,7 +2,7 @@ import Uploady, { useBatchAddListener } from '@rpldy/uploady'
 import UploadDropZone from '@rpldy/upload-drop-zone'
 import { FaCloudUploadAlt } from 'react-icons/fa'
 import UploadButton from '@rpldy/upload-button'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Box, Button, IconButton, Typography } from '@mui/material'
 import ClearIcon from '@mui/icons-material/Clear'
 
@@ -13,7 +13,7 @@ import { toast } from 'react-toastify'
 
 const cx = classNames.bind(styles)
 
-const UploadListener = ({ uploadyFiles, setUploadyFiles, limit, handleChange }) => {
+const UploadListener = ({ uploadyFiles, setUploadyFiles, limit }) => {
   useBatchAddListener((batch) => {
     const hasInvalidFile = batch.items.some((file) => !file.file.type.startsWith('image/'))
 
@@ -40,28 +40,28 @@ const UploadListener = ({ uploadyFiles, setUploadyFiles, limit, handleChange }) 
     }))
 
     const newFilesList = [...uploadyFiles, ...updatedFiles]
-
-    handleChange(newFilesList.map((file) => file.file))
     setUploadyFiles(newFilesList)
-
   })
 
   return null
 }
 
-const ImagesUploader = ({ handleChange, limit }) => {
+const ImagesUploader = ({ handleChange, limit, data, }) => {
   const [uploadyFiles, setUploadyFiles] = useState([])
+  const [oldImages, setOldImage] = useState(data ?? [])
 
   const removePreview = (id) => {
     setUploadyFiles((prevFiles) => prevFiles.filter((file) => file.id !== id))
   }
 
-  //   console.log(uploadyFiles)
+  useEffect(() => {
+    handleChange({ uploadyFiles: uploadyFiles.map(uploadyFile => uploadyFile.file), oldImages })
+  }, [uploadyFiles, oldImages, handleChange])
 
   return (
     <Uploady autoUpload={false}>
       <Typography variant='body1' color='textDisabled'>Định dạng(.jpg, .jpeg, .png) và dung lượng &lt; 2MB</Typography>
-      <UploadListener uploadyFiles={uploadyFiles} setUploadyFiles={setUploadyFiles} limit={limit} handleChange={handleChange}/>
+      <UploadListener uploadyFiles={uploadyFiles} setUploadyFiles={setUploadyFiles} limit={limit}/>
       <UploadDropZone
         onDragOverClassName={cx('drag-over')}
         grouped
@@ -82,7 +82,26 @@ const ImagesUploader = ({ handleChange, limit }) => {
         </div>
       </UploadDropZone>
 
+      {/* Old image */}
+      {oldImages?.length > 0 && <div style={{ marginTop: '20px' }}>
+        <Typography variant='h6'>Ảnh cũ</Typography>
+        {oldImages.map((oldImage, index) => (
+          <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, border: '1px solid #d8e2ef', borderRadius: '8px', padding: '10px', marginBottom: '10px' }} className={cx('preview-container')}>
+            <div style={{ backgroundImage: `url(${oldImage.url})` }} className={cx('preview-image')} />
+            <IconButton sx={{ justifySelf: 'flex-end' }} onClick={() => {
+              const newArr = [...oldImages]
+              newArr.splice(index, 1)
+              setOldImage(newArr)
+            }}>
+              <ClearIcon></ClearIcon>
+            </IconButton>
+          </Box>
+        ))}
+      </div>}
+
+      {/* New image upload */}
       <div style={{ marginTop: '20px' }}>
+        {uploadyFiles.length > 0 && <Typography variant='h6'>Ảnh mới</Typography>}
         {uploadyFiles.map((uploadyFile) => (
           <Box key={uploadyFile.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, border: '1px solid #d8e2ef', borderRadius: '8px', padding: '10px', marginBottom: '10px' }} className={cx('preview-container')}>
             <div style={{ backgroundImage: `url(${uploadyFile.previewUrl})` }} className={cx('preview-image')}/>

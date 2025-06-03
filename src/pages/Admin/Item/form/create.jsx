@@ -3,9 +3,17 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { useForm, Controller } from 'react-hook-form'
-import { Card, CardContent, CardHeader, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+
 import ImageUploader from '~/components/ImagesUploader'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
@@ -14,9 +22,9 @@ import unitInvoiceService from '~/service/admin/unitInvoice.service'
 import ProgressBar from '~/components/ProgressBar'
 import MyEditor from '~/components/MyEditor'
 import itemUnitService from '~/service/admin/itemUnit.service'
-import BomMaterial from './BomMaterial'
+import BomMaterial from './BomMaterialCreate'
 
-function ItemForm({ submit, data }) {
+function ItemCreateForm({ submit }) {
   const {
     control,
     handleSubmit,
@@ -25,6 +33,7 @@ function ItemForm({ submit, data }) {
   const [itemAvtFile, setItemAvtFile] = useState(null)
   const [itemDescImgFiles, setItemDescImgFiles] = useState([])
   const [bomMaterials, setBomMaterials] = useState([])
+  const [description, setDescription] = useState('')
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const { data: dataItemType, isLoading : isLoadingItemType, error: errorItemType } = useQuery({
@@ -61,6 +70,7 @@ function ItemForm({ submit, data }) {
   const onSubmit = async (data) => {
     console.log('data:', {
       ...data,
+      description,
       itemAvtFile,
       itemDescImgFiles,
       bomMaterials
@@ -68,39 +78,31 @@ function ItemForm({ submit, data }) {
 
     await submit({
       ...data,
+      description,
       itemAvtFile,
       itemDescImgFiles,
       bomMaterials
     })
   }
 
-  const handleChangeFiles = (files) => {
+  console.log(itemAvtFile, itemDescImgFiles)
+
+  const handleChangeFiles = useCallback((files) => {
     console.log('files:', files)
-    if (files.length > 0) {
-      setItemAvtFile(files[0])
-    } else {
-      setItemAvtFile(null)
-    }
-  }
+    setItemAvtFile(files.uploadyFiles[0])
+  }, [])
 
-  const handleChangeDescFiles = (files) => {
+  const handleChangeDescFiles = useCallback((files) => {
     console.log('des img files:', files)
-    if (files.length > 0) {
-      setItemDescImgFiles(files)
-    } else {
-      setItemDescImgFiles([])
-    }
-  }
+    setItemDescImgFiles(files.uploadyFiles)
+  }, [])
 
-  const handleChangBomMaterial = (materialItems) => {
-    // setBomMaterials(materialItems?.map(materialItem => ({
-    //   QUANTITY: materialItem.QUANTITY,
-    //   ITEM_CODE: materialItem.ITEM_CODE
-    // })))
-    setBomMaterials(materialItems)
-  }
-
-  console.log(bomMaterials)
+  const handleChangBomMaterial = useCallback((materialItems) => {
+    setBomMaterials(materialItems?.map(materialItem => ({
+      QUANTITY: materialItem.QUANTITY,
+      ITEM_CODE: materialItem.ITEM_CODE
+    })))
+  }, [])
 
   return (
     <Box
@@ -110,7 +112,7 @@ function ItemForm({ submit, data }) {
       pb={20}
     >
       <ProgressBar/>
-      <form noValidate onSubmit={handleSubmit(onSubmit)} id='form-create-item'>
+      <form noValidate onSubmit={handleSubmit(onSubmit)} id='form-create-update-item'>
         <Grid container spacing={2}>
           <Grid size={12}>
             <Grid container spacing={2}>
@@ -129,7 +131,6 @@ function ItemForm({ submit, data }) {
                     <Controller
                       name="itemName"
                       control={control}
-                      defaultValue={data?.ITEM_NAME}
                       rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
                       render={({ field }) => (
                         <TextField
@@ -145,7 +146,6 @@ function ItemForm({ submit, data }) {
                     <Controller
                       name="itemNameEn"
                       control={control}
-                      defaultValue={data?.ITEM_NAME_EN}
                       rules={{ required: 'Vui lòng nhập tên tiếng Anh', }}
                       render={({ field }) => (
                         <TextField
@@ -158,12 +158,12 @@ function ItemForm({ submit, data }) {
                         />
                       )}
                     />
-                    {!isLoadingItemType && !errorItemType && <FormControl>
+                    {!isLoadingItemType && !errorItemType && !!dataItemType && <FormControl>
                       <InputLabel id="itemType">loại</InputLabel>
                       <Controller
+                        defaultValue=''
                         name="itemType"
                         control={control}
-                        defaultValue={data?.ITEM_TYPE || ''}
                         rules={{ required: 'Vui lòng chọn loại mặt hàng', }}
                         render={({ field }) => (
                           <Select
@@ -175,6 +175,7 @@ function ItemForm({ submit, data }) {
                             name='itemType'
                             error={!!errors.itemType}
                           >
+                            <MenuItem value=''>--</MenuItem>
                             {dataItemType?.data?.itemTypes?.map((itemType) => (
                               <MenuItem key={itemType._id} value={itemType._id}>
                                 {itemType.ITEM_TYPE_NAME}
@@ -187,11 +188,43 @@ function ItemForm({ submit, data }) {
                     }
                     {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
                     {errors.unitInvoiceId && <Typography variant='caption' color='error'>{errors.unitInvoiceId.message}</Typography>}
-                    <MyEditor />
+                    <MyEditor content={description} handleChange={(html) => setDescription(html)} />
                   </CardContent>
                 </Card>
               </Grid>
               <Grid size={5}>
+                <Card sx={{ mb: 3 }}>
+                  <CardHeader
+                    title={<Typography variant="body1" fontWeight={600}>Kho: </Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  >
+                  </CardHeader>
+                  <CardContent>
+                    <Controller
+                      name="stock"
+                      control={control}
+                      rules={{ }}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Số lượng trong kho"
+                          slotProps={{
+                            htmlInput: { min: 0 }
+                          }}
+                          name='stock'
+                          fullWidth
+                          type='number'
+                          error={!!errors.stock}
+                          helperText={errors.stock?.message}
+                        />
+                      )}
+                    />
+                  </CardContent>
+                </Card>
                 <Card>
                   <CardHeader
                     title={<Typography variant="body1" fontWeight={600}>Giá cả: </Typography>}
@@ -203,12 +236,12 @@ function ItemForm({ submit, data }) {
                   >
                   </CardHeader>
                   <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {!isLoadingItemUnit && !errorItemUnit && <FormControl>
+                    {!isLoadingItemUnit && !errorItemUnit && !!dataItemUnit && <FormControl>
                       <InputLabel id="unitId">Đơn vị tính</InputLabel>
                       <Controller
+                        defaultValue=''
                         name="unitId"
                         control={control}
-                        defaultValue={data?.unitId || ''}
                         rules={{ required: 'Vui lòng chọn đơn vị  tính', }}
                         render={({ field }) => (
                           <Select
@@ -220,6 +253,7 @@ function ItemForm({ submit, data }) {
                             name='unitId'
                             error={!!errors.unitId}
                           >
+                            <MenuItem value=''>--</MenuItem>
                             {dataItemUnit?.data?.map((itemUnit) => (
                               <MenuItem key={itemUnit._id} value={itemUnit._id}>
                                 {itemUnit.UNIT_ITEM_NAME}
@@ -232,12 +266,12 @@ function ItemForm({ submit, data }) {
                     }
                     {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
                     {errors.unitId && <Typography variant='caption' color='error'>{errors.unitId.message}</Typography>}
-                    {!isLoadingUnitInvoice && !errorUnitInvoice && <FormControl>
+                    {!isLoadingUnitInvoice && !errorUnitInvoice && !!dataUnitInvoice && <FormControl>
                       <InputLabel id="unitInvoiceId">Đơn vị tiền tệ</InputLabel>
                       <Controller
+                        defaultValue=''
                         name="unitInvoiceId"
                         control={control}
-                        defaultValue={data?.unitInvoiceId || ''}
                         rules={{ required: 'Vui lòng chọn đơn vị tiền tệ', }}
                         render={({ field }) => (
                           <Select
@@ -249,6 +283,7 @@ function ItemForm({ submit, data }) {
                             name='unitInvoiceId'
                             error={!!errors.unitInvoiceId}
                           >
+                            <MenuItem value=''>--</MenuItem>
                             {dataUnitInvoice?.data?.map((unitInvoice) => (
                               <MenuItem key={unitInvoice._id} value={unitInvoice._id}>
                                 {unitInvoice.UNIT_NAME}
@@ -264,7 +299,6 @@ function ItemForm({ submit, data }) {
                     <Controller
                       name="price"
                       control={control}
-                      defaultValue={data?.price}
                       rules={{ required: 'Vui lòng nhập giá hàng hóa', }}
                       render={({ field }) => (
                         <TextField
@@ -294,20 +328,19 @@ function ItemForm({ submit, data }) {
                 <BomMaterial changeBomMaterials={handleChangBomMaterial}/>
               </Grid>
             </Grid>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+              <Button variant="outlined" color="secondary" type="reset">
+                            Cancel
+              </Button>
+              <Button variant="contained" color="primary" type="submit">
+                            Save
+              </Button>
+            </Box>
           </Grid>
         </Grid>
-
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
-          <Button variant="outlined" color="secondary" type="reset">
-            Cancel
-          </Button>
-          <Button variant="contained" color="primary" type="submit">
-            Save
-          </Button>
-        </Box>
       </form>
     </Box>
   )
 }
 
-export default ItemForm
+export default ItemCreateForm

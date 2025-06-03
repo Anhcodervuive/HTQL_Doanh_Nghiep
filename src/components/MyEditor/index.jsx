@@ -1,17 +1,3 @@
-// import {
-//   RichTextEditor,
-//   MenuButtonBold,
-//   MenuButtonItalic,
-//   MenuButtonUnderline,
-//   MenuSelectFontFamily,
-//   MenuSelectTextAlign,
-//   MenuSelectColor,
-//   MenuButtonBulletList,
-//   MenuButtonOrderedList,
-//   MenuButtonLink,
-//   MenuButtonImage
-// } from 'mui-tiptap'
-
 import * as MuiTiptap from 'mui-tiptap'
 
 const {
@@ -55,7 +41,7 @@ import LinkDialog from './LinkDialog'
 
 import './MyEditor.css'
 
-const MyEditor = ({ content }) => {
+const MyEditor = ({ content, handleChange, isDisable }) => {
   const [openLinkDialog, setOpenLinkDialog] = useState(false)
 
   const fontFamilyExtension = FontFamily.configure({
@@ -64,6 +50,7 @@ const MyEditor = ({ content }) => {
 
   return (
     <RichTextEditor
+      editable={!isDisable}
       extensions={[
         Heading,
         fontFamilyExtension,
@@ -101,7 +88,7 @@ const MyEditor = ({ content }) => {
         }
       }}
       onUpdate={({ editor }) => {
-        console.log(editor.getHTML())
+        handleChange(editor.getHTML())
       }}
       renderControls={(editor) => (
         <Box className='custom-editor' sx={{ display: 'flex', gap: 1, alignItems: 'center', overflowX: 'auto' }}>
