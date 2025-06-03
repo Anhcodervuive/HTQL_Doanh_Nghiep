@@ -1,9 +1,9 @@
 import { api } from '~/config'
 import createApiClient from '../api.service'
 
-class ItemUnitService {
+class UnitInvoiceService {
   constructor() {
-    const baseUrl = `${api.baseUrl}/api/unit-items`
+    const baseUrl = `${api.baseUrl}/api/unit-invoices`
     this.api = createApiClient(baseUrl)
   }
 
@@ -56,4 +56,4 @@ class ItemUnitService {
   }
 }
 
-export default new ItemUnitService
+export default new UnitInvoiceService
