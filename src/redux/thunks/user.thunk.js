@@ -3,18 +3,33 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import authService from '~/service/auth.service'
 import { Routes } from '~/config'
 import userService from '~/service/user.service'
+import { toast } from 'react-toastify'
 
 export const login = createAsyncThunk(
   'user/login',
-  async ({ credentials, navigate }, { rejectWithValue }) => {
+  async ({ credentials, method = 'default', navigate }, { rejectWithValue }) => {
     try {
-      const res = await authService.login(credentials)
+      let res
 
-      navigate(Routes.admin.dashboard)
+      if (method === 'google') {
 
-      return res.data
+        res = await authService.google_login(credentials.token, credentials.deviceId)
+      } else {
+
+        res = await authService.login(credentials)
+      }
+      if (res.success) {
+        navigate(Routes.admin.dashboard)
+        return res.data
+      } else {
+        toast.error(res.message || 'Đăng nhập thất bại!')
+        return rejectWithValue(res.message || 'Đăng nhập thất bại!')
+      }
+
     } catch (error) {
-      return rejectWithValue(error)
+      const errorMessage = error?.response?.data?.message || error.message || 'Đăng nhập thất bại!'
+      toast.error(errorMessage)
+      return rejectWithValue(errorMessage)
     }
   }
 )

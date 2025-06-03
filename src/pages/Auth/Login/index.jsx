@@ -7,21 +7,30 @@ import {
   Link,
   Stack,
   Typography,
+  Backdrop,
+  CircularProgress
 } from '@mui/material'
+import { Icon } from '@iconify/react'
 import IconifyIcon from '../IconifyIcon'
 import LoginForm from './LoginForm'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { login } from '~/redux/thunks/user.thunk'
 import { useNavigate } from 'react-router-dom'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import React from 'react'
+import { GoogleOAuthProvider, GoogleLogin, useGoogleLogin } from '@react-oauth/google'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const deviceId = useDeviceId()
+  const status = useSelector((state) => state.user.status)
   const handleLogin = async (data) => {
-    dispatch(login({ credentials: data, navigate }))
+    await dispatch(login({ credentials: data, navigate }))
   }
   return (
+
     <Box
       sx={{
         width: '100%',
@@ -55,15 +64,34 @@ const LoginPage = () => {
             </Link>
           </Typography>
 
-          <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-            <Button
+          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+            <GoogleOAuthProvider clientId={import.meta.env.VITE_GG_CLIENT_ID}>
+              <GoogleLogin
+                fullWidth
+                variant="outlined"
+                sx={{ borderRadius: 999, p: 1 }}
+                onSuccess={credentialResponse => {
+                  console.log('credentialResponse: ', credentialResponse)
+                  const token = credentialResponse.credential
+                  dispatch(login({
+                    credentials: { token, deviceId },
+                    navigate,
+                    method: 'google',
+                  }))
+                }}
+                onError={() => {
+                  console.log('Login Failed1')
+                }}
+              />
+            </GoogleOAuthProvider>
+            {/* <Button
               fullWidth
               variant="outlined"
               sx={{ borderRadius: 999, p: 1 }}
             >
               <IconifyIcon icon="eva:google-fill" color="error.main" />
-            </Button>
-            <Button
+            </Button> */}
+            {/* <Button
               fullWidth
               variant="outlined"
               sx={{ borderRadius: 999, p: 1 }}
@@ -76,7 +104,7 @@ const LoginPage = () => {
               sx={{ borderRadius: 999, p: 1 }}
             >
               <IconifyIcon icon="logos:twitter" />
-            </Button>
+            </Button> */}
           </Stack>
 
           <Divider sx={{ my: 3 }}>
@@ -88,7 +116,14 @@ const LoginPage = () => {
           <LoginForm handleLogin={handleLogin}/>
         </Card>
       </Container>
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={status === 'loading'}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Box>
+
   )
 }
 

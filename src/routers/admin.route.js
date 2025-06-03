@@ -19,6 +19,8 @@ import UnitInvoiceEdit from '~/pages/Admin/UnitInvoice/edit'
 import ItemList from '~/pages/Admin/Item/list'
 import ItemEdit from '~/pages/Admin/Item/edit'
 import ItemDetail from '~/pages/Admin/Item/detail'
+import UserDetailPage from '~/pages/Admin/User/detail'
+
 
 export default [
   {
@@ -174,4 +176,9 @@ export default [
       requireAuth: true,
     },
   },
+  {
+    path: Routes.user.userDetailPath,
+    layout: AdminLayout,
+    component: UserDetailPage, 
+  }
 ]

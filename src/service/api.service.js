@@ -5,9 +5,14 @@ import { api } from '~/config'
 
 const getUserId = () => {
   const state = JSON.parse(localStorage.getItem('persist:root'))
-  const user = JSON.parse(state.user)
+  if (!state) return null
+  const user = state.user
+  console.log('state.user:', state.user)
+  if (!user) return null
+  const currentUser = JSON.parse(user).currentUser
+  if (!currentUser) return null
 
-  return user.currentUser.USER_ID
+  return currentUser.USER_ID
 }
 
 
@@ -40,6 +45,12 @@ const apiService = (baseURL) => {
         try {
           // Gửi request refresh token
           const deviceId = localStorage.getItem('device_id')
+          const userId = getUserId()
+          if (!userId) {
+            console.error('Không tìm thấy userId để refresh token.')
+            // Có thể logout hoặc reject ngay:
+            return Promise.reject(error)
+          }
           const { data } = await API.post(`${api.baseUrl}/api/auth/refresh-token`, {
             deviceId,
             userId: getUserId()

@@ -20,6 +20,47 @@ class UserService {
     })).data
   }
 
+  async search(credential, options = {}) {
+    console.log('credentials:', credential)
+    console.log('option: ', options)
+    return (await this.api.get('/', {
+      params: {
+        ...options
+      },
+      headers: {
+        ...credential
+      },
+      withCredentials: true,
+    },)).data
+  }
+  async getUserDetail(id, headers = {}) {
+    console.log('id: ', id)
+    const response = await this.api.get(`/${id}`, {
+      headers: {
+        ...headers
+      },
+      withCredentials: true,
+    })
+    return response.data
+  }
+  async updateUserRole(id, headers = {}, roleData = {}) {
+    console.log('role: ', roleData)
+    console.log('id: ', id)
+
+    const response = await this.api.put(
+      `/role/${id}`,
+      roleData,
+      {
+        headers: {
+          ...headers
+        },
+        withCredentials: true
+      }
+    )
+
+    return response.data
+  }
+
 
 }
 
