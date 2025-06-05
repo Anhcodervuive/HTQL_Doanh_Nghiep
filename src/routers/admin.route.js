@@ -1,5 +1,4 @@
-import { Routes } from '~/config'
-import AdminLayout from '~/layouts/AdminLayout'
+import AdminLayout from '../layouts/AdminLayout/index'
 import Dashboard from '~/pages/Admin/Dashboard'
 import SupplierList from '~/pages/Admin/Supplier/list'
 import SupplierCreate from '~/pages/Admin/Supplier/create'
@@ -24,161 +23,89 @@ import UserDetailPage from '~/pages/Admin/User/detail'
 
 export default [
   {
-    path: Routes.admin.dashboard,
-    layout: AdminLayout,
-    component: Dashboard,
-    requires: {
-      requireAuth: true,
-    },
+    path: '/admin',
+    element: <AdminLayout />,
+    children : [
+      {
+        path: 'dashboard',
+        element: <Dashboard />,
+      },
+      {
+        path: 'user',
+        element: <UserList />,
+      },
+      {
+        path: 'user/create',
+        element: <UserCreate />,
+      },
+      {
+        path: 'user/:id',
+        element: <UserDetailPage />
+      },
+      {
+        path: 'supplier',
+        element: <SupplierList />,
+      },
+      {
+        path: 'supplier/create',
+        element: <SupplierCreate />,
+      },
+      {
+        path: 'supplier/:id/edit',
+        element: <SupplierEdit />,
+      },
+      {
+        path: 'item-type',
+        element: <ItemTypeList />,
+      },
+      {
+        path: 'item-type/create',
+        element: <ItemTypeCreate />,
+      },
+      {
+        path: 'item-type/:id/edit',
+        element: <ItemTypeEdit />,
+      },
+      {
+        path: 'item-unit',
+        element: <ItemUnitList />,
+      },
+      {
+        path: 'item-unit/create',
+        element: <ItemUnitCreate />,
+      },
+      {
+        path: 'item-unit/:id/edit',
+        element: <ItemUnitEdit />,
+      },
+      {
+        path: 'item',
+        element: <ItemList />,
+      },
+      {
+        path: 'item/create',
+        element: <ItemCreate />,
+      },
+      {
+        path: 'item/:id/edit',
+        element: <ItemEdit />,
+      },
+      {
+        path: 'item/:id/detail',
+        element: <ItemDetail />,
+      },
+      {
+        path: 'invoice-unit',
+        element: <UnitInvoiceList />,
+      },
+      {
+        path: 'invoice-unit/create',
+        element: <UnitInvoiceCreate />,
+      },
+      {
+        path: 'invoice-unit/:id/edit',
+        element: <UnitInvoiceEdit />,
+      },
+    ]
   },
-  {
-    path: Routes.admin.user.create,
-    layout: AdminLayout,
-    component: UserCreate,
-    requires: {
-      requireAuth: true,
-      // requiredRoles: ['manager'],
-    },
-  },
-  {
-    path: Routes.admin.user.list,
-    layout: AdminLayout,
-    component: UserList,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.supplier.list,
-    layout: AdminLayout,
-    component: SupplierList,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.supplier.create,
-    layout: AdminLayout,
-    component: SupplierCreate,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.supplier.edit(),
-    layout: AdminLayout,
-    component: SupplierEdit,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.itemType.list,
-    layout: AdminLayout,
-    component: ItemTypeList,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.itemType.create,
-    layout: AdminLayout,
-    component: ItemTypeCreate,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.itemType.edit(),
-    layout: AdminLayout,
-    component: ItemTypeEdit,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.itemUnit.list,
-    layout: AdminLayout,
-    component: ItemUnitList,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.itemUnit.create,
-    layout: AdminLayout,
-    component: ItemUnitCreate,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.itemUnit.edit(),
-    layout: AdminLayout,
-    component: ItemUnitEdit,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.item.list,
-    layout: AdminLayout,
-    component: ItemList,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.item.create,
-    layout: AdminLayout,
-    component: ItemCreate,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.item.edit(),
-    layout: AdminLayout,
-    component: ItemEdit,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.item.detail(),
-    layout: AdminLayout,
-    component: ItemDetail,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.unitInvoice.list,
-    layout: AdminLayout,
-    component: UnitInvoiceList,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.unitInvoice.create,
-    layout: AdminLayout,
-    component: UnitInvoiceCreate,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.admin.unitInvoice.edit(),
-    layout: AdminLayout,
-    component: UnitInvoiceEdit,
-    requires: {
-      requireAuth: true,
-    },
-  },
-  {
-    path: Routes.user.userDetailPath,
-    layout: AdminLayout,
-    component: UserDetailPage, 
-  }
 ]

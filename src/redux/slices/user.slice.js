@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { login, logout, updateProfile } from '../thunks/user.thunk'
+import { login, logout, updateProfile, verifyUser } from '../thunks/user.thunk'
 
 const initState = {
   currentUser: null,
@@ -11,7 +11,11 @@ const userSlice = createSlice({
   name: 'user',
   initialState: initState,
   reducers: {
-
+    removeRoles : (state) => {
+      if (state.currentUser) {
+        state.currentUser.ROLE = null
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -21,6 +25,7 @@ const userSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.status = 'success'
         state.currentUser = action.payload || null
+        state.__persisted_at = Date.now()
       })
       .addCase(login.rejected, (state) => {
         state.status = 'error'
@@ -44,7 +49,17 @@ const userSlice = createSlice({
       .addCase(updateProfile.rejected, (state) => {
         state.status = 'error'
       })
+      .addCase(verifyUser.pending, (state) => {
+        state.status = 'success'
+      })
+      .addCase(verifyUser.fulfilled, (state, action) => {
+        state.status = 'success'
+        state.currentUser = action.payload
+      })
+      .addCase(verifyUser.rejected, (state) => {
+        state.status = 'error'
+      })
   }
 })
-
+export const { removeRoles } = userSlice.actions
 export default userSlice.reducer

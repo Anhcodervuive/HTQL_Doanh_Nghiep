@@ -71,6 +71,15 @@ class AuthService {
     }).then(res => res.data)
   }
 
+  async verify(credential) {
+    return (await this.api.get('/verify-role', {
+      headers: {
+        ...credential
+      },
+      withCredentials: true
+    })).data
+  }
+
 }
 
 export default new AuthService

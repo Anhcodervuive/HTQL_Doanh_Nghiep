@@ -73,3 +73,16 @@ export const updateProfile = createAsyncThunk(
     }
   }
 )
+
+export const verifyUser = createAsyncThunk(
+  'user/verify',
+  async ({ credentials }, { rejectWithValue }) => {
+    try {
+      const res = await authService.verify(credentials)
+      // setIsLoading(false)
+      return res?.data
+    } catch (error) {
+      return rejectWithValue(error)
+    }
+  }
+)

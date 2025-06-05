@@ -1,3 +1,10 @@
-export { default as AdminRoutes } from './admin.route'
-export { default as AuthRoutes } from './auth.route'
-export { default as ErrorRoutes } from './Error.route'
+import { createBrowserRouter } from 'react-router-dom'
+import adminRoute from './admin.route'
+import AuthRoutes from './auth.route'
+import ErrorRoute from './Error.route'
+
+export const router = createBrowserRouter([
+  ...adminRoute,
+  ...AuthRoutes,
+  ...ErrorRoute
+])

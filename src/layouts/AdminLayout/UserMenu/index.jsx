@@ -15,7 +15,6 @@ function UserMenu() {
   const dispatch = useDispatch()
   const device_id = useDeviceId()
   const navigate = useNavigate()
-  const { roles } = useAuth()
   const { nameInfo, avatarImgUrl } = useUserInfo()
   const open = Boolean(anchorEl)
 
@@ -42,7 +41,7 @@ function UserMenu() {
             {nameInfo?.fullName}
           </Typography>
           <Typography sx={{ color: 'rgba(74, 73, 74, 0.8)' }} variant='body2'>
-            {roles.map(role => capitalizeFirstLetter(role)).join(', ')}
+            {/* {roles.map(role => capitalizeFirstLetter(role)).join(', ')} */}
           </Typography>
         </Box>
       </Button>

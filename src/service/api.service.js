@@ -7,7 +7,6 @@ const getUserId = () => {
   const state = JSON.parse(localStorage.getItem('persist:root'))
   if (!state) return null
   const user = state.user
-  console.log('state.user:', state.user)
   if (!user) return null
   const currentUser = JSON.parse(user).currentUser
   if (!currentUser) return null

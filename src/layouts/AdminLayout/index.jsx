@@ -8,7 +8,7 @@ import LayersIcon from '@mui/icons-material/Layers'
 import { AppProvider } from '@toolpad/core/AppProvider'
 import { DashboardLayout } from '@toolpad/core/DashboardLayout'
 import PeopleIcon from '@mui/icons-material/People'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import HandshakeIcon from '@mui/icons-material/Handshake'
 import CategoryIcon from '@mui/icons-material/Category'
@@ -172,7 +172,7 @@ export default function DashboardLayoutBasic(props) {
         }}
       >
         <Box sx={{ mx: 1, px: 3, pt: 3, backgroundColor: '#f5f7fa' }}>
-          {props.children}
+          <Outlet />
         </Box>
       </DashboardLayout>
     </AppProvider>
