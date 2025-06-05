@@ -156,10 +156,31 @@ const UserDetailPage = () => {
         </Grid>
         <Grid item xs={12}>
           <Grid item xs={6}>
-            <Typography variant="h6">Địa chỉ</Typography>
-            <Typography>Địa chỉ 1: {`${address.ADDRESS_1}`}</Typography>
-            <Typography>Địa chỉ 2: {`${address.ADDRESS_2}`}</Typography>
-            <Typography>{`${address.WARD}, ${address.DISTRICT}, ${address.CITY}, ${address.STATE}`}</Typography>
+            {address?.ADDRESS_1 && (
+              <Typography>Địa chỉ 1: {address.ADDRESS_1}</Typography>
+            )}
+            {address?.ADDRESS_2 && (
+              <Typography>Địa chỉ 2: {address.ADDRESS_2}</Typography>
+            )}
+            {[
+              address?.WARD,
+              address?.DISTRICT,
+              address?.CITY,
+              address?.STATE
+            ]
+              .filter(part => part && part.trim() !== '')
+              .length > 0 && (
+              <Typography>
+                {[
+                  address?.WARD,
+                  address?.DISTRICT,
+                  address?.CITY,
+                  address?.STATE
+                ]
+                  .filter(part => part && part.trim() !== '')
+                  .join(', ')}
+              </Typography>
+            )}
           </Grid>
 
           <Grid item xs={12} sm={6}>
