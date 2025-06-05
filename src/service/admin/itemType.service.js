@@ -19,6 +19,18 @@ class ItemTypeService {
     },)).data
   }
 
+  async findOneByName(credential, name) {
+    return (await this.api.get('/name', {
+      params: {
+        name
+      },
+      headers: {
+        ...credential
+      },
+      withCredentials: true
+    })).data
+  }
+
   async create(credential, data) {
     return (await this.api.post('/', data, {
       headers: {

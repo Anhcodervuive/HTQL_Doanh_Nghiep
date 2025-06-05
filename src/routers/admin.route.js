@@ -12,10 +12,18 @@ import ItemTypeEdit from '~/pages/Admin/ItemType/edit'
 import ItemUnitList from '~/pages/Admin/ItemUnit/list'
 import ItemUnitCreate from '~/pages/Admin/ItemUnit/create'
 import ItemUnitEdit from '~/pages/Admin/ItemUnit/edit'
+import ItemCreate from '~/pages/Admin/Item/create'
+import UnitInvoiceList from '~/pages/Admin/UnitInvoice/list'
+import UnitInvoiceCreate from '~/pages/Admin/UnitInvoice/create'
+import UnitInvoiceEdit from '~/pages/Admin/UnitInvoice/edit'
+import ItemList from '~/pages/Admin/Item/list'
+import ItemEdit from '~/pages/Admin/Item/edit'
+import ItemDetail from '~/pages/Admin/Item/detail'
 import UserDetailPage from '~/pages/Admin/User/detail'
 import PurchaseInvoiceList from '~/pages/Admin/PurchaseInvoices/list'
 import InvoiceDetail from '~/pages/Admin/PurchaseInvoices/detail'
 import AddPurchaseInvoiceForm from '~/pages/Admin/PurchaseInvoices/create'
+
 
 export default [
   {
@@ -116,9 +124,9 @@ export default [
     },
   },
   {
-    path: Routes.user.userDetailPath,
+    path: Routes.admin.item.list,
     layout: AdminLayout,
-    component: UserDetailPage,
+    component: ItemList,
     requires: {
       requireAuth: true,
     },
@@ -126,7 +134,11 @@ export default [
   {
     path: Routes.admin.purchaseInvoices.list,
     layout: AdminLayout,
-    component: PurchaseInvoiceList,
+    component: PurchaseInvoiceList,},
+    {
+    path: Routes.admin.item.create,
+    layout: AdminLayout,
+    component: ItemCreate,
     requires: {
       requireAuth: true,
     },
@@ -134,7 +146,11 @@ export default [
   {
     path: Routes.admin.purchaseInvoices.invoiceDetailPath,
     layout: AdminLayout,
-    component: InvoiceDetail,
+    component: InvoiceDetail,},
+    {
+    path: Routes.admin.item.edit(),
+    layout: AdminLayout,
+    component: ItemEdit,
     requires: {
       requireAuth: true,
     },
@@ -142,10 +158,43 @@ export default [
   {
     path: Routes.admin.purchaseInvoices.create,
     layout: AdminLayout,
-    component: AddPurchaseInvoiceForm,
+    component: AddPurchaseInvoiceForm},
+    {
+    path: Routes.admin.item.detail(),
+    layout: AdminLayout,
+    component: ItemDetail,
     requires: {
       requireAuth: true,
     },
   },
 
+  {
+    path: Routes.admin.unitInvoice.list,
+    layout: AdminLayout,
+    component: UnitInvoiceList,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.unitInvoice.create,
+    layout: AdminLayout,
+    component: UnitInvoiceCreate,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.unitInvoice.edit(),
+    layout: AdminLayout,
+    component: UnitInvoiceEdit,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.user.userDetailPath,
+    layout: AdminLayout,
+    component: UserDetailPage, 
+  }
 ]

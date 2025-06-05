@@ -27,7 +27,18 @@ export default {
       invoiceDetailPath: '/admin/purchase-invoices/:id',
       invoiceDetail: (id) => `/admin/purchase-invoices/${id}`,
       create: '/admin/purchase-invoices/create',
-    }
+    },
+    item : {
+      list : '/admin/item',
+      create : '/admin/item/create',
+      edit: (id = '') => `/admin/item/${id || ':id'}/edit`,
+      detail: (id = '') => `/admin/item/${id || ':id'}/detail`,
+    },
+    unitInvoice: {
+      list : '/admin/invoice-unit',
+      create: '/admin/invoice-unit/create',
+      edit: (id = '') => `/admin/invoice-unit/${id || ':id'}/edit`,
+    },
   },
   auth: {
     login: '/login',

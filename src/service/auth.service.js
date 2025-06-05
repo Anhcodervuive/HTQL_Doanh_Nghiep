@@ -13,6 +13,14 @@ class AuthService {
     })).data
   }
 
+  async google_login(token, deviceId) {
+    // console.log('token: ', token)
+    // console.log('deviceId: ', deviceId)
+    return (await this.api.post('/google', { token, deviceId }, {
+      withCredentials: true
+    })).data
+  }
+
   async logout(credential) {
     return (await this.api.post('/logout', {}, {
       headers: {

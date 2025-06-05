@@ -7,9 +7,17 @@ import { toast } from 'react-toastify'
 
 export const login = createAsyncThunk(
   'user/login',
-  async ({ credentials, navigate }, { rejectWithValue }) => {
+  async ({ credentials, method = 'default', navigate }, { rejectWithValue }) => {
     try {
-      const res = await authService.login(credentials)
+      let res
+
+      if (method === 'google') {
+
+        res = await authService.google_login(credentials.token, credentials.deviceId)
+      } else {
+
+        res = await authService.login(credentials)
+      }
       if (res.success) {
         navigate(Routes.admin.dashboard)
         return res.data
