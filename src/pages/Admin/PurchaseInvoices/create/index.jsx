@@ -135,9 +135,21 @@ export default function AddPurchaseInvoiceForm() {
       </Typography>
 
       {/* Search sản phẩm */}
-      <Box mb={2}>
-        <SearchItemInput onItemClick={handleItemClick} />
+      <Box mb={2} sx={{ position: 'relative', zIndex: 2000 }}>
+        <Box
+          sx={{
+            position: 'relative',
+            backgroundColor: 'white',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            borderRadius: 1,
+            zIndex: 2000,
+            p: 1 // thêm padding nhẹ nếu cần
+          }}
+        >
+          <SearchItemInput onItemClick={handleItemClick} />
+        </Box>
       </Box>
+
 
       {/* Chọn trạng thái và phương thức thanh toán */}
       <Box mb={2} sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -191,13 +203,20 @@ export default function AddPurchaseInvoiceForm() {
             {selectedItems.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>{item.ITEM_CODE}</TableCell>
-                <TableCell>
+                <TableCell
+                  sx={{
+                    position: 'relative', // 👈 đảm bảo label không “xuyên” qua Popper
+                    backgroundColor: '#fff', // 👈 tránh thấy phần bên dưới
+                    zIndex: 0 // 👈 default
+                  }}
+                >
                   <SearchSupplierInput
                     index={index}
                     selectedSupplier={item.SUPPLIER_ID}
                     onSelect={(supplierId) => handleSupplierSelect(index, supplierId)}
                   />
                 </TableCell>
+
                 <TableCell>
                   <TextField
                     type="number"

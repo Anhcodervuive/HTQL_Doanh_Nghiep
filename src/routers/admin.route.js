@@ -134,8 +134,9 @@ export default [
   {
     path: Routes.admin.purchaseInvoices.list,
     layout: AdminLayout,
-    component: PurchaseInvoiceList,},
-    {
+    component: PurchaseInvoiceList,
+  },
+  {
     path: Routes.admin.item.create,
     layout: AdminLayout,
     component: ItemCreate,
@@ -146,8 +147,9 @@ export default [
   {
     path: Routes.admin.purchaseInvoices.invoiceDetailPath,
     layout: AdminLayout,
-    component: InvoiceDetail,},
-    {
+    component: InvoiceDetail,
+  },
+  {
     path: Routes.admin.item.edit(),
     layout: AdminLayout,
     component: ItemEdit,
@@ -158,8 +160,9 @@ export default [
   {
     path: Routes.admin.purchaseInvoices.create,
     layout: AdminLayout,
-    component: AddPurchaseInvoiceForm},
-    {
+    component: AddPurchaseInvoiceForm
+  },
+  {
     path: Routes.admin.item.detail(),
     layout: AdminLayout,
     component: ItemDetail,
@@ -195,6 +198,6 @@ export default [
   {
     path: Routes.user.userDetailPath,
     layout: AdminLayout,
-    component: UserDetailPage, 
+    component: UserDetailPage,
   }
 ]

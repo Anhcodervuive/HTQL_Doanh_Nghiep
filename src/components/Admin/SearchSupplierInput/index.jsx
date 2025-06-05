@@ -27,6 +27,7 @@ export default function SearchSupplierInput({ index, selectedSupplier, onSelect 
   return (
     <Box>
       <TextField
+        id={`supplier-search-${index}`}
         label="Tìm nhà cung cấp"
         size="small"
         value={supplierSearch}
@@ -35,6 +36,7 @@ export default function SearchSupplierInput({ index, selectedSupplier, onSelect 
       />
       {supplierData?.data?.suppliers?.length > 0 && (
         <TextField
+          id={`supplier-select-${index}`}
           select
           size="small"
           label="Chọn nhà cung cấp"
