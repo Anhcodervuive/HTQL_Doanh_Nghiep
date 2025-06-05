@@ -14,6 +14,8 @@ import ItemUnitCreate from '~/pages/Admin/ItemUnit/create'
 import ItemUnitEdit from '~/pages/Admin/ItemUnit/edit'
 import UserDetailPage from '~/pages/Admin/User/detail'
 import PurchaseInvoiceList from '~/pages/Admin/PurchaseInvoices/list'
+import InvoiceDetail from '~/pages/Admin/PurchaseInvoices/detail'
+import AddPurchaseInvoiceForm from '~/pages/Admin/PurchaseInvoices/create'
 
 export default [
   {
@@ -128,5 +130,22 @@ export default [
     requires: {
       requireAuth: true,
     },
-  }
+  },
+  {
+    path: Routes.admin.purchaseInvoices.invoiceDetailPath,
+    layout: AdminLayout,
+    component: InvoiceDetail,
+    requires: {
+      requireAuth: true,
+    },
+  },
+  {
+    path: Routes.admin.purchaseInvoices.create,
+    layout: AdminLayout,
+    component: AddPurchaseInvoiceForm,
+    requires: {
+      requireAuth: true,
+    },
+  },
+
 ]

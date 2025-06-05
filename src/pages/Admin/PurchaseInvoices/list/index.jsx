@@ -1,4 +1,3 @@
-
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -12,15 +11,21 @@ import { Link, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { CircularProgress, MenuItem, Select, TextField, TableFooter, FormControl, InputLabel, Pagination } from '@mui/material'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import useDebounce from '~/hooks/useDebounce'
+import { useQuery } from '@tanstack/react-query'
 
-import { findBreadcrumbs, routeTree } from '~/config/routeTree'
+import { findBreadcrumbs, routeTree } from '~/config/routeTree' 
 import { Routes } from '~/config'
 import ProgressBar from '~/components/ProgressBar'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
 import InputAdornment from '@mui/material/InputAdornment'
+import invoicesService from '~/service/admin/invoices.service'
+import useUserInfo from '~/hooks/useUserInfo'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import dayjs from 'dayjs'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -44,32 +49,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const showdRecordOption = [2, 5, 10, 25]
 
-const mockInvoices = [
-  {
-    _id: '1',
-    INVOICE_CODE: 'INV001',
-    CREATED_DATE: '2025-05-26',
-    CUSTOMER_NAME: 'Nguyễn Văn A',
-    TOTAL_AMOUNT: 1200000,
-    STATUS: 'Đang xử lý'
-  },
-  {
-    _id: '2',
-    INVOICE_CODE: 'INV002',
-    CREATED_DATE: '2025-05-27',
-    CUSTOMER_NAME: 'Trần Thị B',
-    TOTAL_AMOUNT: 1500000,
-    STATUS: 'Đã giao'
-  },
-  {
-    _id: '3',
-    INVOICE_CODE: 'INV003',
-    CREATED_DATE: '2025-05-28',
-    CUSTOMER_NAME: 'Lê Văn C',
-    TOTAL_AMOUNT: 980000,
-    STATUS: 'Đã hủy'
-  }
-]
 
 export default function InvoiceList() {
   const location = useLocation()
@@ -77,29 +56,75 @@ export default function InvoiceList() {
   const [searchValue, setSearchValue] = useState('')
   const [fromDate, setFromDate] = useState('')
   const [thruDate, setThruDate] = useState('')
+  const searchValueDebounce = useDebounce(searchValue, 1000)
   const [showedRecord, setShowedRecord] = useState(5)
   const [page, setPage] = useState(1)
 
-  const isLoading = false
-  const data = {
-    data: {
-      invoices: mockInvoices,
-      page: 1,
-      total: mockInvoices.length
-    }
-  }
+  const deviceId = useDeviceId()
+  const { userId: user_id } = useUserInfo()
 
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
-  const handleUpdateStatus = (id) => {
-    alert(`Cập nhật trạng thái cho hóa đơn ID: ${id}`)
+  useEffect(() => {
+    setPage(1)
+    //refetch()
+  }, [fromDate, thruDate])
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: [
+      'invoiceList',
+      page,
+      showedRecord,
+      searchValueDebounce,
+      fromDate,
+      thruDate,
+    ],
+    enabled: !!deviceId && !!user_id,
+    queryFn: () =>
+      invoicesService.search(
+        { user_id, device_id: deviceId },
+        {
+          limit: showedRecord,
+          page,
+          search: searchValueDebounce,
+          fromDate: fromDate || undefined,
+          toDate: thruDate || undefined,
+        }
+      ),
+    retry: false,
+    refetchOnWindowFocus: false,
+  })
+
+  // Nếu deviceId hoặc user_id chưa sẵn sàng, có thể hiển thị loading spinner (tuỳ bạn)
+  if (!deviceId || !user_id) {
+    console.log('deviceId hoặc user_id chưa sẵn sàng:', { deviceId, user_id })
+    return <div>Loading...</div>
   }
+
+  if (error) return <div>Error: {error.message}</div>
+
+  const getStatusColor = (status) => {
+    switch (status) {
+    case 'DRAFT':
+      return '#9e9e9e'
+    case 'PENDING_APPROVAL':
+      return '#ff9800'
+    case 'CONFIRMED':
+      return '#2196f3'
+    case 'REJECTED':
+      return '#f44336'
+    case 'PAYMENTED':
+      return '#4caf50'
+    default:
+      return '#757575'
+    }
+  }
+
 
   return (
     <Box>
       <ProgressBar isLoading={isLoading} />
-
-      {/* <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button
             key={index}
@@ -113,48 +138,62 @@ export default function InvoiceList() {
             {location.pathname !== item.path && ' > '}
           </Button>
         ))}
-      </Box> */}
+      </Box>
 
-    
+
       <Box>
         <Typography variant="h4">Danh sách hóa đơn</Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',paddingBlock:2, mb: 2 }}>  
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 5, mb: 2 }}>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <TextField
-                label="Từ ngày"
-                type="date"
-                size="small"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                label="Đến ngày"
-                type="date"
-                size="small"
-                value={thruDate}
-                onChange={(e) => setThruDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
+            <TextField
+              label="Từ ngày"
+              type="date"
+              size="small"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              slotProps={{
+                inputLabel: {
+                  shrink: true
+                }
+              }}
+            />
+            <TextField
+              label="Đến ngày"
+              type="date"
+              size="small"
+              value={thruDate}
+              onChange={(e) => setThruDate(e.target.value)}
+              slotProps={{
+                inputLabel: {
+                  shrink: true
+                }
+              }}
+            />
           </Box>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
-              label="Tìm kiếm theo mã hoặc tên KH"
+              label="Nhập mã hóa đơn hoặc người lập hóa đơn "
               size='small'
-              sx={{ width: '25ch' }}
+              sx={{ width: '29ch' }}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                )
+              slotProps={{
+                input: {
+                  startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
+                  endAdornment: <InputAdornment position="end">{isLoading && <CircularProgress />}</InputAdornment>,
+                },
               }}
+              // InputProps={{
+              //   startAdornment: (
+              //     <InputAdornment position="start">
+              //       <SearchIcon />
+              //     </InputAdornment>
+              //   )
+              // }}
             />
             <Button
               LinkComponent={Link}
-              to={Routes.admin.invoice?.create || '#'}
+              to={Routes.admin.purchaseInvoices.create}
               variant='contained'
               color='success'
               startIcon={<AddIcon />}
@@ -172,10 +211,10 @@ export default function InvoiceList() {
             <TableRow>
               <StyledTableCell>Mã hóa đơn</StyledTableCell>
               <StyledTableCell>Ngày tạo</StyledTableCell>
-              <StyledTableCell>Tên khách hàng</StyledTableCell>
+              <StyledTableCell>Người lập hóa đơn</StyledTableCell>
               <StyledTableCell>Tổng tiền</StyledTableCell>
               <StyledTableCell>Trạng thái</StyledTableCell>
-              <StyledTableCell align="center">Hành động</StyledTableCell>
+              <StyledTableCell align="center"></StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -183,26 +222,53 @@ export default function InvoiceList() {
               ? <TableRow><TableCell colSpan={6} align='center'><CircularProgress size={20} /></TableCell></TableRow>
               : (data?.data?.invoices?.length === 0
                 ? <TableRow>
-                    <TableCell colSpan={6}><SearchResultNotFound message='Không tìm thấy hóa đơn' /></TableCell>
-                  </TableRow>
-                : data?.data?.invoices?.map((invoice) => (
-                  <StyledTableRow key={invoice._id}>
+                  <TableCell colSpan={6}><SearchResultNotFound message='Không tìm thấy hóa đơn' /></TableCell>
+                </TableRow>
+                : data?.data?.results?.map((invoice) => (
+                  <StyledTableRow key={invoice.INVOICE_CODE}>
                     <StyledTableCell>{invoice.INVOICE_CODE}</StyledTableCell>
-                    <StyledTableCell>{invoice.CREATED_DATE}</StyledTableCell>
-                    <StyledTableCell>{invoice.CUSTOMER_NAME}</StyledTableCell>
-                    <StyledTableCell>{invoice.TOTAL_AMOUNT?.toLocaleString()} đ</StyledTableCell>
-                    <StyledTableCell>{invoice.STATUS}</StyledTableCell>
+                    <StyledTableCell>{dayjs(invoice.IMPORT_DATE).format('DD/MM/YYYY HH:mm')}</StyledTableCell>
+                    <StyledTableCell>{invoice.IMPORTED_BY}</StyledTableCell>
+                    <StyledTableCell>{invoice.TOTAL_WITH_TAX_EXTRA_FEE?.toLocaleString()} đ</StyledTableCell>
+                    <StyledTableCell>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          px: 1,
+                          py: 0.5,
+                          backgroundColor: getStatusColor(invoice.STATUS[invoice.STATUS.length - 1].STATUS_NAME),
+                          color: '#fff',
+                          borderRadius: 2,
+                          fontSize: '0.75rem',
+                          display: 'inline-block',
+                          textTransform: 'uppercase',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {invoice.STATUS[invoice.STATUS.length - 1].STATUS_NAME}
+                      </Typography>
+                    </StyledTableCell>
+
                     <StyledTableCell align="center">
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                        <Button variant="contained" size="small" color="info">Chi tiết</Button>
-                        </Box>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          sx={{ mr: 1 }}
+                          color="info"
+                          component={Link}
+                          to={Routes.admin.purchaseInvoices.invoiceDetail(invoice.INVOICE_CODE)}
+                        >
+                          Chi tiết
+                        </Button>
+                      </Box>
                     </StyledTableCell>
                   </StyledTableRow>
                 )))}
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={6}>
+              <TableCell colSpan={5}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '100%' }}>
                   <Box sx={{ m: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
                     <InputLabel id="showedRecord-select-standard-label">Số dòng:</InputLabel>
@@ -223,11 +289,11 @@ export default function InvoiceList() {
                     </FormControl>
                   </Box>
                   <Pagination
-                    defaultPage={1}
-                    count={1}
-                    color="primary"
-                    sx={{ my: 1 }}
+                    defaultPage={data?.data?.page}
+                    count={Math.ceil(data?.data?.total / showedRecord)}
+                    color="primary" sx={{ my: 1, }}
                     onChange={(event, value) => {
+                      console.log('Trang mới:', value)
                       setPage(value)
                     }}
                   />

@@ -20,7 +20,14 @@ export const routeTree = [
           { path: '/admin/item-type/create', name: 'Create' },
           { path: '/admin/item-type/:id/edit', name: 'Edit' }
         ]
-      }
+      },
+      {
+        path: '/admin/purchase-invoices', name: 'Invoices', children: [
+          { path: '/admin/purchase-invoices', name: 'List' },
+          { path: '/admin/purchase-invoices/create', name: 'Create' },
+          // { path: '/admin/supplier/:id/edit', name: 'Edit' }
+        ]
+      },
     ]
   }
 ]
