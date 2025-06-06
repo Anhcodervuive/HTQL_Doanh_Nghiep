@@ -10,39 +10,37 @@ import UpdateProfilePage from '~/pages/Auth/UpdateProfile'
 const AuthRoutes = [
   {
     path: '/login',
-    component: LoginPage,
-    layout: null,
+    element: <LoginPage />,
   },
   {
     path: '/register',
-    component: SignupPage,
-    layout: null,
+    element: <SignupPage />,
   },
   {
     path: '/forgetPassword',
-    component: ForgetPasswordPage,
-    layout: null,
+    element: <ForgetPasswordPage />,
   },
   {
     path: '/resetPassword',
-    component: ResetPasswordPage,
-    layout: null,
+    element: <ResetPasswordPage />,
   },
   {
-    path: '/changePassword',
-    component: ChangePasswordPage,
-    layout: AdminLayout,
-  },
-  {
-    path: '/profile',
-    component: ProfilePage,
-    layout: AdminLayout,
-  },
-  {
-    path: '/updateProfile',
-    component: UpdateProfilePage,
-    layout: AdminLayout,
-  },
+    element : <AdminLayout />,
+    children: [
+      {
+        path: '/changePassword',
+        element: <ChangePasswordPage />,
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+      {
+        path: '/updateProfile',
+        element: <UpdateProfilePage />,
+      },
+    ]
+  }
 ]
 
 export default AuthRoutes

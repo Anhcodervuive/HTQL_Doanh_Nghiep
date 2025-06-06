@@ -11,11 +11,11 @@ import useUserInfo from '~/hooks/useUserInfo'
 
 function UserMenu() {
   const [anchorEl, setAnchorEl] = useState(null)
+  const { roles } = useAuth()
   const user = useSelector(state => state.user.currentUser)
   const dispatch = useDispatch()
   const device_id = useDeviceId()
   const navigate = useNavigate()
-  const { roles } = useAuth()
   const { nameInfo, avatarImgUrl } = useUserInfo()
   const open = Boolean(anchorEl)
 

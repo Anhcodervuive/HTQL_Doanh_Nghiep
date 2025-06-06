@@ -14,22 +14,27 @@ function useAuth() {
   useEffect(() => {
     if (user) {
       setIsAuthenticated(true)
-      if (user?.ROLE?.IS_ADMIN) {
-        setRoles(prev => [...prev, 'admin'])
-      }
-      if (user?.ROLE?.IS_MANAGER) {
-        setRoles(prev => [...prev, 'manager'])
-      }
-      if (user?.ROLE?.IS_SERVICE_STAFF) {
-        setRoles(prev => [...prev, 'serivce staff'])
-      }
-      if (user?.ROLE?.IS_CUSTOMER) {
-        setRoles(prev => [...prev, 'customer'])
-      }
     } else {
       setIsAuthenticated(false)
     }
+    const newRoles = []
+    setRoles(() => [])
+    if (user?.ROLE?.IS_ADMIN) {
+      newRoles.push('admin')
+    }
+    if (user?.ROLE?.IS_MANAGER) {
+      newRoles.push('manager')
+    }
+    if (user?.ROLE?.IS_SERVICE_STAFF) {
+      newRoles.push('service staff')
+    }
+    if (user?.ROLE?.IS_CUSTOMER) {
+      newRoles.push('customer')
+    }
+    setRoles(newRoles)
     setIsLoading(false)
+
+    return () => setRoles([])
   }, [user])
 
   return { isAuthenticated, roles, isLoading, haveOneOfRoles }

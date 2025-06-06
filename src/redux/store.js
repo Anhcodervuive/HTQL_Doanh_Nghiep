@@ -13,7 +13,7 @@ const persistConfig = {
     expireReducer('user', {
       expireSeconds: 604800, // 1 tuần
       expiredState: null, // Reset state khi hết hạn
-      autoExpire: true, // Tự động kiểm tra khi lấy state
+      autoExpire: false, // Tự động kiểm tra khi lấy state
     }),
   ],
 }
