@@ -22,6 +22,12 @@ export default {
       create: '/admin/item-unit/create',
       edit: (id = '') => `/admin/item-unit/${id || ':id'}/edit`,
     },
+    purchaseInvoices: {
+      list : 'admin/purchase-invoices',
+      invoiceDetailPath: '/admin/purchase-invoices/:id',
+      invoiceDetail: (id) => `/admin/purchase-invoices/${id}`,
+      create: '/admin/purchase-invoices/create',
+    },
     item : {
       list : '/admin/item',
       create : '/admin/item/create',

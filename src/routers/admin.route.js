@@ -20,6 +20,9 @@ import ItemList from '~/pages/Admin/Item/list'
 import ItemEdit from '~/pages/Admin/Item/edit'
 import ItemDetail from '~/pages/Admin/Item/detail'
 import UserDetailPage from '~/pages/Admin/User/detail'
+import PurchaseInvoiceList from '~/pages/Admin/PurchaseInvoices/list'
+import InvoiceDetail from '~/pages/Admin/PurchaseInvoices/detail'
+import AddPurchaseInvoiceForm from '~/pages/Admin/PurchaseInvoices/create'
 
 
 export default [
@@ -129,12 +132,22 @@ export default [
     },
   },
   {
+    path: Routes.admin.purchaseInvoices.list,
+    layout: AdminLayout,
+    component: PurchaseInvoiceList,
+  },
+  {
     path: Routes.admin.item.create,
     layout: AdminLayout,
     component: ItemCreate,
     requires: {
       requireAuth: true,
     },
+  },
+  {
+    path: Routes.admin.purchaseInvoices.invoiceDetailPath,
+    layout: AdminLayout,
+    component: InvoiceDetail,
   },
   {
     path: Routes.admin.item.edit(),
@@ -145,6 +158,11 @@ export default [
     },
   },
   {
+    path: Routes.admin.purchaseInvoices.create,
+    layout: AdminLayout,
+    component: AddPurchaseInvoiceForm
+  },
+  {
     path: Routes.admin.item.detail(),
     layout: AdminLayout,
     component: ItemDetail,
@@ -152,6 +170,7 @@ export default [
       requireAuth: true,
     },
   },
+
   {
     path: Routes.admin.unitInvoice.list,
     layout: AdminLayout,
@@ -179,6 +198,6 @@ export default [
   {
     path: Routes.user.userDetailPath,
     layout: AdminLayout,
-    component: UserDetailPage, 
+    component: UserDetailPage,
   }
 ]

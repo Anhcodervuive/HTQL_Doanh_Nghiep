@@ -55,6 +55,8 @@ export default function UserList() {
   const location = useLocation()
   const deviceId = useDeviceId()
   const { userId: user_id } = useUserInfo()
+  console.log('deviceId1: ',deviceId)
+  console.log('userId1: ', user_id)
 
   const roleParam = selectedRole !== 'all' ? { role: selectedRole } : {}
 
