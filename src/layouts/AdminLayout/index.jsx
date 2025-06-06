@@ -19,6 +19,7 @@ import InventoryIcon from '@mui/icons-material/Inventory'
 import UserMenu from './UserMenu'
 import { Routes } from '~/config'
 import { logo } from '~/assets/images'
+import useAuth from '~/hooks/useAuth'
 
 const NAVIGATION = [
   {
@@ -70,14 +71,17 @@ const NAVIGATION = [
   {
     kind: 'header',
     title: 'Authentication',
+    requireRoles: ['admin']
   },
   {
     segment: Routes.admin.user.list.slice(1),
     title: 'user',
     icon: <PeopleIcon />,
+    requireRoles: ['admin']
   },
   {
-    kind: 'divider'
+    kind: 'divider',
+    requireRoles: ['admin']
   },
   {
     kind: 'header',
@@ -151,15 +155,23 @@ function useAdminRouter() {
 
 export default function DashboardLayoutBasic(props) {
   const router = useAdminRouter()
+  const { haveOneOfRoles } = useAuth()
   const { window } = props
 
   // Remove this const when copying and pasting into your project.
   const demoWindow = window ? window() : undefined
 
+  const filteredNavigation = NAVIGATION.filter(item => {
+    if (item?.requireRoles && !haveOneOfRoles(item?.requireRoles)) {
+      return false
+    }
+    return true
+  })
+
   return (
     <AppProvider
       branding={{ logo: <img src={logo} />, title: '' }}
-      navigation={NAVIGATION}
+      navigation={filteredNavigation}
       router={router}
       theme={demoTheme}
       window={demoWindow}
