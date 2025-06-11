@@ -156,9 +156,19 @@ export default function VoucherDetail() {
         </Button>
       </Box>
       {/* Bảng sản phẩm */}
-      <Typography variant="h6" gutterBottom>
+      <Box>
+        <Typography variant="h6" gutterBottom>
         Danh sách sản phẩm áp dụng voucher:
-      </Typography>
+        </Typography>
+        <Button
+          variant="contained"
+          color="info"
+          component={Link}
+          to={Routes.admin.vouchers.addItems(voucher.VOUCHER_CODE)}
+        >
+          Thêm sản phẩm
+        </Button>
+      </Box>
 
       {productsLoading ? (
         <Box textAlign="center" mt={2}>
