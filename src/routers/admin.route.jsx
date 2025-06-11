@@ -29,12 +29,11 @@ export default [
   {
     path: '/admin',
     element: <AdminLayout />,
-    loader: isAuthenticate,
     children : [
       {
         path: 'dashboard',
         element: <Dashboard />,
-        loader: composeLoaders(isAuthenticate),
+        //loader: composeLoaders(isAuthenticate),
       },
       {
         path: 'user',

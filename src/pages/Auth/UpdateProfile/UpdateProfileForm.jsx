@@ -15,10 +15,9 @@ import { useForm, Controller } from 'react-hook-form'
 import useUserInfo from '~/hooks/useUserInfo'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDeviceId } from '~/hooks/useDeviceId'
-import userService from '~/service/user.service'
 import { updateProfile } from '~/redux/thunks/user.thunk'
 import { useNavigate } from 'react-router-dom'
-import ImageUploader from '~/components/ImageUploader'
+import ImageUploader from '~/components/AvatarUploader'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import imageService from '~/service/image.service'
@@ -27,7 +26,6 @@ function UpdateProfileForm() {
   const {
     nameInfo,
     gender,
-    addressInfo,
     phoneNumberInfo
   } = useUserInfo()
 
@@ -73,7 +71,7 @@ function UpdateProfileForm() {
       }
 
       let newAvt = null
-      
+
       if (avatarFile) {
         const avatarUrl = await imageService.uploadAvatar(avatarFile, userId, user.AVATAR_IMG_URL)
         console.log('Uploaded avatar:', avatarUrl.data.url)
@@ -95,7 +93,7 @@ function UpdateProfileForm() {
 
       //await userService.updateProfile(payload, userId, deviceId)
       dispatch(updateProfile({ credentials: { user_Id: userId, device_Id: deviceId }, payload, navigate }))
-      
+
       toast.success('Cập nhật thành công!')
     } catch (error) {
       console.error('Lỗi cập nhật:', error)
