@@ -15,6 +15,9 @@ import CategoryIcon from '@mui/icons-material/Category'
 import BalanceIcon from '@mui/icons-material/Balance'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import InventoryIcon from '@mui/icons-material/Inventory'
+import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
+import { LiaFileInvoiceSolid } from 'react-icons/lia'
+
 
 import UserMenu from './UserMenu'
 import { Routes } from '~/config'
@@ -64,6 +67,23 @@ const NAVIGATION = [
     segment: 'integrations',
     title: 'Integrations',
     icon: <LayersIcon />,
+  },
+  {
+    kind: 'divider',
+  },
+  {
+    kind: 'header',
+    title: 'Hóa đơn'
+  },
+  {
+    segment: Routes.admin.purchaseInvoices.list.slice(1),
+    title: 'Hóa đơn nhập hàng',
+    icon: <LiaFileInvoiceSolid size={25} />,
+  },
+  {
+    segment: Routes.admin.saleInvoices.list.slice(1),
+    title: 'Hóa đơn bán hàng',
+    icon: <LiaFileInvoiceDollarSolid size={25} />
   },
   {
     kind: 'divider',

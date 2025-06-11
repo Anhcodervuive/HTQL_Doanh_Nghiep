@@ -142,7 +142,6 @@ export default function UnitInvoiceList() {
                     <StyledTableCell>{itemUnit.UNIT_NAME_EN}</StyledTableCell>
                     <StyledTableCell>{itemUnit.UNIT_ABB}</StyledTableCell>
                     <StyledTableCell align="center">
-                      <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
                       <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.unitInvoice.edit(itemUnit._id)}>Edit</Button>
                       <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemUnit._id)}>Delete</Button>
                     </StyledTableCell>

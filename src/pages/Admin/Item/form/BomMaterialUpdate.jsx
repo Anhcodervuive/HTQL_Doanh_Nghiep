@@ -125,7 +125,7 @@ export default function BomMaterialUpdate({ data = [], itemId, viewOnly }) {
           ))}
           {!viewOnly && <TableRow>
             <TableCell >{itemMaterials?.length + 1}</TableCell>
-            <TableCell>
+            <TableCell colSpan={3}>
               <SearchItemInput onItemClick={handleAddItem} />
             </TableCell>
           </TableRow>}
