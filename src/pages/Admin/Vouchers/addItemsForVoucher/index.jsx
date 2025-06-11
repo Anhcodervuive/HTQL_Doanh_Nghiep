@@ -20,7 +20,7 @@ import { toast } from 'react-toastify'
 import vouchersService from '~/service/admin/vouchers.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
-import SearchItemForVoucherInput from './SearchItemForVoucherInput'
+import SearchItemInput from '~/components/Admin/SearchItemInput'
 import { useNavigate } from 'react-router-dom'
 
 export default function VoucherAddItem() {
@@ -88,7 +88,7 @@ export default function VoucherAddItem() {
       </Typography>
 
       <Box mb={2}>
-        <SearchItemForVoucherInput onItemClick={handleItemSelect} />
+        <SearchItemInput onItemClick={handleItemSelect} searchOption="product" />
       </Box>
 
       {/* Danh sách sản phẩm đã có trong voucher */}

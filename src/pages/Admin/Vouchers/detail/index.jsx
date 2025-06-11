@@ -121,7 +121,7 @@ export default function VoucherDetail() {
         <Box sx={{ pl: 2, mt: 1 }}>
           <Typography><strong>Loại:</strong> {voucher.TYPE === 'PERCENTAGE' ? 'Phần trăm' : 'Giảm giá cố định'}</Typography>
           <Typography><strong>Giá trị:</strong> {voucher.TYPE === 'PERCENTAGE' ? `${voucher.VALUE}%` : `${voucher.VALUE.toLocaleString()} VND`}</Typography>
-          {voucher.MAX_DISCOUNT && (
+          {voucher.TYPE === 'PERCENTAGE' && voucher.MAX_DISCOUNT && (
             <Typography><strong>Giảm tối đa:</strong> {voucher.MAX_DISCOUNT.toLocaleString()} VND</Typography>
           )}
           <Typography><strong>Phạm vi áp dụng:</strong> {voucher.APPLY_SCOPE === 'PRODUCT' ? 'Sản phẩm' : 'Hóa đơn'}</Typography>

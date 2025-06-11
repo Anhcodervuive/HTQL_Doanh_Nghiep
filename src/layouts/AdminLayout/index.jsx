@@ -15,6 +15,8 @@ import CategoryIcon from '@mui/icons-material/Category'
 import BalanceIcon from '@mui/icons-material/Balance'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import InventoryIcon from '@mui/icons-material/Inventory'
+import LocalOfferIcon from '@mui/icons-material/LocalOffer'
+import PieChartIcon from '@mui/icons-material/PieChart'
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
 import { LiaFileInvoiceSolid } from 'react-icons/lia'
 
@@ -121,6 +123,23 @@ const NAVIGATION = [
     segment: Routes.admin.itemUnit.list.slice(1),
     title: 'Đơn vị tính',
     icon: <BalanceIcon />
+  },
+  {
+    kind: 'divider',
+  },
+  {
+    kind: 'header',
+    title: 'Mã giảm giá',
+  },
+  {
+    segment: Routes.admin.vouchers.list.slice(1),
+    title: 'Mã giảm giá',
+    icon: <LocalOfferIcon />
+  },
+  {
+    segment: Routes.admin.vouchers.statistics.slice(1),
+    title: 'Thống kê mã giảm giá',
+    icon: <PieChartIcon />
   },
   {
     kind: 'divider',
