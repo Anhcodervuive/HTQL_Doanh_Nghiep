@@ -28,6 +28,13 @@ export const routeTree = [
           // { path: '/admin/supplier/:id/edit', name: 'Edit' }
         ]
       },
+      {
+        path: '/admin/vouchers', name: 'Vouchers', children: [
+          { path: '/admin/vouchers', name: 'List' },
+          { path: '/admin/vouchers/create', name: 'Create' },
+          { path: '/admin/vouchers/:id/edit', name: 'Edit' },
+        ]
+      }
     ]
   }
 ]

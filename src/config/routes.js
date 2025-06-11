@@ -39,6 +39,13 @@ export default {
       create: '/admin/invoice-unit/create',
       edit: (id = '') => `/admin/invoice-unit/${id || ':id'}/edit`,
     },
+    vouchers: {
+      list : '/admin/vouchers',
+      voucherDetail: (id) => `/admin/vouchers/${id}`,
+      create: '/admin/vouchers/create',
+      edit: (id = '') => `/admin/vouchers/${id || ':id'}/edit`,
+      statistics: '/admin/vouchers/statistics',
+    }
   },
   auth: {
     login: '/login',

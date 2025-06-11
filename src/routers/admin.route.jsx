@@ -24,6 +24,11 @@ import { composeLoaders } from '~/utils/composeLoader'
 import PurchaseInvoiceList from '~/pages/Admin/PurchaseInvoices/list'
 import InvoiceDetail from '~/pages/Admin/PurchaseInvoices/detail'
 import AddPurchaseInvoiceForm from '~/pages/Admin/PurchaseInvoices/create'
+import VouchersList from '~/pages/Admin/Vouchers/list'
+import VoucherDetail from '~/pages/Admin/Vouchers/detail'
+import VoucherCreate from '~/pages/Admin/Vouchers/create'
+import EditVoucher from '~/pages/Admin/Vouchers/edit'
+import VoucherStatisticsPage from '~/pages/Admin/Vouchers/statistics'
 
 export default [
   {
@@ -146,6 +151,31 @@ export default [
         element: <InvoiceDetail />,
         loader: composeLoaders(isAuthenticate),
       },
+      {
+        path: 'vouchers',
+        element: <VouchersList />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'vouchers/:id',
+        element: <VoucherDetail/>,
+        loader: composeLoaders(isAuthenticate)
+      },
+      {
+        path: 'vouchers/create',
+        element: <VoucherCreate />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'vouchers/:id/edit',
+        element: <EditVoucher />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'vouchers/statistics',
+        element: <VoucherStatisticsPage />,
+        loader: composeLoaders(isAuthenticate),
+      }
     ]
   },
 ]
