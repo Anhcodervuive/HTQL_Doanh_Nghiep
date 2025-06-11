@@ -56,6 +56,11 @@ function UpdateProfileForm() {
     })
   }, [nameInfo, gender, phoneNumberInfo, setValue])
 
+  useEffect(() => {
+    if (user?.dob) {
+      setValue('dob', user.dob.slice(0, 10))
+    }
+  }, [user, setValue])
 
   const submit = async (data) => {
     try {
@@ -66,8 +71,10 @@ function UpdateProfileForm() {
 
       const phone = {
         countryCode,
+        countryName: 'Vietnam',
         areaCode,
-        phoneNumber: number
+        phoneNumber: number,
+        fullPhoneNumber: `${countryCode}${number}`
       }
 
       let newAvt = null
@@ -78,14 +85,25 @@ function UpdateProfileForm() {
         newAvt = avatarUrl.data.url
         // window.location.reload()
       }
+      const address = {
+        country: 'Vietnam',
+        city: data.addressSelector?.city?.name || '',
+        district: data.addressSelector?.district?.name || '',
+        ward: data.addressSelector?.ward?.name || '',
+        state: 'SG',
+        address1: data.address1 || '',
+        address2: data.address2 || ''
+      }
 
       const payload = {
         firstName: data.firstname,
         lastName: data.lastname,
         gender: data.gender,
-        addressSelector: data.addressSelector,
-        phoneNumber: phone,
-        avatar: newAvt || user.AVATAR_IMG_URL
+        dob: data.dob,
+        address,
+        phone,
+        avatar: newAvt || user.AVATAR_IMG_URL,
+        contact: { relationship: 'vvv' }
       }
 
       console.log('Payload gửi về server:', payload)
@@ -93,7 +111,6 @@ function UpdateProfileForm() {
 
       //await userService.updateProfile(payload, userId, deviceId)
       dispatch(updateProfile({ credentials: { user_Id: userId, device_Id: deviceId }, payload, navigate }))
-
       toast.success('Cập nhật thành công!')
     } catch (error) {
       console.error('Lỗi cập nhật:', error)
@@ -160,6 +177,29 @@ function UpdateProfileForm() {
 
             <Grid item xs={12} sm={6}>
               <Controller
+                name="dob"
+                control={control}
+                defaultValue=""
+                rules={{ required: 'Vui lòng chọn ngày sinh' }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    type="date"
+                    label="Ngày sinh"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    error={!!errors.dob}
+                    helperText={errors.dob?.message}
+                  />
+                )}
+              />
+            </Grid>
+
+
+            <Grid item xs={12} sm={6}>
+              <Controller
                 name="phoneNumber"
                 control={control}
                 defaultValue=""
@@ -208,6 +248,36 @@ function UpdateProfileForm() {
                 )}
               />
             </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="address1"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Địa chỉ 1 (số nhà, tên đường, v.v.)"
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Controller
+                name="address2"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Địa chỉ 2 (block, căn hộ, v.v.)"
+                  />
+                )}
+              />
+            </Grid>
+
           </Grid>
 
         </Grid>
