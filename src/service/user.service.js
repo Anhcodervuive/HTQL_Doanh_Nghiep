@@ -21,8 +21,6 @@ class UserService {
   }
 
   async search(credential, options = {}) {
-    console.log('credentials:', credential)
-    console.log('option: ', options)
     return (await this.api.get('/', {
       params: {
         ...options

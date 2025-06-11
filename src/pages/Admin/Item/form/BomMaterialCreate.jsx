@@ -76,6 +76,7 @@ export default function BomMaterialCreate({ data = [], changeBomMaterials }) {
               <TableCell>{item.UNIT_NAME}</TableCell>
               <TableCell>
                 <TextField
+                  size='small'
                   type='number'
                   name='bomMaterials'
                   slotProps={{
@@ -94,8 +95,8 @@ export default function BomMaterialCreate({ data = [], changeBomMaterials }) {
           ))}
           <TableRow>
             <TableCell >{itemMaterials?.length + 1}</TableCell>
-            <TableCell>
-              <SearchItemInput onItemClick={handleAddItem}/>
+            <TableCell colSpan={2}>
+              <SearchItemInput onItemClick={handleAddItem} searchOption='material'/>
             </TableCell>
           </TableRow>
         </TableBody>

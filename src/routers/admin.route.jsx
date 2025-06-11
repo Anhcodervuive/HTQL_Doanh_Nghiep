@@ -29,6 +29,7 @@ import VoucherDetail from '~/pages/Admin/Vouchers/detail'
 import VoucherCreate from '~/pages/Admin/Vouchers/create'
 import EditVoucher from '~/pages/Admin/Vouchers/edit'
 import VoucherStatisticsPage from '~/pages/Admin/Vouchers/statistics'
+import SaleInvoiceCreate from '~/pages/Admin/SaleInvoice/create'
 
 export default [
   {
@@ -175,6 +176,11 @@ export default [
         path: 'vouchers/statistics',
         element: <VoucherStatisticsPage />,
         loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'sale-invoices/create',
+        element: <SaleInvoiceCreate />,
+        loader: isAuthenticate
       }
     ]
   },
