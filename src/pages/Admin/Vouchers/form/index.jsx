@@ -50,7 +50,7 @@ function VoucherForm({ submit, data, disableCode = false, isSubmitting = false }
       TYPE: formData.TYPE,
       VALUE: Number(formData.VALUE),
       APPLY_SCOPE: formData.APPLY_SCOPE,
-      MAX_DISCOUNT: Number(formData.MAX_DISCOUNT) || 0,
+      MAX_DISCOUNT: Number(formData.MAX_DISCOUNT) || null,
       QUANTITY: Number(formData.QUANTITY),
       START_DATE: formData.START_DATE,
       END_DATE: formData.END_DATE

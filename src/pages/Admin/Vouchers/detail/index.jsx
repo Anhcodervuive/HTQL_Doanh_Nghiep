@@ -124,7 +124,7 @@ export default function VoucherDetail() {
           {voucher.MAX_DISCOUNT && (
             <Typography><strong>Giảm tối đa:</strong> {voucher.MAX_DISCOUNT.toLocaleString()} VND</Typography>
           )}
-          <Typography><strong>Phạm vi áp dụng:</strong> {voucher.APPLY_SCOPE === 'PRODUCT' ? 'Sản phẩm' : 'Toàn hệ thống'}</Typography>
+          <Typography><strong>Phạm vi áp dụng:</strong> {voucher.APPLY_SCOPE === 'PRODUCT' ? 'Sản phẩm' : 'Hóa đơn'}</Typography>
           <Typography><strong>Số lượng:</strong> {voucher.QUANTITY}</Typography>
           <Typography><strong>Đã sử dụng:</strong> {voucher.NUMBER_USING}</Typography>
           <Typography>
