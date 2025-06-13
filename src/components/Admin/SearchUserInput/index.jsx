@@ -1,4 +1,4 @@
-import { Box, CircularProgress, FormControl, IconButton, InputAdornment, MenuItem, Paper, Popper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
+import { Avatar, Box, CircularProgress, IconButton, InputAdornment, Paper, Popper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import useDebounce from '~/hooks/useDebounce'
@@ -8,43 +8,27 @@ import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import itemService from '~/service/admin/item.service'
-import itemTypeService from '~/service/admin/itemType.service'
-import { formatCurrency } from '~/utils/formatter'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
+import userService from '~/service/user.service'
 
 
-function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSize = 'small', searchOption = 'all' }) {
-  const [option, setOption] = useState(searchOption)
+function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSize = 'small' }) {
   const [searchValue, setSearchValue] = useState('')
   const searchValueDebounce = useDebounce(searchValue, 1000)
   const searchAreaRef = useRef(null)
   const [isResultPropperOpen, setIsResultPropperOpen] = useState(false)
   const { userId: user_id } = useUserInfo()
   const device_id = useDeviceId()
-  const { data: dataMaterialItemType } = useQuery({
-    enabled: !!user_id && !!device_id,
-    queryKey: ['materialItemType'],
-    queryFn: () => itemTypeService.findOneByName({
-      user_id,
-      device_id
-    }, 'Nguyên liệu'),
-    retry: false,
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60 * 5
-  })
 
   const { data: searchedItem, isLoading: isLoadingSearchedItem, isError: isErrorSearch, } = useQuery({
-    enabled: !!user_id && !!device_id && !!dataMaterialItemType && !!searchValueDebounce,
+    enabled: !!user_id && !!device_id && !!searchValueDebounce,
     queryKey: ['searchedItem', searchValueDebounce],
-    queryFn: () => itemService.search({
+    queryFn: () => userService.search({
       user_id,
       device_id,
     }, {
-      itemTypeId: option === 'material' ? dataMaterialItemType?.data?._id : undefined,
       search: searchValueDebounce,
-      size: 5,
-      isProduct: option === 'product' ? true : undefined
+      size: 5
     }),
     retry: false,
     refetchOnWindowFocus: false,
@@ -77,7 +61,7 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
                 ),
                 endAdornment: (
                   <InputAdornment position='end'>
-                    <Box width={30} sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+                    <Box width={30} sx={{ display: 'flex', alignItems: 'center' }}>
                       {searchValue && (
                         isLoadingSearchedItem
                           ? <CircularProgress />
@@ -86,18 +70,6 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
                           </IconButton>
                       )}
                     </Box>
-                    <FormControl variant="standard">
-                      <Select
-                        value={option}
-                        onChange={(e) => setOption(e.target.value)}
-                        disableUnderline
-                        sx={{ minWidth: 100 }}
-                      >
-                        <MenuItem value="all">Tất cả </MenuItem>
-                        <MenuItem value="material">Nguyên liệu</MenuItem>
-                        <MenuItem value="product">Sản phẩm</MenuItem>
-                      </Select>
-                    </FormControl>
                   </InputAdornment>
                 )
               }
@@ -107,15 +79,7 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
             onChange={handleSearchInput}
             onFocus={() => setIsResultPropperOpen(true)}
             fullWidth
-            placeholder='Nhập tên hoặc mã hàng'
-            // sx={{
-            //   '& .MuiOutlinedInput-root': {
-            //     '&.Mui-focused': { backgroundColor: 'white' },
-            //     '& fieldset': { borderColor: 'rgba(0 0 0)' },
-            //     '&:hover fieldset': { borderColor: 'rgba(0 0 0)' },
-            //     '&.Mui-focused fieldset': { borderColor: 'rgba(0 0 0)', borderWidth: '1px' },
-            //   }
-            // }}
+            placeholder='Nhập tên người dùng'
           />
         </Box>
         <Popper open={isResultPropperOpen && !!searchedItem?.data} anchorEl={searchAreaRef.current} placement={properPosition}>
@@ -127,26 +91,27 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
                   <Table >
                     <TableHead>
                       <TableRow>
-                        <TableCell>Mã</TableCell>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Giá</TableCell>
-                        <TableCell>Tồn kho</TableCell>
+                        <TableCell></TableCell>
+                        <TableCell>Tên</TableCell>
+                        <TableCell>Email</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {searchedItem?.data?.items?.map((item) => (
+                      {searchedItem?.data?.users?.map((item) => (
                         <TableRow
                           key={item._id}
-                          onClick={() => onItemClick(item)}
+                          onClick={() => {
+                            onItemClick(item)
+                            setIsResultPropperOpen(false)
+                          }}
                           sx={{
                             cursor: 'pointer', // Biến thành con trỏ khi hover
                             '&:hover': { backgroundColor: '#b3b3b3cc' }, // Đổi màu khi hover
                           }}
                         >
-                          <TableCell>{item.ITEM_CODE}</TableCell>
-                          <TableCell>{item.ITEM_NAME}</TableCell>
-                          <TableCell>{`${formatCurrency(item.PRICE[item.PRICE.length - 1]?.PRICE_AMOUNT)} ${item.PRICE[item.PRICE.length - 1]?.UNIT_ABB}`}</TableCell>
-                          <TableCell>{`${item.ITEM_STOCKS.QUANTITY} ${item.UNIT_NAME}`}</TableCell>
+                          <TableCell><Avatar alt={item.LIST_NAME?.at(-1).FIRST_NAME} src={item.AVATAR_IMG_URL} /></TableCell>
+                          <TableCell>{item.LIST_NAME?.at(-1).FULL_NAME}</TableCell>
+                          <TableCell>{item.LIST_EMAIL?.at(-1).EMAIL}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -163,4 +128,4 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
   )
 }
 
-export default SearchItemInput
+export default SearchUserInput
