@@ -39,10 +39,10 @@ const LoginPage = () => {
     if (!isReady) return
     const credentials = { ...data, deviceId }
     try {
-      const result = await dispatch(login({ credentials }))
+      const result = await dispatch(login({ credentials, method: data.method || 'default' }))
       const originalPayload = unwrapResult(result)
       if (originalPayload) {
-        console.log(originalPayload)
+        console.log('originalPayload', originalPayload)
         toast.success('Đăng nhập thành công!')
         // const redirect = getRedirectPath(user.ROLE)
         navigate(Routes.admin.dashboard, { replace: true })
@@ -52,6 +52,7 @@ const LoginPage = () => {
       }
     } catch (error) {
       console.log(error)
+      console.error('Đăng nhập thất bại:', error)
     }
   }
   return (
@@ -98,14 +99,10 @@ const LoginPage = () => {
                 onSuccess={credentialResponse => {
                   console.log('credentialResponse: ', credentialResponse)
                   const token = credentialResponse.credential
-                  dispatch(login({
-                    credentials: { token, deviceId },
-                    navigate,
-                    method: 'google',
-                  }))
+                  handleLogin({ token, method: 'google' })
                 }}
                 onError={() => {
-                  console.log('Login Failed1')
+                  toast.error('Đăng nhập bằng Google thất bại')
                 }}
               />
             </GoogleOAuthProvider>
