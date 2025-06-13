@@ -101,7 +101,6 @@ function ItemUpdateForm({ data, viewOnly }) {
   const onSubmitPriceAndUnitInfo = async (priceAndUnitInfo) => {
     const unitInfo = {
       unitId: priceAndUnitInfo.unitId,
-      unitInvoiceId: priceAndUnitInfo.unitInvoiceId,
     }
     const credential = {
       user_id,

@@ -66,7 +66,7 @@ export default function SupplierList() {
     }, {
       limit: showedRecord,
       page,
-      search: searchValueDebounce
+      search: searchValueDebounce,
     }),
     retry: false,
     refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu

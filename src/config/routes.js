@@ -23,10 +23,15 @@ export default {
       edit: (id = '') => `/admin/item-unit/${id || ':id'}/edit`,
     },
     purchaseInvoices: {
-      list : 'admin/purchase-invoices',
+      list : '/admin/purchase-invoices',
       invoiceDetailPath: '/admin/purchase-invoices/:id',
       invoiceDetail: (id) => `/admin/purchase-invoices/${id}`,
       create: '/admin/purchase-invoices/create',
+    },
+    saleInvoices: {
+      list: 'admin/sale-invoices',
+      create : 'admin/sale-invoices/create',
+      edit: (id) => `/admin/sale-invoices/${id || ':id'}/edit`
     },
     item : {
       list : '/admin/item',
@@ -39,6 +44,14 @@ export default {
       create: '/admin/invoice-unit/create',
       edit: (id = '') => `/admin/invoice-unit/${id || ':id'}/edit`,
     },
+    vouchers: {
+      list : '/admin/vouchers',
+      voucherDetail: (id) => `/admin/vouchers/${id}`,
+      create: '/admin/vouchers/create',
+      edit: (id = '') => `/admin/vouchers/${id || ':id'}/edit`,
+      statistics: '/admin/vouchers/statistics',
+      addItems: (id) => `/admin/vouchers/${id || ':id'}/add-items`
+    }
   },
   auth: {
     login: '/login',
