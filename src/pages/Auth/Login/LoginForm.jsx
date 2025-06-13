@@ -15,12 +15,13 @@ import { useForm, Controller } from 'react-hook-form'
 import IconifyIcon from '../IconifyIcon'
 import { useDeviceId } from '~/hooks/useDeviceId'
 
-const LoginForm = ({ handleLogin }) => {
+const LoginForm = ({ handleLogin, disabled }) => {
   const [showPassword, setShowPassword] = useState(false)
   const { control, handleSubmit, formState: { errors } } = useForm()
   const deviceId = useDeviceId()
+  console.log('device id nè: ', deviceId)
   const theme = useTheme()
-  const isSmUp = useMediaQuery(theme.breakpoints. up('sm'))
+  const isSmUp = useMediaQuery(theme.breakpoints.up('sm'))
 
   const onSubmit = async (data) => {
     const formData = {
@@ -111,6 +112,7 @@ const LoginForm = ({ handleLogin }) => {
         </Stack>
         <Button
           fullWidth
+          disabled={disabled}
           type="submit"
           variant="contained"
           size={isSmUp ? 'large' : 'medium'}

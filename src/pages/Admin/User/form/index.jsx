@@ -14,7 +14,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import ImageUploader from '~/components/ImageUploader'
+import ImageUploader from '~/components/AvatarUploader'
 import LocationSelector from '~/components/LocationSelector'
 import { MuiTelInput, matchIsValidTel } from 'mui-tel-input'
 import { useForm, Controller } from 'react-hook-form'
@@ -188,9 +188,9 @@ function UserForm() {
                       name='gender'
                       error={!!errors.gender}
                     >
-                      <MenuItem value={'male'}>Nam</MenuItem>
-                      <MenuItem value={'female'}>Nữ</MenuItem>
-                      <MenuItem value={'other'}>Khác</MenuItem>
+                      <MenuItem value={'Nam'}>Nam</MenuItem>
+                      <MenuItem value={'Nữ'}>Nữ</MenuItem>
+                      <MenuItem value={'Khác'}>Khác</MenuItem>
                     </Select>
                   )}
                 />
@@ -251,17 +251,17 @@ function UserForm() {
               <Controller
                 name="addressSelector"
                 control={control}
-                rules={{
-                  validate: (value) => {
-                    if (!value || Object.keys(value?.city)?.length === 0) {
-                      return 'Vui lòng nhập vào Thành phố/Tỉnh'
-                    } else if (Object.keys(value?.district)?.length === 0) {
-                      return 'Vui lòng chọn Quận/Huyện'
-                    } else if (Object.keys(value?.ward)?.length === 0) {
-                      return 'Vui lòng nhập vào Phường, Thị xã,...'
-                    }
-                  }
-                }}
+                // rules={{
+                //   validate: (value) => {
+                //     if (!value || Object.keys(value?.city)?.length === 0) {
+                //       return 'Vui lòng nhập vào Thành phố/Tỉnh'
+                //     } else if (Object.keys(value?.district)?.length === 0) {
+                //       return 'Vui lòng chọn Quận/Huyện'
+                //     } else if (Object.keys(value?.ward)?.length === 0) {
+                //       return 'Vui lòng nhập vào Phường, Thị xã,...'
+                //     }
+                //   }
+                // }}
                 render={({ field, fieldState }) => (
                   <LocationSelector
                     value={{

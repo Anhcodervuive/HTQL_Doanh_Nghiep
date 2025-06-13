@@ -10,24 +10,49 @@ import {
   Backdrop,
   CircularProgress
 } from '@mui/material'
-import { Icon } from '@iconify/react'
-import IconifyIcon from '../IconifyIcon'
 import LoginForm from './LoginForm'
 
 import { useDispatch, useSelector } from 'react-redux'
+import { unwrapResult } from '@reduxjs/toolkit'
 import { login } from '~/redux/thunks/user.thunk'
 import { useNavigate } from 'react-router-dom'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import React from 'react'
-import { GoogleOAuthProvider, GoogleLogin, useGoogleLogin } from '@react-oauth/google'
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
+import { toast } from 'react-toastify'
+import { Routes } from '~/config'
 
 const LoginPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
   const deviceId = useDeviceId()
+  const isReady = !!deviceId
   const status = useSelector((state) => state.user.status)
+  // const { currentUser, error } = useSelector((s) => s.user)
+  // const getRedirectPath = (roleObj) => {
+  //   if (roleObj.IS_ADMIN || roleObj.IS_MANAGER || roleObj.IS_SERVICE_STAFF)
+  //     return '/admin/dashboard'
+  //   return '/'
+  // }
   const handleLogin = async (data) => {
-    await dispatch(login({ credentials: data, navigate }))
+    if (!isReady) return
+    const credentials = { ...data, deviceId }
+    try {
+      const result = await dispatch(login({ credentials }))
+      const originalPayload = unwrapResult(result)
+      if (originalPayload) {
+        console.log(originalPayload)
+        toast.success('Đăng nhập thành công!')
+        // const redirect = getRedirectPath(user.ROLE)
+        navigate(Routes.admin.dashboard, { replace: true })
+          .then((res) => {
+            console.log('da chuyen huong', res)
+          })
+      }
+    } catch (error) {
+      console.log(error)
+    }
   }
   return (
 

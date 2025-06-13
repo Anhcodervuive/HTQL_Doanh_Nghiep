@@ -9,36 +9,39 @@ import authService from '~/service/auth.service'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useDeviceId } from '~/hooks/useDeviceId'
-
+import { toast } from 'react-toastify'
 const ChangePasswordForm = () => {
   const { control, handleSubmit, watch, formState: { errors } } = useForm()
   const navigate = useNavigate()
 
   const user = useSelector(state => state.user.currentUser)
-  const userId = user?.USER_ID
-  const deviceId = useDeviceId()
+  const user_id = user?.USER_ID
+  const device_id = useDeviceId()
 
   const onSubmit = async (data) => {
+    if (!user_id || !device_id) {
+      toast.error('Thông tin người dùng chưa sẵn sàng.')
+      return
+    }
     try {
       const oldPassword = data.oldPassword
       const newPassword = data.newPassword
 
       const response = await authService.changePassword(
+        { user_id, device_id },
         oldPassword,
-        newPassword,
-        deviceId,
-        userId
+        newPassword
       )
 
       if (response.success) {
-        alert(response.message || 'Đổi mật khẩu thành công!')
+        toast.success(response.message || 'Đổi mật khẩu thành công!')
         navigate('/profile')
       } else {
-        alert(response.message || 'Đổi mật khẩu thất bại.')
+        toast.error(response.message || 'Đổi mật khẩu thất bại.')
       }
     } catch (error) {
       console.error('Lỗi đổi mật khẩu:', error)
-      alert('Mật khẩu không đúng.')
+      toast.error('Mật khẩu không đúng.')
     }
   }
 

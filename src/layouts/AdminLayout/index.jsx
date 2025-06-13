@@ -15,6 +15,8 @@ import CategoryIcon from '@mui/icons-material/Category'
 import BalanceIcon from '@mui/icons-material/Balance'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import InventoryIcon from '@mui/icons-material/Inventory'
+import { useSelector } from 'react-redux'
+import { Navigate } from 'react-router-dom'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'
 import PieChartIcon from '@mui/icons-material/PieChart'
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
@@ -176,6 +178,7 @@ const demoTheme = createTheme({
   },
 })
 
+
 function useAdminRouter() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -196,6 +199,11 @@ export default function DashboardLayoutBasic(props) {
   const router = useAdminRouter()
   const { haveOneOfRoles } = useAuth()
   const { window } = props
+  const user = useSelector(state => state.user.currentUser)
+
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
 
   // Remove this const when copying and pasting into your project.
   const demoWindow = window ? window() : undefined

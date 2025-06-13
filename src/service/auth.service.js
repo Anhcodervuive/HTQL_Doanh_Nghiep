@@ -49,14 +49,17 @@ class AuthService {
     return (await this.api.post('/reset-password', { token, newPassword })).data
   }
 
-  async changePassword(oldPassword, newPassword, deviceId, userId) {
-    console.log('service: ', oldPassword, newPassword, deviceId, userId)
+  async changePassword(credential, oldPassword, newPassword) {
+    console.log('service1: ', oldPassword, newPassword, credential)
 
     return (
       await this.api.put(
         '/change-password',
-        { oldPassword, newPassword, deviceId, userId },
+        { oldPassword, newPassword },
         {
+          headers: {
+            ...credential
+          },
           withCredentials: true
         }
       )
