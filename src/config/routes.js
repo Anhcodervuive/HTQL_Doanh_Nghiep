@@ -68,5 +68,8 @@ export default {
   error: {
     notFound404: '*',
     forbidden403: '/forbidden'
+  },
+  customer: {
+    detailItem: '/detail-Item',
   }
 }
