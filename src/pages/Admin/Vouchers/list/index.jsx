@@ -366,7 +366,9 @@ export default function VouchersList() {
                         id="showedRecord-select-standard"
                         value={showedRecord}
                         onChange={(event) => {
-                          setShowedRecord(event.target.value)
+                          const v = event.target.value
+                          setShowedRecord(v)
+                          setPage(1)
                         }}
                         label="Số dòng"
                       >
@@ -377,6 +379,7 @@ export default function VouchersList() {
                     </FormControl>
                   </Box>
                   <Pagination
+                    page={page}
                     defaultPage={data?.data?.page}
                     count={Math.ceil(data?.data?.total / showedRecord)}
                     color="primary" sx={{ my: 1, }}

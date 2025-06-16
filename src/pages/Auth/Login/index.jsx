@@ -45,10 +45,9 @@ const LoginPage = () => {
         console.log('originalPayload', originalPayload)
         toast.success('Đăng nhập thành công!')
         // const redirect = getRedirectPath(user.ROLE)
-        navigate(Routes.admin.dashboard, { replace: true })
-          .then((res) => {
-            console.log('da chuyen huong', res)
-          })
+        setTimeout(() => {
+          navigate(Routes.admin.dashboard, { replace: true })
+        }, 500)
       }
     } catch (error) {
       console.log(error)

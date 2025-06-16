@@ -28,6 +28,7 @@ const Profile = () => {
     addressInfo,
     phoneNumberInfo
   } = useUserInfo()
+  console.log('Profile: ',Profile)
 
   if (!nameInfo) {
     return <Typography>Không tìm thấy thông tin người dùng</Typography>

@@ -40,7 +40,7 @@ export default [
       {
         path: 'dashboard',
         element: <Dashboard />,
-        //loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate),
       },
       {
         path: 'user',

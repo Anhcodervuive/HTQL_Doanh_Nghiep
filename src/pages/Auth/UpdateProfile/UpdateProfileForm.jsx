@@ -21,6 +21,7 @@ import ImageUploader from '~/components/AvatarUploader'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import imageService from '~/service/image.service'
+import dayjs from 'dayjs'
 
 function UpdateProfileForm() {
   const {
@@ -30,7 +31,10 @@ function UpdateProfileForm() {
   } = useUserInfo()
 
   const [avatarFile, setAvatarFile] = useState(null)
-  const { control, handleSubmit, setValue, formState: { errors } } = useForm()
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm({
+    defaultValues: { dob: '' }
+  })
+
 
   const user = useSelector(state => state.user.currentUser)
   const userId = user?.USER_ID
@@ -117,6 +121,12 @@ function UpdateProfileForm() {
       toast.error('Cập nhật thất bại!')
     }
   }
+  useEffect(() => {
+    if (user?.BIRTH_DATE) {
+      const dobValue = dayjs(user.BIRTH_DATE).format('YYYY-MM-DD')
+      setValue('dob', dobValue)
+    }
+  }, [user, setValue])
 
   // console.log("submit data: ", submit)
 
@@ -234,7 +244,8 @@ function UpdateProfileForm() {
                     // } else if (Object.keys(value?.ward)?.length === 0) {
                     //   return 'Vui lòng nhập vào Phường, Thị xã,...'
                     // }
-                  } }}
+                  }
+                }}
                 render={({ field, fieldState }) => (
                   <LocationSelector
                     value={{

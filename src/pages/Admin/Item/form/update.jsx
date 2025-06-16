@@ -21,7 +21,7 @@ import itemUnitService from '~/service/admin/itemUnit.service'
 import BomMaterial from './BomMaterialCreate'
 import { Accordion, AccordionDetails, AccordionSummary, Backdrop, CircularProgress } from '@mui/material'
 import itemService from '~/service/admin/item.service'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Routes } from '~/config'
 import ImagesUploader from '~/components/ImagesUploader'
@@ -277,11 +277,13 @@ function ItemUpdateForm({ data, viewOnly }) {
               {errors.unitInvoiceId && <Typography variant='caption' color='error'>{errors.unitInvoiceId.message}</Typography>}
               <MyEditor content={description} handleChange={(html) => setDescription(html)} isDisable={!!viewOnly}/>
               {!viewOnly && <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-                <Button variant="outlined" color="secondary" type="reset">
-                  Cancel
+                <Button variant="outlined" color="secondary" type="reset"
+                  LinkComponent={Link} to={Routes.admin.item.list}
+                >
+                  Hủy
                 </Button>
                 <Button variant="contained" color="primary" type="submit">
-                  Save
+                  Lưu
                 </Button>
               </Box>}
             </Box>
@@ -381,11 +383,13 @@ function ItemUpdateForm({ data, viewOnly }) {
                 )}
               />
               {!viewOnly && <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-                <Button variant="outlined" color="secondary" type="reset">
-                  Cancel
+                <Button variant="outlined" color="secondary" type="reset"
+                  LinkComponent={Link} to={Routes.admin.item.list}
+                >
+                  Hủy
                 </Button>
                 <Button variant="contained" color="primary" type="submit">
-                  Save
+                  Lưu
                 </Button>
               </Box>}
             </Box>

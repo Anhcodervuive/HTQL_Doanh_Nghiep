@@ -5,6 +5,8 @@ import Grid from '@mui/material/Grid'
 import { useForm, Controller } from 'react-hook-form'
 import { matchIsValidTel, MuiTelInput } from 'mui-tel-input'
 import { emailRegex } from '~/config/formValidateRegex'
+import { Link } from 'react-router-dom'
+import { Routes } from '~/config'
 
 function SupplierForm({ submit, data }) {
   const {
@@ -127,11 +129,11 @@ function SupplierForm({ submit, data }) {
                   name="contactPerson"
                   control={control}
                   defaultValue={data?.SUPPLIER_CONTACT_PERSON_NAME}
-                  rules={{ required: 'Please enter contact person' }}
+                  rules={{ required: 'Vui lòng nhập tên người liên hệ' }}
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Contact Person"
+                      label="Người liên hệ"
                       fullWidth
                       error={!!errors.contactPerson}
                       helperText={errors.contactPerson?.message}
@@ -160,11 +162,13 @@ function SupplierForm({ submit, data }) {
         </Grid>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
-          <Button variant="outlined" color="secondary" type="reset">
-            Cancel
+          <Button variant="outlined" color="secondary" type="reset"
+            LinkComponent={Link} to={Routes.admin.supplier.list}
+          >
+            Hủy
           </Button>
           <Button variant="contained" color="primary" type="submit">
-            Save
+            Lưu
           </Button>
         </Box>
       </form>
