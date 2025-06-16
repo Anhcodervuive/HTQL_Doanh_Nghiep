@@ -23,6 +23,10 @@ import { CircularProgress } from '@mui/material'
 import ProgressBar from '~/components/ProgressBar'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import useUserInfo from '~/hooks/useUserInfo'
+import { Tooltip, IconButton } from '@mui/material'
+import InfoIcon from '@mui/icons-material/Info'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -127,7 +131,7 @@ export default function ItemTypeList() {
               ? <TableRow>
                 <TableCell colSpan={5}>
                   <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', mt: 5 }}>
-                    <CircularProgress size={20}/>
+                    <CircularProgress size={20} />
                     <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
                   </Box>
                 </ TableCell>
@@ -139,10 +143,47 @@ export default function ItemTypeList() {
                     <StyledTableCell>{itemType._id}</StyledTableCell>
                     <StyledTableCell>{itemType.ITEM_TYPE_NAME}</StyledTableCell>
                     <StyledTableCell>{itemType.ITEM_TYPE_NAME_EN}</StyledTableCell>
-                    <StyledTableCell align="center">
+                    {/* <StyledTableCell align="center">
                       <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
                       <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.itemType.edit(itemType._id)}>Edit</Button>
                       <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemType._id)}>Delete</Button>
+                    </StyledTableCell> */}
+                    <StyledTableCell align="center">
+
+                      <Tooltip title="Chỉnh sửa">
+                        <IconButton
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fbc02d',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#f9a825',
+                            },
+                            mr: 1,
+                          }}
+                          component={Link}
+                          to={Routes.admin.itemType.edit(itemType._id)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Tooltip title="Xóa">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          sx={{
+                            backgroundColor: '#d32f2f',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#c62828',
+                            },
+                          }}
+                          onClick={() => handleDelete(itemType._id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
                     </StyledTableCell>
                   </StyledTableRow>
                 ))

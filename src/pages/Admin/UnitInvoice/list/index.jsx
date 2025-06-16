@@ -23,6 +23,9 @@ import { CircularProgress } from '@mui/material'
 import ProgressBar from '~/components/ProgressBar'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import useUserInfo from '~/hooks/useUserInfo'
+import { Tooltip, IconButton } from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -108,7 +111,7 @@ export default function UnitInvoiceList() {
             color='success'
             startIcon={<AddIcon />}
           >
-            New
+            Thêm mới
           </Button>
         </Box>
       </Box>
@@ -141,9 +144,46 @@ export default function UnitInvoiceList() {
                     <StyledTableCell>{itemUnit.UNIT_NAME}</StyledTableCell>
                     <StyledTableCell>{itemUnit.UNIT_NAME_EN}</StyledTableCell>
                     <StyledTableCell>{itemUnit.UNIT_ABB}</StyledTableCell>
-                    <StyledTableCell align="center">
+                    {/* <StyledTableCell align="center">
                       <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.unitInvoice.edit(itemUnit._id)}>Edit</Button>
                       <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemUnit._id)}>Delete</Button>
+                    </StyledTableCell> */}
+                    <StyledTableCell align="center">
+
+                      <Tooltip title="Chỉnh sửa">
+                        <IconButton
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fbc02d',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#f9a825',
+                            },
+                            mr: 1,
+                          }}
+                          component={Link}
+                          to={Routes.admin.unitInvoice.edit(itemUnit._id)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Tooltip title="Xóa">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          sx={{
+                            backgroundColor: '#d32f2f',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#c62828',
+                            },
+                          }}
+                          onClick={() => handleDelete(itemUnit._id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
                     </StyledTableCell>
                   </StyledTableRow>
                 ))

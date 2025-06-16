@@ -24,6 +24,7 @@ import { CircularProgress, FormControl, InputAdornment, InputLabel, MenuItem, Pa
 import { useState } from 'react'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import useUserInfo from '~/hooks/useUserInfo'
+import { Tooltip, IconButton, Avatar } from '@mui/material'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -129,6 +130,7 @@ export default function UserList() {
           <TableHead>
             <TableRow>
               <StyledTableCell>STT</StyledTableCell>
+              <StyledTableCell>Ảnh</StyledTableCell>
               <StyledTableCell>Họ tên</StyledTableCell>
               <StyledTableCell>Giới tính</StyledTableCell>
               <StyledTableCell>Ngày sinh</StyledTableCell>
@@ -157,6 +159,13 @@ export default function UserList() {
                   <StyledTableRow key={user._id}>
                     <StyledTableCell>{(page - 1) * showedRecord + index + 1}</StyledTableCell>
                     <StyledTableCell>
+                      <Avatar
+                        src={user.AVATAR_IMG_URL}
+                        alt={user.USER_NAME}
+                        sx={{ width: 40, height: 40 }}
+                      />
+                    </StyledTableCell>
+                    <StyledTableCell>
                       {user.LIST_NAME?.at(-1)?.LAST_NAME || ''} {user.LIST_NAME?.at(-1)?.FIRST_NAME || ''}
                     </StyledTableCell>
 
@@ -172,18 +181,26 @@ export default function UserList() {
                     </StyledTableCell>
                     {/* <StyledTableCell>{user.ROLE}</StyledTableCell> */}
                     <StyledTableCell align="center">
-                      <Button
-                        variant="contained"
-                        size="small"
-                        sx={{ mr: 1 }}
-                        color="info"
-                        component={Link}
-                        to={Routes.user.userDetail(user._id)}
-                      >
-                        Chi tiết
-                      </Button>
-                      <Button variant="outlined" size="small" sx={{ mr: 1 }}>Sửa</Button>
-                      <Button variant="contained" size="small" color="error">Xóa</Button>
+                      <Tooltip title="Chi tiết" arrow>
+                        <IconButton
+                          size="small"
+                          color="info"
+                          component={Link}
+                          to={Routes.user.userDetail(user._id)}
+                          sx={{
+                            width: 35,
+                            height: 35,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            backgroundColor: '#1976d2',
+                            color: 'white',
+                            '&:hover': { backgroundColor: '#1565c0' },
+                          }}
+                        >
+                          {/* <InfoIcon fontSize="small" /> */}
+                          <Box component="span" sx={{ fontWeight: 'bold', fontSize: 14 }}>i</Box>
+                        </IconButton>
+                      </Tooltip>
                     </StyledTableCell>
                   </StyledTableRow>
                 )))}
@@ -201,7 +218,9 @@ export default function UserList() {
                         id="showedRecord-select-standard"
                         value={showedRecord}
                         onChange={(event) => {
-                          setShowedRecord(event.target.value)
+                          const v = event.target.value
+                          setShowedRecord(v)
+                          setPage(1)
                         }}
                         label="Số dòng"
                       >
@@ -212,6 +231,7 @@ export default function UserList() {
                     </FormControl>
                   </Box>
                   <Pagination
+                    page={page}
                     defaultPage={data?.data?.page}
                     count={Math.ceil(data?.data?.total / showedRecord)}
                     color="primary" sx={{ my: 1, }}
