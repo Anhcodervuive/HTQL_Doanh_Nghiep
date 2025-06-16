@@ -3,6 +3,8 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { useForm, Controller } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import { Routes } from '~/config'
 
 function ItemUnitForm({ submit, data }) {
   const {
@@ -87,11 +89,13 @@ function ItemUnitForm({ submit, data }) {
         </Grid>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
-          <Button variant="outlined" color="secondary" type="reset">
-            Cancel
+          <Button variant="outlined" color="secondary" type="reset"
+            LinkComponent={Link} to={Routes.admin.itemUnit.list}
+          >
+            Hủy
           </Button>
           <Button variant="contained" color="primary" type="submit">
-            Save
+            Lưu
           </Button>
         </Box>
       </form>

@@ -156,74 +156,82 @@ export default function VoucherDetail() {
         </Button>
       </Box>
       {/* Bảng sản phẩm */}
-      <Box>
-        <Typography variant="h6" gutterBottom>
-        Danh sách sản phẩm áp dụng voucher:
-        </Typography>
-        <Button
-          variant="contained"
-          color="info"
-          component={Link}
-          to={Routes.admin.vouchers.addItems(voucher.VOUCHER_CODE)}
-        >
-          Thêm sản phẩm
-        </Button>
-      </Box>
+      {voucher.APPLY_SCOPE == 'PRODUCT' &&
+        (
+          <>
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Danh sách sản phẩm áp dụng voucher:
+              </Typography>
+              {voucher.APPLY_SCOPE == 'PRODUCT' &&
+                (<Button
+                  variant="contained"
+                  color="info"
+                  component={Link}
+                  to={Routes.admin.vouchers.addItems(voucher.VOUCHER_CODE)}
+                >
+                  Thêm sản phẩm
+                </Button>)
+              }
+            </Box>
 
-      {productsLoading ? (
-        <Box textAlign="center" mt={2}>
-          <CircularProgress />
-          <Typography>Đang tải danh sách sản phẩm...</Typography>
-        </Box>
-      ) : productsError ? (
-        <Typography color="error">
-          Đã xảy ra lỗi khi tải danh sách sản phẩm!
-        </Typography>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Hình ảnh</strong></TableCell>
-                <TableCell><strong>Mã sản phẩm</strong></TableCell>
-                <TableCell><strong>Tên sản phẩm</strong></TableCell>
-                <TableCell><strong>Số lượng tồn kho</strong></TableCell>
-                <TableCell><strong>Giá bán</strong></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {productsData?.data?.items.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>
-                    <img
-                      src={item.AVATAR_IMAGE_URL}
-                      alt={item.ITEM_NAME}
-                      style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
-                    />
-                  </TableCell>
-                  <TableCell>{item.ITEM_CODE}</TableCell>
-                  <TableCell>{item.ITEM_NAME}</TableCell>
-                  <TableCell>{item.ITEM_STOCKS?.QUANTITY ?? 0}</TableCell>
-                  <TableCell>
-                    {item.PRICE?.[0]?.PRICE_AMOUNT?.toLocaleString() ?? 'N/A'} VND
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => handleDeleteItem(item._id)}
-                    >
-                      Xóa
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+            {productsLoading ? (
+              <Box textAlign="center" mt={2}>
+                <CircularProgress />
+                <Typography>Đang tải danh sách sản phẩm...</Typography>
+              </Box>
+            ) : productsError ? (
+              <Typography color="error">
+                Đã xảy ra lỗi khi tải danh sách sản phẩm!
+              </Typography>
+            ) : (
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><strong>Hình ảnh</strong></TableCell>
+                      <TableCell><strong>Mã sản phẩm</strong></TableCell>
+                      <TableCell><strong>Tên sản phẩm</strong></TableCell>
+                      <TableCell><strong>Số lượng tồn kho</strong></TableCell>
+                      <TableCell><strong>Giá bán</strong></TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {productsData?.data?.items.map((item) => (
+                      <TableRow key={item._id}>
+                        <TableCell>
+                          <img
+                            src={item.AVATAR_IMAGE_URL}
+                            alt={item.ITEM_NAME}
+                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
+                          />
+                        </TableCell>
+                        <TableCell>{item.ITEM_CODE}</TableCell>
+                        <TableCell>{item.ITEM_NAME}</TableCell>
+                        <TableCell>{item.ITEM_STOCKS?.QUANTITY ?? 0}</TableCell>
+                        <TableCell>
+                          {item.PRICE?.[0]?.PRICE_AMOUNT?.toLocaleString() ?? 'N/A'} VND
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleDeleteItem(item._id)}
+                          >
+                            Xóa
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </>
+        )
+      }
     </Paper>
   )
 }

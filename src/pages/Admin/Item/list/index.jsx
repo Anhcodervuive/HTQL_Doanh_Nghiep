@@ -28,6 +28,9 @@ import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 import itemTypeService from '~/service/admin/itemType.service'
 import PriceRangeInput from '~/components/Admin/PriceRangeInput'
+import { Tooltip, IconButton } from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -230,22 +233,27 @@ export default function ItemList() {
               },
             }}
           />
-          {!isLoadingItemType && !errorItemType && <FormControl size='small' sx={{ minWidth: '120px' }}>
-            <InputLabel id="itemType">loại: </InputLabel>
-            <Select
-              value={itemTypeId}
-              onChange={(e) => setItemTypeId(e.target.value)}
-              sx={{ height: '100%' }}
-              labelId="itemType"
-            >
-              <MenuItem value=''>Tất cả</MenuItem>
-              {dataItemType?.data?.itemTypes?.map((itemType) => (
-                <MenuItem key={itemType._id} value={itemType._id}>
-                  {itemType.ITEM_TYPE_NAME}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>}
+          {!isLoadingItemType && !errorItemType && <TextField
+            select
+            size="small"
+            label="Loại"
+            value={itemTypeId}
+            onChange={(e) => setItemTypeId(e.target.value)}
+            sx={{ minWidth: 120, m: 1 }}
+            slotProps={{
+              input: {
+                startAdornment: <InputAdornment position="start"></InputAdornment>,
+                endAdornment: <InputAdornment position="end">{isLoading && <CircularProgress size={20}/>}</InputAdornment>,
+              },
+            }}
+          >
+            <MenuItem value="">Tất cả</MenuItem>
+            {dataItemType?.data?.itemTypes?.map((itemType) => (
+              <MenuItem key={itemType._id} value={itemType._id}>
+                {itemType.ITEM_TYPE_NAME}
+              </MenuItem>
+            ))}
+          </TextField>}
           <PriceRangeInput onChange={priceRange => setPriceRange(priceRange)}/>
         </Box>
         <Button
@@ -254,8 +262,10 @@ export default function ItemList() {
           variant='contained'
           color='success'
           startIcon={<AddIcon />}
+          size='small'
+          sx={{ fontSize: '0.75rem', px: 2, py: 1 }}
         >
-            New
+            Thêm mới
         </Button>
       </Box>
       <TableContainer component={Paper}>
@@ -289,7 +299,7 @@ export default function ItemList() {
                 : (data?.data?.total === 0
                   ? <TableRow>
                     <TableCell colSpan={5}>
-                      <SearchResultNotFound message='Không tìm thấy nhà hàng hóa'/>
+                      <SearchResultNotFound message='Không tìm thấy hàng hóa'/>
                     </TableCell>
                   </TableRow>
                   : data?.data?.items?.map((supplier) => (
@@ -298,11 +308,69 @@ export default function ItemList() {
                       <StyledTableCell>{supplier.ITEM_NAME}</StyledTableCell>
                       <StyledTableCell>{supplier.ITEM_NAME_EN}</StyledTableCell>
                       <StyledTableCell>{supplier.ITEM_TYPE_NAME}</StyledTableCell>
-                      <StyledTableCell>{supplier.PRICE.at(-1).PRICE_AMOUNT + '' + supplier.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
-                      <StyledTableCell align="center">
+                      <StyledTableCell>{supplier.PRICE.at(-1).PRICE_AMOUNT.toLocaleString() + '' + supplier.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
+                      {/* <StyledTableCell align="center">
                         <Button variant="contained" size="small" sx={{ mr: 1 }} color="info" LinkComponent={Link} to={Routes.admin.item.detail(supplier._id)}>Detail</Button>
                         <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(supplier._id)}>Edit</Button>
                         <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                      </StyledTableCell> */}
+                      <StyledTableCell align="center">
+                        <Tooltip title="Chi tiết">
+                          <IconButton
+                            size="small"
+                            sx={{
+                              backgroundColor: '#1976d2',
+                              color: 'white',
+                              fontWeight: 'bold',
+                              fontSize: 14,
+                              '&:hover': {
+                                backgroundColor: '#1565c0',
+                              },
+                              mr: 1,
+                              width: 35,
+                              height: 35,
+                            }}
+                            component={Link}
+                            to={Routes.admin.item.detail(supplier._id)}
+                          >
+                            <Box component="span" sx={{ fontWeight: 'bold', fontSize: 14 }}>i</Box>
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Chỉnh sửa">
+                          <IconButton
+                            size="small"
+                            sx={{
+                              backgroundColor: '#fbc02d',
+                              color: 'white',
+                              '&:hover': {
+                                backgroundColor: '#f9a825',
+                              },
+                              mr: 1,
+                            }}
+                            component={Link}
+                            to={Routes.admin.item.edit(supplier._id)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Xóa">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            sx={{
+                              backgroundColor: '#d32f2f',
+                              color: 'white',
+                              '&:hover': {
+                                backgroundColor: '#c62828',
+                              },
+                            }}
+                            onClick={() => handleDelete(supplier._id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
                       </StyledTableCell>
                     </StyledTableRow>)
                   ))
@@ -322,7 +390,10 @@ export default function ItemList() {
                           id="showedRecord-select-standard"
                           value={showedRecord}
                           onChange={(event) => {
-                            setShowedRecord(event.target.value)
+                            const v = event.target.value
+                            setShowedRecord(v)
+                            setPage(1)
+                            // setShowedRecord(event.target.value)
                           }}
                           label="Số dòng"
                         >
@@ -333,6 +404,7 @@ export default function ItemList() {
                       </FormControl>
                     </Box>
                     <Pagination
+                      page={page}
                       count={Math.ceil(data?.data?.total / showedRecord)}
                       color="primary" sx={{ my: 1, }}
                       onChange={(event, value) => {

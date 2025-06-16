@@ -201,9 +201,9 @@ export default function DashboardLayoutBasic(props) {
   const { window } = props
   const user = useSelector(state => state.user.currentUser)
 
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
+  // if (!user) {
+  //   return <Navigate to="/login" replace />
+  // }
 
   // Remove this const when copying and pasting into your project.
   const demoWindow = window ? window() : undefined

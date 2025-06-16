@@ -21,6 +21,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { useForm, Controller } from 'react-hook-form'
 import { emailRegex } from '~/config/formValidateRegex'
 import { MuiTelInput } from 'mui-tel-input'
+import { toast } from 'react-toastify'
 
 import IconifyIcon from '../IconifyIcon'
 import authService from '~/service/auth.service'
@@ -33,7 +34,7 @@ const SignupForm = () => {
   const navigate = useNavigate()
   const { control, handleSubmit, watch, formState: { errors } } = useForm()
 
-  const validateAge = (value) => {
+  const validate = (value) => {
     const birthDate = new Date(value)
     const today = new Date()
     const age = today.getFullYear() - birthDate.getFullYear()
@@ -88,14 +89,15 @@ const SignupForm = () => {
     try {
       const response = await authService.register(payload)
       if (response.success) {
-        alert(response.message || 'Đăng ký thành công!')
+        toast.success(response.message || 'Đăng ký thành công!')
         navigate('/login')
       } else {
-        alert(response.message || 'Đăng ký thất bại.')
+        toast.error(response.message || 'Đăng ký thất bại.')
       }
     } catch (error) {
+      const msg = error?.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.'
       console.error('Lỗi đăng ký:', error)
-      alert('Đã xảy ra lỗi, vui lòng thử lại sau.')
+      toast.error(msg)
     }
   }
 
@@ -302,7 +304,22 @@ const SignupForm = () => {
                   <Controller
                     name="dob"
                     control={control}
-                    rules={{ required: 'Vui lòng chọn ngày sinh' }}
+                    rules={{ required: 'Vui lòng chọn ngày sinh',
+                      validate: (value) => {
+                        if (!value) return 'Vui lòng chọn ngày sinh'
+                        const today = new Date()
+                        const birthDate = new Date(value)
+                        const age = today.getFullYear() - birthDate.getFullYear()
+                        const monthDiff = today.getMonth() - birthDate.getMonth()
+                        const dayDiff = today.getDate() - birthDate.getDate()
+
+                        const isOldEnough = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)
+                          ? age - 1 >= 16
+                          : age >= 16
+
+                        return isOldEnough || 'Bạn phải đủ 16 tuổi'
+                      }
+                    }}
                     render={({ field }) => (
                       <DatePicker
                         {...field}

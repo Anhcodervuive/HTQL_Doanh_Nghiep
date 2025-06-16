@@ -46,7 +46,7 @@ const SignupPage = () => {
             </Link>
           </Typography>
 
-          <Stack direction="row" spacing={2} sx={{ mb: 3, justifyContent: 'center' }}>
+          {/* <Stack direction="row" spacing={2} sx={{ mb: 3, justifyContent: 'center' }}>
             <Button
               variant="outlined"
               sx={{
@@ -77,7 +77,7 @@ const SignupPage = () => {
             >
               <IconifyIcon icon="logos:twitter" />
             </Button>
-          </Stack>
+          </Stack> */}
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
