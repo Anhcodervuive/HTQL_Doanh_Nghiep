@@ -22,7 +22,7 @@ export const isAuthenticate = async () => {
   if (!currentUser) {
     const device_id = localStorage.getItem('device_id')
     const user_id = getUserId()
-
+    console.log('user id', user_id, 'device id', device_id)
     const verifiedUser = await authService.verify({ device_id, user_id })
     if (verifiedUser == null)
       throw redirect(Routes.auth.login)

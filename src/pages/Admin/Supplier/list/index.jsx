@@ -26,6 +26,9 @@ import useDebounce from '~/hooks/useDebounce'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
+import { Tooltip, IconButton } from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -111,7 +114,7 @@ export default function SupplierList() {
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
-          Supplier List
+          Danh sách nhà cung cấp
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
@@ -134,7 +137,7 @@ export default function SupplierList() {
             color='success'
             startIcon={<AddIcon />}
           >
-            New
+            Thêm mới
           </Button>
         </Box>
       </Box>
@@ -171,10 +174,46 @@ export default function SupplierList() {
                     <StyledTableCell>{supplier.SUPPLIER_NAME}</StyledTableCell>
                     <StyledTableCell>{supplier.SUPPLIER_PHONE}</StyledTableCell>
                     <StyledTableCell>{supplier.SUPPLIER_EMAIL}</StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
+                    {/* <StyledTableCell align="center">
                       <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.supplier.edit(supplier._id)}>Edit</Button>
                       <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                    </StyledTableCell> */}
+                    <StyledTableCell align="center">
+
+                      <Tooltip title="Chỉnh sửa">
+                        <IconButton
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fbc02d',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#f9a825',
+                            },
+                            mr: 1,
+                          }}
+                          component={Link}
+                          to={Routes.admin.supplier.edit(supplier._id)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Tooltip title="Xóa">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          sx={{
+                            backgroundColor: '#d32f2f',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#c62828',
+                            },
+                          }}
+                          onClick={() => handleDelete(supplier._id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
                     </StyledTableCell>
                   </StyledTableRow>
                 ))
@@ -192,7 +231,9 @@ export default function SupplierList() {
                         id="showedRecord-select-standard"
                         value={showedRecord}
                         onChange={(event) => {
-                          setShowedRecord(event.target.value)
+                          const v = event.target.value
+                          setShowedRecord(v)
+                          setPage(1)
                         }}
                         label="Số dòng"
                       >
@@ -203,6 +244,7 @@ export default function SupplierList() {
                     </FormControl>
                   </Box>
                   <Pagination
+                    page={page}
                     defaultPage={data?.data?.page}
                     count={Math.ceil(data?.data?.total / showedRecord)}
                     color="primary" sx={{ my: 1, }}
