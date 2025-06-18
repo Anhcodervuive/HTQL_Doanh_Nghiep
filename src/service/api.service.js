@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import { api } from '~/config'
+// import { interceptorLoadingElements } from '~/utils/contant'
 
 
 const getUserId = () => {
@@ -29,10 +30,13 @@ const apiService = (baseURL) => {
   })
 
   API.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      // interceptorLoadingElements(false)
+      return response
+    },
     async (error) => {
       const originalRequest = error.config
-
+      // interceptorLoadingElements(false)
       // Nếu lỗi 401 và chưa từng gửi request refresh toke
       if (
         error.response &&
@@ -89,6 +93,7 @@ const apiService = (baseURL) => {
         setTimeout(() => resolve(config), 1000) // Trì hoãn 2 giây
       })
     }
+    // interceptorLoadingElements(true)
 
     return config
   })

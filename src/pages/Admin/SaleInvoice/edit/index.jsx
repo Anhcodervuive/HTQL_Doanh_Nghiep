@@ -2,34 +2,34 @@ import { useLocation, Link, useNavigate, useParams, matchPath } from 'react-rout
 import { Box, Button, Typography } from '@mui/material'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
-import itemTypeService from '~/service/admin/itemType.service'
+import saleInvoicesService from '~/service/admin/saleInvoice.serivce'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
-import ItemTypeForm from '../form'
+import SaleInvoiceForm from '../form'
 import useUserInfo from '~/hooks/useUserInfo'
 
-function ItemTypeEdit() {
+function SaleInvoiceEdit() {
   const { id } = useParams()
   const location = useLocation()
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
-    queryKey: ['itemType', id],
+    queryKey: ['saleInvoice', id],
     enabled: !!user_id && !!device_id,
-    queryFn: () => itemTypeService.getById({ device_id, user_id, }, id),
+    queryFn: () => saleInvoicesService.getById({ device_id, user_id, }, id),
     retry: false,
     refetchOnWindowFocus: false,
   })
-  const breadcrumbs = findBreadcrumbs(Routes.admin.itemType.edit(), routeTree)
+  const breadcrumbs = findBreadcrumbs(Routes.admin.saleInvoices.edit(), routeTree)
 
   const submit = async (data) => {
-    itemTypeService.update({ device_id, user_id, }, id, data)
+    saleInvoicesService.update({ device_id, user_id, }, id, data)
       .then(res => {
-        navigate(Routes.admin.itemType.list)
-        toast.success('Cập nhật loại hàng hóa thành công')
+        navigate(Routes.admin.saleInvoices.list)
+        toast.success('Cập nhật hóa đơn bán thành công')
         console.log(res)
       })
       .catch(err => {
@@ -40,7 +40,6 @@ function ItemTypeEdit() {
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
-
 
   return (
     <Box sx={{ minHeight: '700px', p: 3 }}>
@@ -60,11 +59,11 @@ function ItemTypeEdit() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Chỉnh sửa loại hàng hóa
+        Chỉnh sửa hóa đơn
       </Typography>
-      <ItemTypeForm submit={submit} data={data?.data}/>
+      <SaleInvoiceForm submit={submit} data={data?.data}/>
     </Box>
   )
 }
 
-export default ItemTypeEdit
+export default SaleInvoiceEdit

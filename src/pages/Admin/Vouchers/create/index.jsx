@@ -7,7 +7,6 @@ import VoucherForm from '../form'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 import { toast } from 'react-toastify'
-import ProgressBar from '~/components/ProgressBar'
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import { Box, Button, Typography } from '@mui/material'
 
@@ -39,7 +38,6 @@ export default function VoucherCreate() {
 
   return (
     <Box sx={{ minHeight: '700px' }}>
-      <ProgressBar />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

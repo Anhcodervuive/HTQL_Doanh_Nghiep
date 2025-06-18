@@ -29,8 +29,8 @@ export default {
       create: '/admin/purchase-invoices/create',
     },
     saleInvoices: {
-      list: 'admin/sale-invoices',
-      create : 'admin/sale-invoices/create',
+      list: '/admin/sale-invoices',
+      create : '/admin/sale-invoices/create',
       edit: (id) => `/admin/sale-invoices/${id || ':id'}/edit`
     },
     item : {

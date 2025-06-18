@@ -9,9 +9,10 @@ import { ToastContainer } from 'react-toastify'
 
 import theme from './theme.js'
 import App from './App.jsx'
+import { preventNumberInputScroll } from './utils/preventNumberInputScroll.js'
 
 const queryClient = new QueryClient()
-
+preventNumberInputScroll()
 createRoot(document.getElementById('root')).render(
   <ThemeProvider theme={theme}>
     <Provider store={store}>

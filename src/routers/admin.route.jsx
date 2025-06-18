@@ -30,8 +30,15 @@ import VoucherCreate from '~/pages/Admin/Vouchers/create'
 import EditVoucher from '~/pages/Admin/Vouchers/edit'
 import VoucherStatisticsPage from '~/pages/Admin/Vouchers/statistics'
 import SaleInvoiceCreate from '~/pages/Admin/SaleInvoice/create'
+import { Navigate } from 'react-router-dom'
+import SaleInvoiceList from '~/pages/Admin/SaleInvoice/list'
+import SaleInvoiceEdit from '~/pages/Admin/SaleInvoice/edit'
 
 export default [
+  {
+    path: '/',
+    element: <Navigate to="/admin/dashboard" replace />,
+  },
   {
     path: '/admin',
     element: <AdminLayout />,
@@ -178,9 +185,19 @@ export default [
         loader: composeLoaders(isAuthenticate),
       },
       {
+        path: 'sale-invoices',
+        element: <SaleInvoiceList />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
         path: 'sale-invoices/create',
         element: <SaleInvoiceCreate />,
         loader: isAuthenticate
+      },
+      {
+        path: 'sale-invoices/:id/edit',
+        element: <SaleInvoiceEdit />,
+        loader: composeLoaders(isAuthenticate),
       }
     ]
   },

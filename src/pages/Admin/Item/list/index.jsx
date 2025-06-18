@@ -24,7 +24,6 @@ import { useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
 import useDebounce from '~/hooks/useDebounce'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 import itemTypeService from '~/service/admin/itemType.service'
 import PriceRangeInput from '~/components/Admin/PriceRangeInput'
@@ -146,7 +145,6 @@ export default function ItemList() {
   if (error) return <div>Error: {error.message}</div>
   return (
     <Box>
-      <ProgressBar isLoading={isLoading} />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button
@@ -171,7 +169,7 @@ export default function ItemList() {
             color={!Object.keys(filter).length ? 'info' : 'inherit'}
             onClick={() => setFilter({})}
           >
-            All <span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityAll?.data?.total})`}</span>
+            Tất cả <span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityAll?.data?.total})`}</span>
           </Button>
         )}
         {dataQuantityIsUnAvailableStock?.data?.total > 0 && !isLoadingIsUnAvailableStock && !isErrorIsUnAvailableStock && (
@@ -201,7 +199,7 @@ export default function ItemList() {
               isActive: true,
             })}
           >
-            Active<span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityIsActive?.data?.total})`}</span>
+            Còn bán<span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityIsActive?.data?.total})`}</span>
           </Button>
         )}
         {dataQuantityAll?.data?.total > dataQuantityIsActive?.data?.total ** !isLoadingQuantityIsActive && !isErrorQuantityIsActive && (
@@ -292,17 +290,17 @@ export default function ItemList() {
                       <SearchResultNotFound message='Không tìm thấy nhà hàng hóa'/>
                     </TableCell>
                   </TableRow>
-                  : data?.data?.items?.map((supplier) => (
-                    <StyledTableRow key={supplier._id}>
-                      <StyledTableCell>{supplier.ITEM_CODE}</StyledTableCell>
-                      <StyledTableCell>{supplier.ITEM_NAME}</StyledTableCell>
-                      <StyledTableCell>{supplier.ITEM_NAME_EN}</StyledTableCell>
-                      <StyledTableCell>{supplier.ITEM_TYPE_NAME}</StyledTableCell>
-                      <StyledTableCell>{supplier.PRICE.at(-1).PRICE_AMOUNT + '' + supplier.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
+                  : data?.data?.items?.map((item) => (
+                    <StyledTableRow key={item._id}>
+                      <StyledTableCell>{item.ITEM_CODE}</StyledTableCell>
+                      <StyledTableCell>{item.ITEM_NAME}</StyledTableCell>
+                      <StyledTableCell>{item.ITEM_NAME_EN}</StyledTableCell>
+                      <StyledTableCell>{item.ITEM_TYPE_NAME}</StyledTableCell>
+                      <StyledTableCell>{item.PRICE.at(-1).PRICE_AMOUNT + '' + item.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
                       <StyledTableCell align="center">
-                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info" LinkComponent={Link} to={Routes.admin.item.detail(supplier._id)}>Detail</Button>
-                        <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(supplier._id)}>Edit</Button>
-                        <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info" LinkComponent={Link} to={Routes.admin.item.detail(item._id)}>Detail</Button>
+                        <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(item._id)}>Edit</Button>
+                        <Button variant="contained" size="small" color="error" onClick={() => handleDelete(item._id)}>Delete</Button>
                       </StyledTableCell>
                     </StyledTableRow>)
                   ))

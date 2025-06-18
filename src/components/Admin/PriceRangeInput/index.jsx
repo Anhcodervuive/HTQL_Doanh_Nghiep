@@ -46,6 +46,7 @@ const PriceRangeInput = ({ minPrice = '', maxPrice = '', onChange }) => {
           type="number"
           value={min}
           onChange={handleMinChange}
+          onWheel={(e) => e.target.blur()} // Prevents scroll on input
           placeholder="Nhập giá tối thiểu"
           slotProps={{
             htmlInput: { min: 1 },
@@ -61,6 +62,7 @@ const PriceRangeInput = ({ minPrice = '', maxPrice = '', onChange }) => {
           type="number"
           value={max}
           onChange={handleMaxChange}
+          onWheel={(e) => e.target.blur()} // Prevents scroll on inputs
           placeholder="Nhập giá tối đa"
           slotProps={{
             htmlInput: { min: 1 },

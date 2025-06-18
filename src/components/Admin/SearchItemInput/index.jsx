@@ -1,4 +1,20 @@
-import { Box, CircularProgress, FormControl, IconButton, InputAdornment, MenuItem, Paper, Popper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
+import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Popper from '@mui/material/Popper'
+import Select from '@mui/material/Select'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import useDebounce from '~/hooks/useDebounce'
@@ -24,7 +40,7 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
   const device_id = useDeviceId()
   const { data: dataMaterialItemType } = useQuery({
     enabled: !!user_id && !!device_id,
-    queryKey: ['materialItemType'],
+    queryKey: ['materialItems'],
     queryFn: () => itemTypeService.findOneByName({
       user_id,
       device_id
@@ -118,7 +134,22 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
             // }}
           />
         </Box>
-        <Popper open={isResultPropperOpen && !!searchedItem?.data} anchorEl={searchAreaRef.current} placement={properPosition}>
+        <Popper
+          open={isResultPropperOpen && !!searchedItem?.data}
+          anchorEl={searchAreaRef.current}
+          placement={properPosition}
+          disablePortal
+          modifiers={[
+            {
+              name: 'zIndex',
+              enabled: true,
+              phase: 'write',
+              fn({ state }) {
+                state.styles.popper.zIndex = 2000 // có thể dùng bất kỳ số nào bạn muốn
+              },
+            },
+          ]}
+        >
           {isErrorSearch
             ? <Typography variant='body1'>Đã có lỗi xảy ra khi tìm kiếm, vui lòng thử lại sau</Typography>
             : (
@@ -137,7 +168,10 @@ function SearchItemInput({ onItemClick, properPosition = 'bottom-start', inputSi
                       {searchedItem?.data?.items?.map((item) => (
                         <TableRow
                           key={item._id}
-                          onClick={() => onItemClick(item)}
+                          onClick={() => {
+                            onItemClick(item)
+                            setIsResultPropperOpen(false)
+                          }}
                           sx={{
                             cursor: 'pointer', // Biến thành con trỏ khi hover
                             '&:hover': { backgroundColor: '#b3b3b3cc' }, // Đổi màu khi hover

@@ -24,7 +24,6 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 import invoicesService from '~/service/admin/invoices.service'
 import { toast } from 'react-toastify'
-import ProgressBar from '~/components/ProgressBar'
 
 const STATUS_OPTIONS = [
   { label: 'DRAFT', value: 'DRAFT' },
@@ -114,7 +113,6 @@ export default function AddPurchaseInvoiceForm() {
 
   return (
     <Paper sx={{ p: 3, maxWidth: 1000, mx: 'auto' }}>
-      <ProgressBar />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

@@ -58,6 +58,7 @@
     "mui-tel-input": "^9.0.1",
     "mui-tiptap": "^1.18.1",
     "normalize.css": "^8.0.1",
+    "nprogress": "^0.2.0",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.0",
