@@ -10,7 +10,7 @@ import LoginIcon from '@mui/icons-material/Login'
 import HowToRegIcon from '@mui/icons-material/HowToReg'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '~/redux/thunks/user.thunk'
-import { logo } from '~/assets/images'
+import { logo1 } from '~/assets/images'
 import themeCustomer from '../themeCustomer'
 
 export default function CustomerLayout() {
@@ -31,7 +31,7 @@ export default function CustomerLayout() {
           {/* Logo + tên shop */}
           <Box
             component={Link}
-            to="/"
+            to="/customer/home"
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -42,7 +42,7 @@ export default function CustomerLayout() {
             {/* logo */}
             <Box
               component="img"
-              src={logo}
+              src={logo1}
               alt="Logo"
               sx={{
                 height: { xs: 40, md: 56 },
