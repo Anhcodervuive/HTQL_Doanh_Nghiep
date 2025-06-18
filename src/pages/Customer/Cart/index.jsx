@@ -77,6 +77,8 @@ function CartRow({ product = {}, checked, onToggle }) {
             </Box>
           </Box>
 
+
+
           <Box
             sx={{
               display: 'flex',
