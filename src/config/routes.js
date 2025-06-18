@@ -71,5 +71,6 @@ export default {
   },
   customer: {
     detailItem: '/detail-Item',
+    home: '/home'
   }
 }
