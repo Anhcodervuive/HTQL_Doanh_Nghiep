@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import {
   Box, Typography, Container, Card, CardActionArea,
-  CardContent, CardMedia, Grid, Tabs, Tab, CircularProgress, useTheme
+  CardContent, CardMedia, Grid, Tabs, Tab, CircularProgress, useTheme, Pagination
 } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import Slider from 'react-slick'
@@ -34,20 +34,19 @@ const useCategories = (cred) =>
     queryFn: () => itemTypeService.search(cred),
   })
 
-const useProductsByCategory = (cred, id) =>
+const useProductsByCategory = (cred, id, page) =>
   useQuery({
-    queryKey: ['category-products', id ?? 'all'],
+    queryKey: ['category-products', id ?? 'all', page],
     enabled: !!cred,
     queryFn: () =>
       itemService.search(cred, {
-        page: 1,
-        size: 12,
+        page,
+        size: 5,
         isProduct: true,
         isActive: true,
         ...(id ? { itemTypeId: id } : {}),
       }),
   })
-
 
 /* ---------- slick settings ---------- */
 const sliderSettings = {
@@ -69,89 +68,179 @@ const HomePage = () => {
   const cred = useMemo(() => ({ user_id: userId ?? '', device_id }), [userId, device_id])
 
   const theme = useTheme()
-  const CARD_W = { xs: 160, md: 210 }
+  const CARD_W = { xs: 140, md: 200 }
   const CARD_H = { xs: 250, md: 300 }
   const IMG_H = { xs: 150, md: 180 }
   /* queries */
   const { data: saleData, isLoading: saleLoading } = useSaleProducts(cred)
   const { data: catData, isLoading: catLoading } = useCategories(cred)
 
-const categories = useMemo(() => {
-  if (!catData?.data?.itemTypes) return [];
-  // loại “Nguyên liệu” (isProduct = false)
-  return catData.data.itemTypes.filter((t) => t.IS_PRODUCT); // hoặc t.ITEM_TYPE_NAME !== 'Nguyên liệu'
-}, [catData]);
+  const categories = useMemo(() => {
+    if (!catData?.data?.itemTypes) return []
+    return catData.data.itemTypes.filter(
+      (t) => t._id !== '68301f9e3419c27dd30d89be'
+    )
+  }, [catData])
 
 
   const [activeCat, setActiveCat] = useState('')
+  const [catPage, setCatPage] = useState(1)
   const { data: catProdData, isLoading: catProdLoading } =
-    useProductsByCategory(cred, activeCat)
+    useProductsByCategory(cred, activeCat, catPage)
+
 
   /* product card */
-  const renderCard = (p) => (
-    <Grid
-      item
-      sx={{
-        flex: `0 0 ${CARD_W}`,
-        maxWidth: CARD_W,
-      }}
-      key={p._id}
-    >
-      <Card
-        sx={{
-          width: CARD_W,
-          height: CARD_H,
-          borderRadius: 3,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {/* Ảnh */}
-        <CardMedia
-          component="img"
-          image={p.AVATAR_IMAGE_URL || p.LIST_IMAGE?.[0]?.URL || defaultImage}
-          alt={p.ITEM_NAME}
-          sx={{
-            width: '100%',
-            height: IMG_H,
-            objectFit: 'cover',
-          }}
-        />
+  const renderCard = (p) => {
+    const price = p.PRICE?.[0]?.PRICE_AMOUNT ?? 0
 
-        {/* Nội dung */}
-        <CardContent
+    let bestDiscount = 0
+    p.LIST_VOUCHER_ACTIVE?.forEach((voucher) => {
+      let discount = 0
+      if (voucher.TYPE === 'FIXED_AMOUNT') {
+        discount = voucher.MAX_DISCOUNT
+          ? Math.min(voucher.VALUE, voucher.MAX_DISCOUNT)
+          : voucher.VALUE
+      } else if (voucher.TYPE === 'PERCENTAGE') {
+        const raw = price * (voucher.VALUE / 100)
+        discount = voucher.MAX_DISCOUNT ? Math.min(raw, voucher.MAX_DISCOUNT) : raw
+      }
+      if (discount > bestDiscount) {
+        bestDiscount = discount
+      }
+    })
+
+    const finalPrice = Math.max(price - bestDiscount, 0)
+
+    return (
+      <Grid
+        item
+        sx={{
+          flex: `0 0 ${CARD_W}`,
+          maxWidth: CARD_W,
+        }}
+        key={p._id}
+      >
+        <Card
           sx={{
-            flexGrow: 1,
-            p: 1.5,
+            width: CARD_W,
+            height: CARD_H,
+            // borderRadius: 3,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+            transition: 'transform 0.2s',
+            '&:hover': {
+              transform: 'scale(1.03)',
+            },
+            position: 'relative',
+            overflow: 'hidden',
+            border: `2px solid ${theme.palette.primary.main}`,
+            backgroundColor: theme.palette.background.whiteSpace,
+            boxShadow: bestDiscount > 0 ? 6 : 2,
           }}
         >
-          {/* Tên – clamp 2 dòng */}
-          <Typography
-            variant="subtitle2"
-            fontWeight={700}
+          {/* Góc phải: nhãn giảm giá xéo */}
+          {bestDiscount > 0 && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: -40,
+                bgcolor: '#FF90BB',
+                color: theme.palette.secondary.contrastText,
+                // px: 1.5,
+                // py: 0.5,
+                transform: 'rotate(45deg)',
+                fontSize: 12,
+                fontWeight: 'bold',
+                width: 125,
+                textAlign: 'center',
+                zIndex: 1,
+                // boxShadow: 3,
+              }}
+            >
+              -{bestDiscount.toLocaleString()}₫
+            </Box>
+          )}
+
+          {/* Hình ảnh sản phẩm */}
+          <CardMedia
+            component="img"
+            image={p.AVATAR_IMAGE_URL || p.LIST_IMAGE?.[0]?.URL || defaultImage}
+            alt={p.ITEM_NAME}
             sx={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              lineHeight: 1.25,
-              height: '2.5em',
+              width: '100%',
+              height: IMG_H,
+              objectFit: 'cover',
+            }}
+          />
+
+          {/* Nội dung */}
+          <CardContent
+            sx={{
+              flexGrow: 1,
+              p: 1.5,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              bgcolor: theme.palette.background.default,
             }}
           >
-            {p.ITEM_NAME}
-          </Typography>
+            {/* Tên sản phẩm */}
+            <Typography
+              variant="subtitle2"
+              fontWeight={700}
+              color="primary"
+              sx={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                lineHeight: 1.25,
+                height: '2.5em',
+              }}
+            >
+              {p.ITEM_NAME}
+            </Typography>
 
-          {/* Giá */}
-          <Typography variant="body2" color="text.secondary">
-            {(p.PRICE?.[0]?.PRICE_AMOUNT ?? 0).toLocaleString()}₫
-          </Typography>
-        </CardContent>
-      </Card>
-    </Grid>
-  )
+            {/* Giá */}
+            <Box mt={1}>
+              {bestDiscount > 0 ? (
+                <>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      textDecoration: 'line-through',
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    {price.toLocaleString()}₫
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 700,
+                      color: theme.palette.success.main,
+                    }}
+                  >
+                    {finalPrice.toLocaleString()}₫
+                  </Typography>
+                </>
+              ) : (
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  sx={{ color: theme.palette.text.primary }}
+                >
+                  {price.toLocaleString()}₫
+                </Typography>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+    )
+  }
+
 
   return (
     <Box sx={{ overflowX: 'hidden' }}>
@@ -181,7 +270,7 @@ const categories = useMemo(() => {
           component="marquee"
           sx={{ color: '#fff', fontWeight: 600, fontSize: { xs: 13, md: 16 }, whiteSpace: 'nowrap' }}
         >
-          5TRENDZ – khẳng định cá tính, bắt nhịp xu hướng!
+          5TRENDZ là shop thời trang trẻ trung, năng động, chuyên cập nhật các xu hướng mới nhất. Sản phẩm đa dạng từ streetwear cá tính đến đồ thanh lịch, đảm bảo chất lượng và giá cả hợp lý cho giới trẻ.
         </Typography>
       </Box>
 
@@ -210,7 +299,6 @@ const categories = useMemo(() => {
       </Container>
 
       {/* ---------- Category products ---------- */}
-      {/* ---------- Category products ---------- */}
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
         <Typography
           variant="h5"
@@ -227,7 +315,10 @@ const categories = useMemo(() => {
         ) : (
           <Tabs
             value={activeCat}
-            onChange={(_, v) => setActiveCat(v)}
+            onChange={(_, v) => {
+              setActiveCat(v)
+              setCatPage(1)
+            }}
             variant="scrollable"
             scrollButtons="auto"
             sx={{ mb: 3, '.MuiTab-root': { fontSize: { xs: 12, md: 14 } } }}
@@ -242,11 +333,29 @@ const categories = useMemo(() => {
         {catProdLoading ? (
           <Box textAlign="center"><CircularProgress /></Box>
         ) : (
-          <Grid container spacing={{ xs: 2, md: 3 }}>
-            {catProdData?.data?.items?.map(renderCard)}
-          </Grid>
+          <>
+            <Grid container spacing={{ xs: 2, md: 3 }}>
+              {catProdData?.data?.items?.map(renderCard)}
+            </Grid>
+
+            {catProdData?.data?.total > catProdData.data.limit && (
+              <Box mt={4} display="flex" justifyContent="center">
+                <Pagination
+                  count={Math.ceil(catProdData.data.total / catProdData.data.limit)}
+                  page={catPage}
+                  onChange={(_, value) => setCatPage(value)}
+                  color="primary"
+                  siblingCount={1}
+                  boundaryCount={1}
+                />
+              </Box>
+            )}
+
+
+          </>
         )}
       </Container>
+
 
     </Box>
   )

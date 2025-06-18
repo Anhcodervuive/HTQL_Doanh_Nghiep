@@ -25,7 +25,7 @@ export default function CustomerLayout() {
       <CssBaseline />
 
       {/* ---------- Navbar ---------- */}
-      <AppBar position="static" color="primary">
+      <AppBar position="fixed" color="primary">
         <Toolbar>
 
           {/* Logo + tên shop */}
@@ -56,7 +56,7 @@ export default function CustomerLayout() {
 
           {/* Menu trung tâm */}
           <Box sx={{ flexGrow: 1, ml: 5, display: 'flex', gap: 3 }}>
-            {['/products', '/contact', '/about'].map((path, i) => (
+            {['/customer/home', '/contact', '/about'].map((path, i) => (
               <Button
                 key={path}
                 component={Link}
@@ -97,6 +97,7 @@ export default function CustomerLayout() {
           )}
         </Toolbar>
       </AppBar>
+      <Toolbar />
 
       {/* ---------- Nội dung ---------- */}
       <Box sx={{ minHeight: '80vh', py: 3, bgcolor: 'info.main' }}>
