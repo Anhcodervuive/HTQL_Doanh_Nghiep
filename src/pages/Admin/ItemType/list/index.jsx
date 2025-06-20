@@ -20,7 +20,6 @@ import itemTypeService from '~/service/admin/itemType.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { toast } from 'react-toastify'
 import { CircularProgress } from '@mui/material'
-import ProgressBar from '~/components/ProgressBar'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import useUserInfo from '~/hooks/useUserInfo'
 import { Tooltip, IconButton } from '@mui/material'
@@ -84,7 +83,6 @@ export default function ItemTypeList() {
 
   return (
     <Box>
-      <ProgressBar isLoading={isLoading} />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

@@ -8,7 +8,6 @@ import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import ItemUnitForm from '../form'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 
 function ItemUnitEdit() {
@@ -45,7 +44,6 @@ function ItemUnitEdit() {
 
   return (
     <Box sx={{ minHeight: '700px', p: 3 }}>
-      <ProgressBar isLoading={isLoading} />
       <Box sx={{}}>
         {breadcrumbs.map((item, index) => (
           <Button

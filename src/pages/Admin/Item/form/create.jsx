@@ -19,7 +19,6 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 import itemTypeService from '~/service/admin/itemType.service'
 import unitInvoiceService from '~/service/admin/unitInvoice.service'
-import ProgressBar from '~/components/ProgressBar'
 import MyEditor from '~/components/MyEditor'
 import itemUnitService from '~/service/admin/itemUnit.service'
 import BomMaterial from './BomMaterialCreate'
@@ -114,7 +113,6 @@ function ItemCreateForm({ submit }) {
       }}
       pb={20}
     >
-      <ProgressBar/>
       <form noValidate onSubmit={handleSubmit(onSubmit)} id='form-create-update-item'>
         <Grid container spacing={2}>
           <Grid size={12}>

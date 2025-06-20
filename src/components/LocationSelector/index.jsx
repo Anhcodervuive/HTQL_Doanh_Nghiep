@@ -11,7 +11,7 @@ import { toast } from 'react-toastify'
 
 const TABS = ['Tỉnh/Thành phố', 'Quận/Huyện', 'Phường']
 
-function LocationSelector({ value, onChange, error }) {
+function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', disable }) {
   const [tab, setTab] = useState(0)
   const [searchInput, setSearchInput] = useState('')
   const [location, setLocation] = useState({
@@ -45,7 +45,8 @@ function LocationSelector({ value, onChange, error }) {
   }, [location])
 
   useEffect(() => {
-    if (value) {
+    if (value?.city && value?.district && value?.ward) {
+      let initialLocation = {}
       locationService.getProvincesByName(value.city)
         .then(async res => {
           try {
@@ -54,6 +55,9 @@ function LocationSelector({ value, onChange, error }) {
               ...prev,
               city: res?.data?.data[0]
             }))
+            initialLocation = {
+              city: res?.data?.data[0]
+            }
             setLocationOption(prev => ({
               ...prev,
               city: cities?.data?.data
@@ -65,6 +69,10 @@ function LocationSelector({ value, onChange, error }) {
               ...prev,
               district: targetDistrict
             }))
+            initialLocation = {
+              ...initialLocation,
+              district: targetDistrict
+            }
             setLocationOption(prev => ({
               ...prev,
               district: districtRes?.data?.data
@@ -76,10 +84,15 @@ function LocationSelector({ value, onChange, error }) {
               ...prev,
               ward: targetWard
             }))
+            initialLocation = {
+              ...initialLocation,
+              ward: targetWard
+            }
             setLocationOption(prev => ({
               ...prev,
               ward: wardRes?.data?.data
             }))
+            onChange(initialLocation)
           } catch (error) {
             console.log(error)
             toast('Có lỗi xảy ra trong quá trình gọi API địa chỉ', {
@@ -176,13 +189,54 @@ function LocationSelector({ value, onChange, error }) {
 
   return (
     <Box >
-      <Box>
-        {!!getPathLocation() &&<>
-          <Typography variant='body1'>Địa chỉ: </Typography>
+      {!disable && (
+        <>
+          <Tabs
+            value={tab}
+            variant="fullWidth"
+            indicatorColor='transparent'
+            onChange={handleChangTab}
+          >
+            {TABS.map((tab) => (
+              <Tab key={tab} label={tab} />
+            ))}
+          </Tabs>
+          <Autocomplete
+            freeSolo
+            autoSelect
+            disablePortal
+            disabled={disable}
+            getOptionLabel={(option) => option.name || ''}
+            options={locationOption[Object.keys(locationOption)[tab]] ?? []}
+            inputValue={searchInput}
+            onInputChange={(event, newValue) => setSearchInput(newValue)}
+            renderInput={(params) => (
+              <TextField
+                id='search-location-input'
+                {...params}
+                label="Tỉnh/Thành phố, Quận/Huyện, Phường/Xã"
+                error={!!error?.message}
+                helperText={error?.message}
+              />)}
+            renderOption={(props, option) => {
+              const key = props.key
+              delete props.key
+              return (
+                <li key={key} {...props} onClick={() => handleSelectLocation(option)}>
+                  {option?.name_with_type}
+                </li>
+              )
+            }}
+          />
+        </>
+      )}
+      <Box mt={2}>
+        <Typography variant='body1'>{label} </Typography>
+        {!!getPathLocation() && <>
           <Chip
             label={getPathLocation()}
             variant="outlined"
-            onDelete={() => {
+            onDelete={disable ? null : () => {
               const initState = {
                 city: {},
                 district: {},
@@ -192,45 +246,12 @@ function LocationSelector({ value, onChange, error }) {
               setTab(0)
               onChange(initState)
             }}
+            sx={{
+              mt: 1,
+            }}
           />
         </>}
       </Box>
-      <Tabs
-        value={tab}
-        variant="fullWidth"
-        indicatorColor='transparent'
-        onChange={handleChangTab}
-      >
-        {TABS.map((tab) => (
-          <Tab key={tab} label={tab} />
-        ))}
-      </Tabs>
-      <Autocomplete
-        freeSolo
-        autoSelect
-        disablePortal
-        getOptionLabel={(option) => option.name || ''}
-        options={locationOption[Object.keys(locationOption)[tab]] ?? []}
-        inputValue={searchInput}
-        onInputChange={(event, newValue) => setSearchInput(newValue)}
-        renderInput={(params) =>(
-          <TextField
-            id='search-location-input'
-            {...params}
-            label="Tỉnh/Thành phố, Quận/Huyện, Phường/Xã"
-            error={!!error?.message}
-            helperText={error?.message}
-          />)}
-        renderOption={(props, option) => {
-          const key = props.key
-          delete props.key
-          return (
-            <li key={key} {...props} onClick={() => handleSelectLocation(option)}>
-              {option?.name_with_type}
-            </li>
-          )
-        }}
-      />
     </Box>
   )
 

@@ -24,7 +24,6 @@ import { useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
 import useDebounce from '~/hooks/useDebounce'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 import itemTypeService from '~/service/admin/itemType.service'
 import PriceRangeInput from '~/components/Admin/PriceRangeInput'
@@ -149,7 +148,6 @@ export default function ItemList() {
   if (error) return <div>Error: {error.message}</div>
   return (
     <Box>
-      <ProgressBar isLoading={isLoading} />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button
@@ -174,7 +172,7 @@ export default function ItemList() {
             color={!Object.keys(filter).length ? 'info' : 'inherit'}
             onClick={() => setFilter({})}
           >
-            All <span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityAll?.data?.total})`}</span>
+            Tất cả <span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityAll?.data?.total})`}</span>
           </Button>
         )}
         {dataQuantityIsUnAvailableStock?.data?.total > 0 && !isLoadingIsUnAvailableStock && !isErrorIsUnAvailableStock && (
@@ -204,7 +202,7 @@ export default function ItemList() {
               isActive: true,
             })}
           >
-            Active<span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityIsActive?.data?.total})`}</span>
+            Còn bán<span style={{ color: 'gray', marginLeft: '3px' }}>{`(${dataQuantityIsActive?.data?.total})`}</span>
           </Button>
         )}
         {dataQuantityAll?.data?.total > dataQuantityIsActive?.data?.total ** !isLoadingQuantityIsActive && !isErrorQuantityIsActive && (

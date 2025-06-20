@@ -31,11 +31,19 @@ import EditVoucher from '~/pages/Admin/Vouchers/edit'
 import VoucherStatisticsPage from '~/pages/Admin/Vouchers/statistics'
 import VoucherAddItem from '~/pages/Admin/Vouchers/addItemsForVoucher'
 import SaleInvoiceCreate from '~/pages/Admin/SaleInvoice/create'
+import { Navigate } from 'react-router-dom'
+import SaleInvoiceList from '~/pages/Admin/SaleInvoice/list'
+import SaleInvoiceEdit from '~/pages/Admin/SaleInvoice/edit'
 
 export default [
   {
+    path: '/',
+    element: <Navigate to="/admin/dashboard" replace />,
+  },
+  {
     path: '/admin',
     element: <AdminLayout />,
+    // loader: isAuthenticate,
     children : [
       {
         path: 'dashboard',
@@ -145,7 +153,7 @@ export default [
       {
         path: 'purchase-invoices/create',
         element: <AddPurchaseInvoiceForm />,
-        loader: composeLoaders(isAuthenticate),
+        // loader: composeLoaders(isAuthenticate),
       },
       {
         path: 'purchase-invoices/:id',
@@ -178,6 +186,11 @@ export default [
         loader: composeLoaders(isAuthenticate),
       },
       {
+        path: 'sale-invoices',
+        element: <SaleInvoiceList />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
         path: 'vouchers/:id/add-items',
         element: <VoucherAddItem />,
         loader: composeLoaders(isAuthenticate)
@@ -186,6 +199,16 @@ export default [
         path: 'sale-invoices/create',
         element: <SaleInvoiceCreate />,
         loader: isAuthenticate
+      },
+      {
+        path: 'sale-invoices/:id/edit',
+        element: <SaleInvoiceEdit />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'sale-invoices/:id/detail',
+        element: <SaleInvoiceEdit />,
+        loader: composeLoaders(isAuthenticate),
       }
     ]
   },

@@ -1,10 +1,12 @@
-import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
+import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
+import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Popper from '@mui/material/Popper'
+import Select from '@mui/material/Select'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -13,6 +15,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+
 import { useQuery } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import useDebounce from '~/hooks/useDebounce'
@@ -22,11 +25,15 @@ import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import voucherService from '~/service/admin/vouchers.service'
+import { formatCurrency } from '~/utils/formatter'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
-import userService from '~/service/user.service'
+import { VOUCHER_SCOPES } from '~/utils/contant'
 
-
-function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSize = 'small', placeholder = '' }) {
+// notExpired: thời điểm mua vẫn nằm trong ngày áp dụng của voucher
+// available: Số lượng voucher đã được khách hàng sử dụng nhỏ hơn số lương cho phép
+function SearchVoucherInput({ onItemClick, properPosition = 'bottom-start', inputSize = 'small', searchOption = 'ALL', notExpired, available }) {
+  const [option, setOption] = useState(searchOption)
   const [searchValue, setSearchValue] = useState('')
   const searchValueDebounce = useDebounce(searchValue, 1000)
   const searchAreaRef = useRef(null)
@@ -34,15 +41,19 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
   const { userId: user_id } = useUserInfo()
   const device_id = useDeviceId()
 
-  const { data: searchedItem, isLoading: isLoadingSearchedItem, isError: isErrorSearch, } = useQuery({
+  const { data: searchedItems, isLoading: isLoadingSearchedItem, isError: isErrorSearch, } = useQuery({
     enabled: !!user_id && !!device_id && !!searchValueDebounce,
-    queryKey: ['searchedUsers', searchValueDebounce],
-    queryFn: () => userService.search({
+    queryKey: ['searchedVouchers', searchValueDebounce],
+    queryFn: () => voucherService.search({
       user_id,
       device_id,
     }, {
       search: searchValueDebounce,
-      size: 5
+      limit: 5,
+      applyScope: option === 'ALL' ? null : option,
+      isActive: true,
+      filterByExpiration: notExpired,
+      filterByUsage: available,
     }),
     retry: false,
     refetchOnWindowFocus: false,
@@ -62,7 +73,7 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
   }
 
   return (
-    <ClickAwayListener onClickAway={handleClickAway} >
+    <ClickAwayListener onClickAway={handleClickAway}>
       <Box>
         <Box ref={searchAreaRef}>
           <TextField
@@ -75,7 +86,7 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
                 ),
                 endAdornment: (
                   <InputAdornment position='end'>
-                    <Box width={30} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box width={30} sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
                       {searchValue && (
                         isLoadingSearchedItem
                           ? <CircularProgress />
@@ -84,6 +95,21 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
                           </IconButton>
                       )}
                     </Box>
+                    <FormControl variant="standard">
+                      <Select
+                        value={option}
+                        onChange={(e) => setOption(e.target.value)}
+                        disableUnderline
+                        sx={{ minWidth: 100 }}
+                      >
+                        <MenuItem value="ALL">Tất cả </MenuItem>
+                        {VOUCHER_SCOPES.map(scope => (
+                          <MenuItem key={scope.value} value={scope.value} disabled={scope.disable}>
+                            {scope.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </InputAdornment>
                 )
               }
@@ -93,11 +119,22 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
             onChange={handleSearchInput}
             onFocus={() => setIsResultPropperOpen(true)}
             fullWidth
-            placeholder={placeholder}
+            placeholder='Nhập mã khuyến mãi'
+            sx={{
+              maxWidth: '380px',
+            }}
+          // sx={{
+          //   '& .MuiOutlinedInput-root': {
+          //     '&.Mui-focused': { backgroundColor: 'white' },
+          //     '& fieldset': { borderColor: 'rgba(0 0 0)' },
+          //     '&:hover fieldset': { borderColor: 'rgba(0 0 0)' },
+          //     '&.Mui-focused fieldset': { borderColor: 'rgba(0 0 0)', borderWidth: '1px' },
+          //   }
+          // }}
           />
         </Box>
         <Popper
-          open={isResultPropperOpen && !!searchedItem?.data}
+          open={isResultPropperOpen && !!searchedItems?.data}
           anchorEl={searchAreaRef.current}
           placement={properPosition}
           disablePortal
@@ -115,22 +152,21 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
           {isErrorSearch
             ? <Typography variant='body1'>Đã có lỗi xảy ra khi tìm kiếm, vui lòng thử lại sau</Typography>
             : (
-              searchedItem?.data?.total > 0
+              searchedItems?.data?.total > 0
                 ? <TableContainer component={Paper} sx={{ mt: 1 }}>
                   <Table >
                     <TableHead>
                       <TableRow>
-                        <TableCell></TableCell>
-                        <TableCell>Tên</TableCell>
-                        <TableCell>Email</TableCell>
+                        <TableCell>Mã</TableCell>
+                        <TableCell>Giá trị</TableCell>
+                        <TableCell>Còn lại</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {searchedItem?.data?.users?.map((item) => (
+                      {searchedItems?.data?.vouchers?.map((item) => (
                         <TableRow
                           key={item._id}
                           onClick={() => {
-                            console.log(item)
                             onItemClick(item)
                             setIsResultPropperOpen(false)
                           }}
@@ -139,9 +175,9 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
                             '&:hover': { backgroundColor: '#b3b3b3cc' }, // Đổi màu khi hover
                           }}
                         >
-                          <TableCell><Avatar alt={item.LIST_NAME?.at(-1).FIRST_NAME} src={item.AVATAR_IMG_URL} /></TableCell>
-                          <TableCell>{item.LIST_NAME?.at(-1).FULL_NAME}</TableCell>
-                          <TableCell>{item.LIST_EMAIL?.at(-1).EMAIL}</TableCell>
+                          <TableCell>{item.VOUCHER_CODE}</TableCell>
+                          <TableCell>{`${item.TYPE === 'PERCENTAGE' ? `${item.VALUE}% (tối đa: ${formatCurrency(item.MAX_DISCOUNT)})` : `${formatCurrency(item.VALUE)} VND`} `}</TableCell>
+                          <TableCell>{item.QUANTITY - item.NUMBER_USING}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -158,4 +194,4 @@ function SearchUserInput({ onItemClick, properPosition = 'bottom-start', inputSi
   )
 }
 
-export default SearchUserInput
+export default SearchVoucherInput

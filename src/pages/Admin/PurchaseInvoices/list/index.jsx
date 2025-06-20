@@ -17,7 +17,6 @@ import { useQuery } from '@tanstack/react-query'
 
 import { findBreadcrumbs, routeTree } from '~/config/routeTree' 
 import { Routes } from '~/config'
-import ProgressBar from '~/components/ProgressBar'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
@@ -123,7 +122,6 @@ export default function InvoiceList() {
 
   return (
     <Box>
-      <ProgressBar isLoading={isLoading} />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

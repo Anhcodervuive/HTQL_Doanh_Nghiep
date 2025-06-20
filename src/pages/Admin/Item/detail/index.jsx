@@ -7,7 +7,6 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import ItemUpdateForm from '../form/update'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 
 function ItemDetail() {
@@ -39,7 +38,6 @@ function ItemDetail() {
 
   return (
     <Box sx={{ minHeight: '700px', p: 3 }}>
-      <ProgressBar isLoading={isLoading} />
       <Box sx={{}}>
         {breadcrumbs.map((item, index) => (
           <Button
