@@ -10,7 +10,7 @@ import LoginIcon from '@mui/icons-material/Login'
 import HowToRegIcon from '@mui/icons-material/HowToReg'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '~/redux/thunks/user.thunk'
-import { logo } from '~/assets/images'
+import { logo1 } from '~/assets/images'
 import themeCustomer from '../themeCustomer'
 
 export default function CustomerLayout() {
@@ -25,13 +25,13 @@ export default function CustomerLayout() {
       <CssBaseline />
 
       {/* ---------- Navbar ---------- */}
-      <AppBar position="static" color="primary">
+      <AppBar position="fixed" color="primary">
         <Toolbar>
 
           {/* Logo + tên shop */}
           <Box
             component={Link}
-            to="/"
+            to="/customer/home"
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -42,7 +42,7 @@ export default function CustomerLayout() {
             {/* logo */}
             <Box
               component="img"
-              src={logo}
+              src={logo1}
               alt="Logo"
               sx={{
                 height: { xs: 40, md: 56 },
@@ -56,7 +56,7 @@ export default function CustomerLayout() {
 
           {/* Menu trung tâm */}
           <Box sx={{ flexGrow: 1, ml: 5, display: 'flex', gap: 3 }}>
-            {['/products', '/contact', '/about'].map((path, i) => (
+            {['/customer/home', '/contact', '/about'].map((path, i) => (
               <Button
                 key={path}
                 component={Link}
@@ -97,6 +97,7 @@ export default function CustomerLayout() {
           )}
         </Toolbar>
       </AppBar>
+      <Toolbar />
 
       {/* ---------- Nội dung ---------- */}
       <Box sx={{ minHeight: '80vh', py: 3, bgcolor: 'info.main' }}>
