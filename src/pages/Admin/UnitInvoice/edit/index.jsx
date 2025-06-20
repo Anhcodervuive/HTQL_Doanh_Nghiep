@@ -60,7 +60,7 @@ function UnitInvoiceEdit() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Chỉnh sửa đơn vị tính
+        Chỉnh sửa đơn tiền tệ
       </Typography>
       <UnitInvoiceForm submit={submit} data={data?.data}/>
     </Box>

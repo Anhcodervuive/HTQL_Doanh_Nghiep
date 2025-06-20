@@ -29,6 +29,7 @@ import VoucherDetail from '~/pages/Admin/Vouchers/detail'
 import VoucherCreate from '~/pages/Admin/Vouchers/create'
 import EditVoucher from '~/pages/Admin/Vouchers/edit'
 import VoucherStatisticsPage from '~/pages/Admin/Vouchers/statistics'
+import VoucherAddItem from '~/pages/Admin/Vouchers/addItemsForVoucher'
 import SaleInvoiceCreate from '~/pages/Admin/SaleInvoice/create'
 import { Navigate } from 'react-router-dom'
 import SaleInvoiceList from '~/pages/Admin/SaleInvoice/list'
@@ -188,6 +189,11 @@ export default [
         path: 'sale-invoices',
         element: <SaleInvoiceList />,
         loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'vouchers/:id/add-items',
+        element: <VoucherAddItem />,
+        loader: composeLoaders(isAuthenticate)
       },
       {
         path: 'sale-invoices/create',

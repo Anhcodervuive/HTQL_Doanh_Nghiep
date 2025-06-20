@@ -121,10 +121,10 @@ export default function VoucherDetail() {
         <Box sx={{ pl: 2, mt: 1 }}>
           <Typography><strong>Loại:</strong> {voucher.TYPE === 'PERCENTAGE' ? 'Phần trăm' : 'Giảm giá cố định'}</Typography>
           <Typography><strong>Giá trị:</strong> {voucher.TYPE === 'PERCENTAGE' ? `${voucher.VALUE}%` : `${voucher.VALUE.toLocaleString()} VND`}</Typography>
-          {voucher.MAX_DISCOUNT && (
+          {voucher.TYPE === 'PERCENTAGE' && voucher.MAX_DISCOUNT && (
             <Typography><strong>Giảm tối đa:</strong> {voucher.MAX_DISCOUNT.toLocaleString()} VND</Typography>
           )}
-          <Typography><strong>Phạm vi áp dụng:</strong> {voucher.APPLY_SCOPE === 'PRODUCT' ? 'Sản phẩm' : 'Toàn hệ thống'}</Typography>
+          <Typography><strong>Phạm vi áp dụng:</strong> {voucher.APPLY_SCOPE === 'PRODUCT' ? 'Sản phẩm' : 'Hóa đơn'}</Typography>
           <Typography><strong>Số lượng:</strong> {voucher.QUANTITY}</Typography>
           <Typography><strong>Đã sử dụng:</strong> {voucher.NUMBER_USING}</Typography>
           <Typography>
@@ -156,64 +156,82 @@ export default function VoucherDetail() {
         </Button>
       </Box>
       {/* Bảng sản phẩm */}
-      <Typography variant="h6" gutterBottom>
-        Danh sách sản phẩm áp dụng voucher:
-      </Typography>
+      {voucher.APPLY_SCOPE == 'PRODUCT' &&
+        (
+          <>
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Danh sách sản phẩm áp dụng voucher:
+              </Typography>
+              {voucher.APPLY_SCOPE == 'PRODUCT' &&
+                (<Button
+                  variant="contained"
+                  color="info"
+                  component={Link}
+                  to={Routes.admin.vouchers.addItems(voucher.VOUCHER_CODE)}
+                >
+                  Thêm sản phẩm
+                </Button>)
+              }
+            </Box>
 
-      {productsLoading ? (
-        <Box textAlign="center" mt={2}>
-          <CircularProgress />
-          <Typography>Đang tải danh sách sản phẩm...</Typography>
-        </Box>
-      ) : productsError ? (
-        <Typography color="error">
-          Đã xảy ra lỗi khi tải danh sách sản phẩm!
-        </Typography>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Hình ảnh</strong></TableCell>
-                <TableCell><strong>Mã sản phẩm</strong></TableCell>
-                <TableCell><strong>Tên sản phẩm</strong></TableCell>
-                <TableCell><strong>Số lượng tồn kho</strong></TableCell>
-                <TableCell><strong>Giá bán</strong></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {productsData?.data?.items.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>
-                    <img
-                      src={item.AVATAR_IMAGE_URL}
-                      alt={item.ITEM_NAME}
-                      style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
-                    />
-                  </TableCell>
-                  <TableCell>{item.ITEM_CODE}</TableCell>
-                  <TableCell>{item.ITEM_NAME}</TableCell>
-                  <TableCell>{item.ITEM_STOCKS?.QUANTITY ?? 0}</TableCell>
-                  <TableCell>
-                    {item.PRICE?.[0]?.PRICE_AMOUNT?.toLocaleString() ?? 'N/A'} VND
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => handleDeleteItem(item._id)}
-                    >
-                      Xóa
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+            {productsLoading ? (
+              <Box textAlign="center" mt={2}>
+                <CircularProgress />
+                <Typography>Đang tải danh sách sản phẩm...</Typography>
+              </Box>
+            ) : productsError ? (
+              <Typography color="error">
+                Đã xảy ra lỗi khi tải danh sách sản phẩm!
+              </Typography>
+            ) : (
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><strong>Hình ảnh</strong></TableCell>
+                      <TableCell><strong>Mã sản phẩm</strong></TableCell>
+                      <TableCell><strong>Tên sản phẩm</strong></TableCell>
+                      <TableCell><strong>Số lượng tồn kho</strong></TableCell>
+                      <TableCell><strong>Giá bán</strong></TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {productsData?.data?.items.map((item) => (
+                      <TableRow key={item._id}>
+                        <TableCell>
+                          <img
+                            src={item.AVATAR_IMAGE_URL}
+                            alt={item.ITEM_NAME}
+                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }}
+                          />
+                        </TableCell>
+                        <TableCell>{item.ITEM_CODE}</TableCell>
+                        <TableCell>{item.ITEM_NAME}</TableCell>
+                        <TableCell>{item.ITEM_STOCKS?.QUANTITY ?? 0}</TableCell>
+                        <TableCell>
+                          {item.PRICE?.[0]?.PRICE_AMOUNT?.toLocaleString() ?? 'N/A'} VND
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleDeleteItem(item._id)}
+                          >
+                            Xóa
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </>
+        )
+      }
     </Paper>
   )
 }

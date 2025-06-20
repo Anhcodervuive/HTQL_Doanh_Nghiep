@@ -22,6 +22,9 @@ import { toast } from 'react-toastify'
 import { CircularProgress } from '@mui/material'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import useUserInfo from '~/hooks/useUserInfo'
+import { Tooltip, IconButton } from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -126,7 +129,7 @@ export default function ItemUnitList() {
               ? <TableRow>
                 <TableCell colSpan={5}>
                   <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', mt: 5 }}>
-                    <CircularProgress size={20}/>
+                    <CircularProgress size={20} />
                     <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
                   </Box>
                 </ TableCell>
@@ -139,10 +142,46 @@ export default function ItemUnitList() {
                     <StyledTableCell>{itemUnit.UNIT_ITEM_NAME}</StyledTableCell>
                     <StyledTableCell>{itemUnit.UNIT_ITEM_NAME_EN}</StyledTableCell>
                     <StyledTableCell>{itemUnit.UNIT_ITEM_ABB}</StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button variant="contained" size="small" sx={{ mr: 1 }} color="info">Detail</Button>
+                    {/* <StyledTableCell align="center">
                       <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.itemUnit.edit(itemUnit._id)}>Edit</Button>
                       <Button variant="contained" size="small" color="error" onClick={() => handleDelete(itemUnit._id)}>Delete</Button>
+                    </StyledTableCell> */}
+                    <StyledTableCell align="center">
+
+                      <Tooltip title="Chỉnh sửa">
+                        <IconButton
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fbc02d',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#f9a825',
+                            },
+                            mr: 1,
+                          }}
+                          component={Link}
+                          to={Routes.admin.itemUnit.edit(itemUnit._id)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Tooltip title="Xóa">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          sx={{
+                            backgroundColor: '#d32f2f',
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: '#c62828',
+                            },
+                          }}
+                          onClick={() => handleDelete(itemUnit._id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
                     </StyledTableCell>
                   </StyledTableRow>
                 ))

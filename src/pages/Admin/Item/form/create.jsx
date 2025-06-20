@@ -22,6 +22,9 @@ import unitInvoiceService from '~/service/admin/unitInvoice.service'
 import MyEditor from '~/components/MyEditor'
 import itemUnitService from '~/service/admin/itemUnit.service'
 import BomMaterial from './BomMaterialCreate'
+import { Link } from 'react-router-dom'
+import { Routes } from '~/config'
+
 
 function ItemCreateForm({ submit }) {
   const {
@@ -327,11 +330,13 @@ function ItemCreateForm({ submit }) {
               </Grid>
             </Grid>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-              <Button variant="outlined" color="secondary" type="reset">
-                            Cancel
+              <Button variant="outlined" color="secondary" type="reset"
+                LinkComponent={Link} to={Routes.admin.item.list}
+              >
+                            Hủy
               </Button>
               <Button variant="contained" color="primary" type="submit">
-                            Save
+                            Lưu
               </Button>
             </Box>
           </Grid>

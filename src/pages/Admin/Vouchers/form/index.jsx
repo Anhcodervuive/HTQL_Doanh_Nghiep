@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 import {
   Box,
   Button,
@@ -8,6 +8,8 @@ import {
   Typography
 } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import { Routes } from '~/config'
 
 function VoucherForm({ submit, data, disableCode = false, isSubmitting = false }) {
   const {
@@ -50,7 +52,7 @@ function VoucherForm({ submit, data, disableCode = false, isSubmitting = false }
       TYPE: formData.TYPE,
       VALUE: Number(formData.VALUE),
       APPLY_SCOPE: formData.APPLY_SCOPE,
-      MAX_DISCOUNT: Number(formData.MAX_DISCOUNT) || 0,
+      MAX_DISCOUNT: Number(formData.MAX_DISCOUNT) || null,
       QUANTITY: Number(formData.QUANTITY),
       START_DATE: formData.START_DATE,
       END_DATE: formData.END_DATE
@@ -203,14 +205,21 @@ function VoucherForm({ submit, data, disableCode = false, isSubmitting = false }
             />
           )}
         />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Đang lưu...' : data?._id ? 'Cập nhật' : 'Tạo mới'}
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
+          <Button variant="outlined" color="secondary" type="reset"
+            LinkComponent={Link} to={Routes.admin.vouchers.list}
+          >
+            Hủy
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Đang lưu...' : data?._id ? 'Cập nhật' : 'Tạo mới'}
+          </Button>
+        </Box>
       </form>
     </Paper>
   )

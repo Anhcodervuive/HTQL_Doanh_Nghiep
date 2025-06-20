@@ -51,6 +51,7 @@ export default {
       create: '/admin/vouchers/create',
       edit: (id = '') => `/admin/vouchers/${id || ':id'}/edit`,
       statistics: '/admin/vouchers/statistics',
+      addItems: (id) => `/admin/vouchers/${id || ':id'}/add-items`
     }
   },
   auth: {
@@ -68,5 +69,10 @@ export default {
   error: {
     notFound404: '*',
     forbidden403: '/forbidden'
+  },
+  customer: {
+    // detailItem: '/detail-Item',
+    detailItem: (id) => `/detail-Item/${id}`,
+    home: '/home'
   }
 }

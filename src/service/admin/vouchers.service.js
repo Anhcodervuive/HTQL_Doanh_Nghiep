@@ -51,6 +51,7 @@ class VouchersService {
     return response.data
   }
   async createVoucher(credential, data) {
+    console.log('data voucher: ', data)
     return (await this.api.post('/', data, {
       headers: {
         ...credential

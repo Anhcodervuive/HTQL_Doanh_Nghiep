@@ -68,6 +68,7 @@ export default function AddPurchaseInvoiceForm() {
       ...prev,
       {
         ITEM_CODE: item.ITEM_CODE,
+        ITEM_NAME: item.ITEM_NAME,
         SUPPLIER_ID: '', // chưa có, người dùng sẽ chọn
         QUANTITY: 1
       }
@@ -110,6 +111,8 @@ export default function AddPurchaseInvoiceForm() {
 
     mutation.mutate(data)
   }
+  console.log('selectedItems:', selectedItems)
+
 
   return (
     <Paper sx={{ p: 3, maxWidth: 1000, mx: 'auto' }}>
@@ -192,6 +195,7 @@ export default function AddPurchaseInvoiceForm() {
           <TableHead>
             <TableRow>
               <TableCell>Mã sản phẩm</TableCell>
+              <TableCell>Tên sản phẩm</TableCell>
               <TableCell>Nhà cung cấp</TableCell>
               <TableCell>Số lượng</TableCell>
               <TableCell></TableCell>
@@ -201,11 +205,12 @@ export default function AddPurchaseInvoiceForm() {
             {selectedItems.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>{item.ITEM_CODE}</TableCell>
+                <TableCell>{item.ITEM_NAME}</TableCell>
                 <TableCell
                   sx={{
-                    position: 'relative', // 👈 đảm bảo label không “xuyên” qua Popper
-                    backgroundColor: '#fff', // 👈 tránh thấy phần bên dưới
-                    zIndex: 0 // 👈 default
+                    position: 'relative',
+                    backgroundColor: '#fff',
+                    zIndex: 0
                   }}
                 >
                   <SearchSupplierInput

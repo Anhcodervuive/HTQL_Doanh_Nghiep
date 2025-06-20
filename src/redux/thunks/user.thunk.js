@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 
 export const login = createAsyncThunk(
   'user/login',
-  async ({ credentials, method = 'default', navigate }, { rejectWithValue }) => {
+  async ({ credentials, method = 'default' }, { rejectWithValue }) => {
     try {
       let res
 
@@ -18,13 +18,11 @@ export const login = createAsyncThunk(
 
         res = await authService.login(credentials)
       }
-      if (res.success) {
-        navigate(Routes.admin.dashboard)
-        return res.data
-      } else {
-        toast.error(res.message || 'Đăng nhập thất bại!')
+      if (!res.success) {
         return rejectWithValue(res.message || 'Đăng nhập thất bại!')
       }
+      return res.data
+
 
     } catch (error) {
       const errorMessage = error?.response?.data?.message || error.message || 'Đăng nhập thất bại!'
@@ -51,7 +49,7 @@ export const logout = createAsyncThunk(
 
       console.log('Log out call API server')
       const res = await authService.logout(credentials)
-
+      navigate(Routes.auth.login)
       return res
     } catch (error) {
       return rejectWithValue(error)

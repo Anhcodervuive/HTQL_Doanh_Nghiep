@@ -60,7 +60,7 @@ function SupplierEdit() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Update new supplier
+        Cập nhật thông tin nhà cung ứng
       </Typography>
       <SupplierForm submit={submit} data={data?.data}/>
     </Box>
