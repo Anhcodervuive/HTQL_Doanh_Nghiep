@@ -1,6 +1,7 @@
 import DetailItem from '~/pages/Customer/DetailItem'
 import CustomerLayout from '~/layouts/CustomerLayout'
 import HomePage from '~/pages/Customer/Home'
+import ProfileCustomer from '~/pages/Customer/Profile'
 export default [
   {
     path: '/customer',
@@ -15,6 +16,10 @@ export default [
       {
         path: 'home',
         element: <HomePage />
+      },
+      {
+        path: 'profileCustomer',
+        element: <ProfileCustomer />
       }
     ]
   },

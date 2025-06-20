@@ -73,6 +73,7 @@ export default {
   customer: {
     // detailItem: '/detail-Item',
     detailItem: (id) => `/detail-Item/${id}`,
-    home: '/home'
+    home: '/home',
+    profile: '/profileCustomer'
   }
 }
