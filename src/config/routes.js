@@ -70,7 +70,8 @@ export default {
     forbidden403: '/forbidden'
   },
   customer: {
-    detailItem: '/detail-Item',
+    // detailItem: '/detail-Item',
+    detailItem: (id) => `/detail-Item/${id}`,
     home: '/home'
   }
 }

@@ -14,6 +14,7 @@ import itemService from '~/service/admin/item.service'
 import itemTypeService from '~/service/admin/itemType.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
+import { useNavigate } from 'react-router-dom'
 
 /* ---------- data hooks ---------- */
 const useSaleProducts = (cred) =>
@@ -66,6 +67,7 @@ const HomePage = () => {
   const device_id = useDeviceId()
   const { userId } = useUserInfo()
   const cred = useMemo(() => ({ user_id: userId ?? '', device_id }), [userId, device_id])
+  const navigate = useNavigate()
 
   const theme = useTheme()
   const CARD_W = { xs: 140, md: 200 }
@@ -136,106 +138,117 @@ const HomePage = () => {
             border: `2px solid ${theme.palette.primary.main}`,
             backgroundColor: theme.palette.background.whiteSpace,
             boxShadow: bestDiscount > 0 ? 6 : 2,
+            p: 0
           }}
         >
-          {/* Góc phải: nhãn giảm giá xéo */}
-          {bestDiscount > 0 && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 12,
-                right: -40,
-                bgcolor: '#FF90BB',
-                color: theme.palette.secondary.contrastText,
-                // px: 1.5,
-                // py: 0.5,
-                transform: 'rotate(45deg)',
-                fontSize: 12,
-                fontWeight: 'bold',
-                width: 125,
-                textAlign: 'center',
-                zIndex: 1,
-                // boxShadow: 3,
-              }}
-            >
-              -{bestDiscount.toLocaleString()}₫
-            </Box>
-          )}
-
-          {/* Hình ảnh sản phẩm */}
-          <CardMedia
-            component="img"
-            image={p.AVATAR_IMAGE_URL || p.LIST_IMAGE?.[0]?.URL || defaultImage}
-            alt={p.ITEM_NAME}
+          <CardActionArea onClick={() => navigate(`/customer/detail-Item/${p._id}`)}
             sx={{
-              width: '100%',
-              height: IMG_H,
-              objectFit: 'cover',
-            }}
-          />
-
-          {/* Nội dung */}
-          <CardContent
-            sx={{
-              flexGrow: 1,
-              p: 1.5,
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              bgcolor: theme.palette.background.default,
+              alignItems: 'stretch',
+              height: '100%',
             }}
           >
-            {/* Tên sản phẩm */}
-            <Typography
-              variant="subtitle2"
-              fontWeight={700}
-              color="primary"
+            {/* Góc phải: nhãn giảm giá xéo */}
+            {bestDiscount > 0 && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 12,
+                  right: -40,
+                  bgcolor: '#FF90BB',
+                  color: theme.palette.secondary.contrastText,
+                  // px: 1.5,
+                  // py: 0.5,
+                  transform: 'rotate(45deg)',
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  width: 125,
+                  textAlign: 'center',
+                  zIndex: 1,
+                  // boxShadow: 3,
+                }}
+              >
+                -{bestDiscount.toLocaleString()}₫
+              </Box>
+            )}
+
+
+            {/* Hình ảnh sản phẩm */}
+            <CardMedia
+              component="img"
+              image={p.AVATAR_IMAGE_URL || p.LIST_IMAGE?.[0]?.URL || defaultImage}
+              alt={p.ITEM_NAME}
               sx={{
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                lineHeight: 1.25,
-                height: '2.5em',
+                width: '100%',
+                height: IMG_H,
+                objectFit: 'cover',
+              }}
+            />
+
+            {/* Nội dung */}
+            <CardContent
+              sx={{
+                flexGrow: 1,
+                p: 1.5,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                bgcolor: theme.palette.background.default,
               }}
             >
-              {p.ITEM_NAME}
-            </Typography>
+              {/* Tên sản phẩm */}
+              <Typography
+                variant="subtitle2"
+                fontWeight={700}
+                color="primary"
+                sx={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  lineHeight: 1.25,
+                  height: '2.5em',
+                }}
+              >
+                {p.ITEM_NAME}
+              </Typography>
 
-            {/* Giá */}
-            <Box mt={1}>
-              {bestDiscount > 0 ? (
-                <>
+              {/* Giá */}
+              <Box mt={1}>
+                {bestDiscount > 0 ? (
+                  <>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        textDecoration: 'line-through',
+                        color: theme.palette.text.secondary,
+                      }}
+                    >
+                      {price.toLocaleString()}₫
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 700,
+                        color: theme.palette.success.main,
+                      }}
+                    >
+                      {finalPrice.toLocaleString()}₫
+                    </Typography>
+                  </>
+                ) : (
                   <Typography
                     variant="body2"
-                    sx={{
-                      textDecoration: 'line-through',
-                      color: theme.palette.text.secondary,
-                    }}
+                    fontWeight={600}
+                    sx={{ color: theme.palette.text.primary }}
                   >
                     {price.toLocaleString()}₫
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 700,
-                      color: theme.palette.success.main,
-                    }}
-                  >
-                    {finalPrice.toLocaleString()}₫
-                  </Typography>
-                </>
-              ) : (
-                <Typography
-                  variant="body2"
-                  fontWeight={600}
-                  sx={{ color: theme.palette.text.primary }}
-                >
-                  {price.toLocaleString()}₫
-                </Typography>
-              )}
-            </Box>
-          </CardContent>
+                )}
+              </Box>
+            </CardContent>
+          </CardActionArea>
         </Card>
       </Grid>
     )
