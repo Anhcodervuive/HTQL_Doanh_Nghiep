@@ -33,6 +33,7 @@ export const routeTree = [
           { path: '/admin/vouchers', name: 'List' },
           { path: '/admin/vouchers/create', name: 'Create' },
           { path: '/admin/vouchers/:id/edit', name: 'Edit' },
+          { path: '/admin/vouchers/:id/detail', name: 'Detail' },
         ]
       },
       {

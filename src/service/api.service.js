@@ -88,7 +88,6 @@ const apiService = (baseURL) => {
     const delayedRoutes = ['https://vn-public-apis.fpo.vn/']
     // Kiểm tra nếu URL thuộc danh sách cần trì hoãn
     if (delayedRoutes.some(route => config.baseURL.includes(route))) {
-      console.log('Đã giới hạn 1s')
       return new Promise((resolve) => {
         setTimeout(() => resolve(config), 1000) // Trì hoãn 2 giây
       })

@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import AddIcon from '@mui/icons-material/Add'
@@ -33,6 +33,8 @@ import PriceRangeInput from '~/components/Admin/PriceRangeInput'
 import { formatCurrency, formatToVietnamTime } from '~/utils/formatter'
 import { getColorByValue, getLabelByValue } from '~/utils/mapper'
 import { PURCHASE_METHODS, SALE_INVOICE_STATUS } from '~/utils/contant'
+import ActionMenu from '~/components/Admin/ActionMenu'
+import { toast } from 'react-toastify'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -63,6 +65,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }))
 
 export default function SaleInvoiceList() {
+  const navigate = useNavigate()
   const [showedRecord, setShowedRecord] = useState(showdRecordOption[0])
   const [searchValue, setSearchValue] = useState('')
   const [optionSearch, setOptionSearch] = useState('all')
@@ -76,7 +79,7 @@ export default function SaleInvoiceList() {
   const location = useLocation()
   const deviceId = useDeviceId()
   const { userId: user_id } = useUserInfo()
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch: refetchList } = useQuery({
     queryKey: ['saleInvoiceList', page, showedRecord, searchValueDebounce, status, fromDate, thruDate, priceRangeDebounce],
     enabled: !!deviceId,
     queryFn: () => saleInvoiceService.search({
@@ -95,7 +98,7 @@ export default function SaleInvoiceList() {
     retry: false,
     refetchOnWindowFocus: false,
   })
-  const { data: statisticStatusData, isLoading: isLoadingStatisticData, isError: isErrorStatisticData } = useQuery({
+  const { data: statisticStatusData, isLoading: isLoadingStatisticData, isError: isErrorStatisticData, refetch: refetchSatistic } = useQuery({
     queryKey: ['saleStatisticStatus'],
     enabled: !!deviceId,
     retry: false,
@@ -105,6 +108,23 @@ export default function SaleInvoiceList() {
       device_id: deviceId
     })
   })
+
+  const handleDelete = (invoiceCode) => {
+    saleInvoiceService.delete({
+      user_id,
+      device_id: deviceId
+    }, invoiceCode)
+      .then(async res => {
+        console.log(res)
+        toast.success('Lưu hóa đơn thành công')
+        await refetchList()
+        await refetchSatistic()
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error(err.response.data.message)
+      })
+  }
 
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
@@ -287,8 +307,11 @@ export default function SaleInvoiceList() {
                         </Tooltip>
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info" LinkComponent={Link} to={Routes.admin.saleInvoices.edit(invoice.INVOICE_CODE)}>Detail</Button>
-                        <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.saleInvoices.edit(invoice.INVOICE_CODE)}>Edit</Button>
+                        <ActionMenu
+                          onEdit={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' ? () => navigate(Routes.admin.saleInvoices.edit(invoice.INVOICE_CODE)): null}
+                          onDelete={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' ? () => handleDelete(invoice.INVOICE_CODE): null}
+                          onDetail={() => navigate(Routes.admin.saleInvoices.detail(invoice.INVOICE_CODE))}
+                        />
                       </StyledTableCell>
                     </StyledTableRow>)
                   ))

@@ -13,6 +13,7 @@ import useUserInfo from '~/hooks/useUserInfo'
 function SaleInvoiceEdit() {
   const { id } = useParams()
   const location = useLocation()
+  const isWatch = location.pathname.includes('detail')
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const navigate = useNavigate()
@@ -23,7 +24,7 @@ function SaleInvoiceEdit() {
     retry: false,
     refetchOnWindowFocus: false,
   })
-  const breadcrumbs = findBreadcrumbs(Routes.admin.saleInvoices.edit(), routeTree)
+  const breadcrumbs = findBreadcrumbs(isWatch ? Routes.admin.saleInvoices.detail() : Routes.admin.saleInvoices.edit(), routeTree)
 
   const submit = async (data) => {
     saleInvoicesService.update({ device_id, user_id, }, id, data)
@@ -59,9 +60,9 @@ function SaleInvoiceEdit() {
         ))}
       </Box>
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Chỉnh sửa hóa đơn
+        {isWatch ? 'Chi tiết' : 'Chỉnh sửa'} hóa đơn
       </Typography>
-      <SaleInvoiceForm submit={submit} data={data?.data}/>
+      <SaleInvoiceForm submit={submit} data={data?.data} isReadOnly={isWatch}/>
     </Box>
   )
 }

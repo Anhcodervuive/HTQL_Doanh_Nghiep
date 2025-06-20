@@ -42,7 +42,7 @@ export default [
   {
     path: '/admin',
     element: <AdminLayout />,
-    loader: isAuthenticate,
+    // loader: isAuthenticate,
     children : [
       {
         path: 'dashboard',
@@ -152,7 +152,7 @@ export default [
       {
         path: 'purchase-invoices/create',
         element: <AddPurchaseInvoiceForm />,
-        loader: composeLoaders(isAuthenticate),
+        // loader: composeLoaders(isAuthenticate),
       },
       {
         path: 'purchase-invoices/:id',
@@ -196,6 +196,11 @@ export default [
       },
       {
         path: 'sale-invoices/:id/edit',
+        element: <SaleInvoiceEdit />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'sale-invoices/:id/detail',
         element: <SaleInvoiceEdit />,
         loader: composeLoaders(isAuthenticate),
       }

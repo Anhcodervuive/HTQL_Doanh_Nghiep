@@ -46,6 +46,7 @@ function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', dis
 
   useEffect(() => {
     if (value?.city && value?.district && value?.ward) {
+      let initialLocation = {}
       locationService.getProvincesByName(value.city)
         .then(async res => {
           try {
@@ -54,6 +55,9 @@ function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', dis
               ...prev,
               city: res?.data?.data[0]
             }))
+            initialLocation = {
+              city: res?.data?.data[0]
+            }
             setLocationOption(prev => ({
               ...prev,
               city: cities?.data?.data
@@ -65,6 +69,10 @@ function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', dis
               ...prev,
               district: targetDistrict
             }))
+            initialLocation = {
+              ...initialLocation,
+              district: targetDistrict
+            }
             setLocationOption(prev => ({
               ...prev,
               district: districtRes?.data?.data
@@ -76,10 +84,15 @@ function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', dis
               ...prev,
               ward: targetWard
             }))
+            initialLocation = {
+              ...initialLocation,
+              ward: targetWard
+            }
             setLocationOption(prev => ({
               ...prev,
               ward: wardRes?.data?.data
             }))
+            onChange(initialLocation)
           } catch (error) {
             console.log(error)
             toast('Có lỗi xảy ra trong quá trình gọi API địa chỉ', {

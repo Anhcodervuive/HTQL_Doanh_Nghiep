@@ -56,7 +56,7 @@ import { Badge } from '@mui/material'
 import useAuth from '~/hooks/useAuth'
 import { MuiTelInput } from 'mui-tel-input'
 
-function SaleInvoiceForm({ submit, data, isEdited }) {
+function SaleInvoiceForm({ submit, data, isEdited, isReadOnly=true }) {
   const {
     control,
     handleSubmit,
@@ -119,7 +119,7 @@ function SaleInvoiceForm({ submit, data, isEdited }) {
     // staleTime: 1000 * 60 * 3
   })
 
-
+  console.log('form validate errors: ', errors)
   const handleUserChose = (user) => {
     const nameInfo = user.LIST_CONTACT?.at(-1)
     const emailInfo = user.LIST_EMAIL?.at(-1)
@@ -296,724 +296,734 @@ function SaleInvoiceForm({ submit, data, isEdited }) {
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={2} sx={{ minHeight: '1800px' }}>
-        <Box>
-          <Grid container spacing={4}>
-            <Grid size={6}>
-              <Card>
-                <CardHeader
-                  title={<Typography variant="body1" fontWeight={600}>Thông tin khách hàng</Typography>}
-                  sx={{
-                    color: 'gray',
-                    bgcolor: 'rgb(249, 250, 253)',
-                    padding: 2,
-                  }}
-                />
-                <CardContent>
-                  <Stack gap={2}>
+      <fieldset disabled={isReadOnly} style={{ border: 'none' }}>
+        <Stack spacing={2} sx={{ minHeight: '1800px' }}>
+          <Box>
+            <Grid container spacing={4}>
+              <Grid size={6}>
+                <Card>
+                  <CardHeader
+                    title={<Typography variant="body1" fontWeight={600}>Thông tin khách hàng</Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  />
+                  <CardContent>
                     <Stack gap={2}>
-                      {canEditUserInfo && <SearchUserInput onItemClick={handleUserChose} placeholder='Nhập tên người mua' />}
+                      <Stack gap={2}>
+                        {canEditUserInfo && !isReadOnly && <SearchUserInput onItemClick={handleUserChose} placeholder='Nhập tên người mua' />}
+                        <Stack spacing={1} sx={{ overflow: 'hidden' }}>
+                          <UserInfoItem
+                            label='Họ Tên'
+                            value={selectedUser ? selectedUser?.NAME ?? 'Không rõ' : ''}
+                          />
+                          <UserInfoItem
+                            icon={<MailOutlineIcon color='action' />}
+                            label='Email'
+                            value={selectedUser ? selectedUser?.EMAIL ?? 'Không rõ' : ''}
+                          />
+                          <UserInfoItem
+                            icon={<LocalPhoneIcon color='action' />}
+                            label='Điện thoại'
+                            value={selectedUser ? selectedUser?.PHONE_NUMBER ?? 'Không rõ' : ''}
+                          />
+                          <UserInfoItem
+                            icon={<LocationCityIcon color="action" />}
+                            label="Tỉnh / Thành phố"
+                            value={selectedUser ? selectedUser?.CITY || 'Chưa cập nhật' : ''}
+                          />
+                          <UserInfoItem
+                            icon={<MapIcon color="action" />}
+                            label="Quận / Huyện"
+                            value={selectedUser ? selectedUser?.DISTRICT || 'Chưa cập nhật' : ''}
+                          />
+                          <UserInfoItem
+                            icon={<LocationOnIcon color="action" />}
+                            label="Địa chỉ"
+                            value={selectedUser ? selectedUser?.ADDRESS_1 ?? selectedUser?.ADDRESS_2 ?? 'Chưa cập nhật' : ''}
+                          />
+                          {canEditUserInfo && !isReadOnly && <Button variant='outlined' color='error' onClick={() => setSelectedUser(null)}>Xóa khách hàng</Button>}
+                        </Stack>
+                      </Stack>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={6}>
+                <Card>
+                  <CardHeader
+                    title={<Typography variant="body1" fontWeight={600}>Thông tin nhân viên</Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  />
+                  <CardContent>
+                    {staffContact?._id &&
                       <Stack spacing={1} sx={{ overflow: 'hidden' }}>
                         <UserInfoItem
                           label='Họ Tên'
-                          value={selectedUser ? selectedUser?.NAME ?? 'Không rõ': ''}
+                          value={staffContact?.NAME ?? 'Không rõ'}
+                        />
+                        <UserInfoItem
+                          icon={<ShieldIcon color="action" />}
+                          label="Vai trò"
+                          value={staffContact?.ROLES?.join(', ') || 'Chưa cập nhật'}
                         />
                         <UserInfoItem
                           icon={<MailOutlineIcon color='action' />}
                           label='Email'
-                          value={selectedUser ? selectedUser?.EMAIL ?? 'Không rõ': ''}
+                          value={staffContact.EMAIL ?? 'Không rõ'}
                         />
                         <UserInfoItem
                           icon={<LocalPhoneIcon color='action' />}
                           label='Điện thoại'
-                          value={selectedUser ? selectedUser?.PHONE_NUMBER ?? 'Không rõ': ''}
+                          value={staffContact.PHONE_NUMBER ?? 'Không rõ'}
                         />
                         <UserInfoItem
                           icon={<LocationCityIcon color="action" />}
                           label="Tỉnh / Thành phố"
-                          value={selectedUser ? selectedUser?.CITY || 'Chưa cập nhật': ''}
+                          value={staffContact?.CITY || 'Chưa cập nhật'}
                         />
                         <UserInfoItem
                           icon={<MapIcon color="action" />}
                           label="Quận / Huyện"
-                          value={selectedUser ? selectedUser?.DISTRICT || 'Chưa cập nhật': ''}
+                          value={staffContact?.DISTRICT || 'Chưa cập nhật'}
+                        />
+                        <UserInfoItem
+                          icon={<ExploreIcon color="action" />}
+                          label="Phường"
+                          value={staffContact?.WARD || 'Chưa cập nhật'}
                         />
                         <UserInfoItem
                           icon={<LocationOnIcon color="action" />}
                           label="Địa chỉ"
-                          value={selectedUser ? selectedUser?.ADDRESS_1 ?? selectedUser?.ADDRESS_2 ?? 'Chưa cập nhật': ''}
+                          value={staffContact?.ADDRESS_1 ?? staffContact?.ADDRESS_2 ?? 'Chưa cập nhật'}
                         />
-                        {canEditUserInfo && <Button variant='outlined' color='error' onClick={() => setSelectedUser(null)}>Xóa khách hàng</Button>}
                       </Stack>
-                    </Stack>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={6}>
-              <Card>
-                <CardHeader
-                  title={<Typography variant="body1" fontWeight={600}>Thông tin nhân viên</Typography>}
-                  sx={{
-                    color: 'gray',
-                    bgcolor: 'rgb(249, 250, 253)',
-                    padding: 2,
-                  }}
-                />
-                <CardContent>
-                  {staffContact?._id &&
-                          <Stack spacing={1} sx={{ overflow: 'hidden' }}>
-                            <UserInfoItem
-                              label='Họ Tên'
-                              value={staffContact?.NAME ?? 'Không rõ'}
-                            />
-                            <UserInfoItem
-                              icon={<ShieldIcon color="action" />}
-                              label="Vai trò"
-                              value={staffContact?.ROLES?.join(', ') || 'Chưa cập nhật'}
-                            />
-                            <UserInfoItem
-                              icon={<MailOutlineIcon color='action'/>}
-                              label='Email'
-                              value={staffContact.EMAIL ?? 'Không rõ'}
-                            />
-                            <UserInfoItem
-                              icon={<LocalPhoneIcon color='action' />}
-                              label='Điện thoại'
-                              value={staffContact.PHONE_NUMBER ?? 'Không rõ'}
-                            />
-                            <UserInfoItem
-                              icon={<LocationCityIcon color="action" />}
-                              label="Tỉnh / Thành phố"
-                              value={staffContact?.CITY || 'Chưa cập nhật'}
-                            />
-                            <UserInfoItem
-                              icon={<MapIcon color="action" />}
-                              label="Quận / Huyện"
-                              value={staffContact?.DISTRICT || 'Chưa cập nhật'}
-                            />
-                            <UserInfoItem
-                              icon={<ExploreIcon color="action" />}
-                              label="Phường"
-                              value={staffContact?.WARD || 'Chưa cập nhật'}
-                            />
-                            <UserInfoItem
-                              icon={<LocationOnIcon color="action" />}
-                              label="Địa chỉ"
-                              value={staffContact?.ADDRESS_1 ?? staffContact?.ADDRESS_2 ?? 'Chưa cập nhật'}
-                            />
-                          </Stack>
-                  }
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={6}>
-              <Card>
-                <CardHeader
-                  title={<Typography variant="body1" fontWeight={600}>Thông tin cơ bản</Typography>}
-                  sx={{
-                    color: 'gray',
-                    bgcolor: 'rgb(249, 250, 253)',
-                    padding: 2,
-                  }}
-                ></CardHeader>
-                <CardContent sx={{ borderRadius: '5px', }}>
-                  <Stack spacing={2}>
-                    <FormControl sx={{ mt: 4 }}>
-                      <InputLabel id="purchaseMethod">Hình thức mua hàng</InputLabel>
+                    }
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={6}>
+                <Card>
+                  <CardHeader
+                    title={<Typography variant="body1" fontWeight={600}>Thông tin cơ bản</Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  ></CardHeader>
+                  <CardContent sx={{ borderRadius: '5px', }}>
+                    <Stack spacing={2}>
+                      <FormControl sx={{ mt: 4 }}>
+                        <InputLabel id="purchaseMethod">Hình thức mua hàng</InputLabel>
+                        <Controller
+                          defaultValue={data?.PURCHASE_METHOD || ''}
+                          name="purchaseMethod"
+                          control={control}
+                          rules={{ required: 'Vui lòng chọn hình thức mua hàng', }}
+                          disabled={isReadOnly}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              sx={{ height: '100%' }}
+                              id="purchaseMethod"
+                              label="Đơn vị tiền tệ"
+                              labelId="purchaseMethod"
+                              name='purchaseMethod'
+                              error={!!errors.purchaseMethod}
+                            >
+                              <MenuItem value=''>--</MenuItem>
+                              {PURCHASE_METHODS.map(item => (
+                                <MenuItem value={item.value} disabled={item.disable || !item.validate(data?.PURCHASE_METHOD)}>{item.label}</MenuItem>
+                              ))}
+                            </Select>
+                          )}
+                        />
+                        {!!errors.purchaseMethod &&
+                          <Typography variant='caption' color='error'>
+                            {errors.purchaseMethod?.message}
+                          </Typography>}
+                      </FormControl>
                       <Controller
-                        defaultValue={data?.PURCHASE_METHOD || ''}
-                        name="purchaseMethod"
+                        name="addressSelector"
                         control={control}
-                        rules={{ required: 'Vui lòng chọn hình thức mua hàng', }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            sx={{ height: '100%' }}
-                            id="purchaseMethod"
-                            label="Đơn vị tiền tệ"
-                            labelId="purchaseMethod"
-                            name='purchaseMethod'
-                            error={!!errors.purchaseMethod}
-                          >
-                            <MenuItem value=''>--</MenuItem>
-                            {PURCHASE_METHODS.map(item => (
-                              <MenuItem value={item.value} disabled={item.disable || !item.validate(data?.PURCHASE_METHOD)}>{item.label}</MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {!!errors.purchaseMethod &&
-                        <Typography variant='caption' color='error'>
-                          {errors.purchaseMethod?.message}
-                        </Typography>}
-                    </FormControl>
-                    <Controller
-                      name="addressSelector"
-                      control={control}
-                      rules={{
-                        validate: (value) => {
-                          if (value && Object.keys(value?.city)?.length > 0) {
-                            if (Object.keys(value?.district)?.length === 0) {
-                              return 'Vui lòng chọn Quận/Huyện'
-                            } else if (Object.keys(value?.ward)?.length === 0) {
-                              return 'Vui lòng nhập vào Phường, Thị xã,...'
+                        rules={{
+                          validate: (value) => {
+                            if (value && Object.keys(value?.city)?.length > 0) {
+                              if (Object.keys(value?.district)?.length === 0) {
+                                return 'Vui lòng chọn Quận/Huyện'
+                              } else if (Object.keys(value?.ward)?.length === 0) {
+                                return 'Vui lòng nhập vào Phường, Thị xã,...'
+                              }
                             }
                           }
-                        }
-                      }}
-                      render={({ field, fieldState }) => (
-                        <LocationSelector
-                          disable={!canEditUserInfo}
-                          label='Phường, quận/huyện, Thành phố:'
-                          value={{
-                            city: data?.DELIVERY_INFORMATION?.ADDRESS?.CITY,
-                            district: data?.DELIVERY_INFORMATION?.ADDRESS?.DISTRICT,
-                            ward: data?.DELIVERY_INFORMATION?.ADDRESS?.WARD,
-                          }}
-                          onChange={field.onChange}
-                          error={fieldState.error}
-                        />
-                      )}
-                    />
-                    <TextField
-                      {...register('address', {
-                        validate: (value) => {
-                          const location = watch('addressSelector')
-                          if (!!location?.ward && !value) return 'Vui lòng nhập địa chỉ'
-                        }
-                      })}
-                      sx={{
-                        '& .MuiInputBase-input.Mui-disabled': {
-                          color: '#000000',
-                        },
-                        '& .MuiInputBase-root.Mui-disabled': {
-                          backgroundColor: '#f0f0f0',
-                          color: '#000000',
-                        },
-                        '& .MuiInputLabel-root.Mui-disabled': {
-                          color: '#888888',
-                        },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#cccccc',
-                        },
-                      }}
-                      disabled={!canEditUserInfo}
-                      defaultValue={data?.DELIVERY_INFORMATION?.ADDRESS?.DETAIL}
-                      slotProps={{
-                        input: {
-                          startAdornment: (
-                            <LocationOnIcon color='action' />
-                          )
-                        }
-                      }}
-                      label='Đường'
-                      id="address"
-                      name="address"
-                      fullWidth
-                      type="text"
-                      error={!!errors.address}
-                      helperText={errors.address?.message}
-                    />
-                    <TextField
-                      {...register('nameReceiver', {
-                        validate: (value) => {
-                          const purchaseMethod = watch('purchaseMethod')
-                          if (purchaseMethod === 'DELIVERY' && !value) return 'Vui lòng nhập tên người nhận hàng'
-                        }
-                      })}
-                      sx={{
-                        '& .MuiInputBase-input.Mui-disabled': {
-                          color: '#000000',
-                        },
-                        '& .MuiInputBase-root.Mui-disabled': {
-                          backgroundColor: '#f0f0f0',
-                          color: '#000000',
-                        },
-                        '& .MuiInputLabel-root.Mui-disabled': {
-                          color: '#888888',
-                        },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#cccccc',
-                        },
-                      }}
-                      disabled={!canEditUserInfo}
-                      defaultValue={data?.DELIVERY_INFORMATION?.NAME}
-                      label='Tên người nhận'
-                      id="nameReceiver"
-                      name="nameReceiver"
-                      fullWidth
-                      type="text"
-                      error={!!errors.nameReceiver}
-                      helperText={errors.nameReceiver?.message}
-                    />
-                    <Controller
-                      name="phoneNumberReceiver"
-                      control={control}
-                      defaultValue=""
-                      rules={{ validate : (value) => {
-                        const purchaseMethod = watch('purchaseMethod')
-                        if (purchaseMethod === 'DELIVERY' && !value) return 'Vui lòng nhập tên người nhận hàng'
-                      } }}
-                      render={({ field }) => (
-                        <MuiTelInput
-                          {...field}
-                          fullWidth
-                          name="phoneNumberReceiver"
-                          label="Số điện thoại"
-                          onChange={(value) => {
-                            field.onChange(value)
-                          }}
-                          error={!!errors.phoneNumberReceiver}
-                          helperText={errors.phoneNumberReceiver?.message}
-                        />
-                      )}
-                    />
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={6}>
-              <Card sx={{ borderRadius: '5px', }}>
-                <CardHeader
-                  title={<Typography variant="body1" fontWeight={600}>Phí phát sinh</Typography>}
-                  sx={{
-                    color: 'gray',
-                    bgcolor: 'rgb(249, 250, 253)',
-                    padding: 2,
-                  }}
-                ></CardHeader>
-                <CardContent>
-                  <Stack spacing={2}>
-                    <TextField
-                      {...register('tax', {
-                        min: { value: 0, message: 'Thuế phải lớn hơn 0' },
-                        max: { value: 100, message: 'Thuế phải nhỏ hơn 100' }
-                      })}
-                      defaultValue={data?.TAX}
-                      size='small'
-                      label="Phần trăm thuế"
-                      name='tax'
-                      fullWidth
-                      type='number'
-                      slotProps={{
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position='start'><TbReceiptTax /></InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position='end'>%</InputAdornment>
-                          )
-                        },
-                        htmlInput: { min: 0, max: 100 }
-                      }}
-                      error={!!errors.tax}
-                      helperText={errors.tax?.message}
-                    />
-                    <Controller
-                      name="extraFee"
-                      control={control}
-                      defaultValue={data?.EXTRA_FEE ?? 0}
-                      rules={{
-                        min: { value: 0, message: 'Giá trị nhập vào >= 0' }
-                      }}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          size='small'
-                          label="Phí phát sinh"
-                          name='extraFee'
-                          fullWidth
-                          type='number'
-                          slotProps={{
-                            input: {
-                              startAdornment: (
-                                <InputAdornment position='start'><AttachMoneyIcon fontSize='small' /></InputAdornment>
-                              )
-                            },
-                            htmlInput: { min: 0 }
-                          }}
-                          error={!!errors.extraFee}
-                          helperText={errors.extraFee?.message}
-                        />
-                      )}
-                    />
-                    {!isLoadingUnitInvoice && !isErrorUnitInvoice && !!dataUnitInvoice && <FormControl>
-                      <InputLabel id="extraFeeUnit">Đơn vị tiền tệ phí phát sinh</InputLabel>
-                      <Controller
-                        defaultValue={data?.EXTRA_FEE_UNIT || ''}
-                        name="extraFeeUnit"
-                        control={control}
-                        rules={{ required: 'Vui lòng chọn đơn vị tiền tệ', }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            sx={{ height: '100%' }}
-                            id="extraFeeUnit"
-                            label="Đơn vị tiền tệ"
-                            labelId="extraFeeUnit"
-                            name='extraFeeUnit'
-                            error={!!errors.extraFeeUnit}
-                          >
-                            <MenuItem value=''>--</MenuItem>
-                            {dataUnitInvoice?.data?.map((unitInvoice) => (
-                              <MenuItem key={unitInvoice._id} value={unitInvoice._id}>
-                                {unitInvoice.UNIT_NAME}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {!!errors.extraFeeUnit &&
-                        <Typography variant='caption' color='error'>
-                          {errors.extraFeeUnit?.message}
-                        </Typography>}
-                    </FormControl>
-                    }
-                    <Controller
-                      name="extraFeeNote"
-                      control={control}
-                      defaultValue={data?.EXTRA_FEE_NOTE || ''}
-                      rules={{}}
-                      render={({ field }) => (
-                        <Box sx={{ position: 'relative', width: '100%' }}>
-                          <InputLabel shrink sx={{ mb: 0.5 }}>
-                            Lý do phát sinh phí
-                          </InputLabel>
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                            <EditNoteIcon sx={{ mt: '6px' }} />
-                            <TextField
-                              {...field}
-                              size="small"
-                              name="extraFeeNote"
-                              fullWidth
-                              type="text"
-                              multiline
-                              minRows={3}
-                              error={!!errors.extraFeeNote}
-                              helperText={errors.extraFeeNote?.message}
-                            />
-                          </Box>
-                        </Box>
-                      )}
-                    />
-                    <Controller
-                      name="note"
-                      control={control}
-                      defaultValue={data?.NOTE}
-                      rules={{}}
-                      render={({ field }) => (
-                        <Box sx={{ width: '100%' }}>
-                          <InputLabel shrink htmlFor="note" sx={{ mb: 0.5 }}>
-                            Ghi chú
-                          </InputLabel>
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                            <EditNoteIcon sx={{ mt: '6px', color: 'text.secondary' }} />
-                            <TextField
-                              {...field}
-                              id="note"
-                              name="note"
-                              size="small"
-                              fullWidth
-                              type="text"
-                              multiline
-                              minRows={3}
-                              error={!!errors.note}
-                              helperText={errors.note?.message}
-                            />
-                          </Box>
-                        </Box>
-                      )}
-                    />
-                    <FormControl>
-                      <InputLabel id="paymentMethod">Hình thức thanh toán</InputLabel>
-                      <Controller
-                        defaultValue={data?.PAYMENT_METHOD || ''}
-                        name="paymentMethod"
-                        control={control}
-                        rules={{ required: 'Vui lòng chọn Hình thức thanh toán', }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            sx={{ height: '100%' }}
-                            id="paymentMethod"
-                            label="Đơn vị tiền tệ"
-                            labelId="paymentMethod"
-                            name='paymentMethod'
-                            error={!!errors.paymentMethod}
-                          >
-                            <MenuItem value=''>--</MenuItem>
-                            {PAYMENT_STATUS.map(item => (
-                              <MenuItem key={item.value} value={item.value} disabled={item?.disable}>{item.label}</MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {!!errors.paymentMethod &&
-                        <Typography variant='caption' color='error'>
-                          {errors.paymentMethod?.message}
-                        </Typography>}
-                    </FormControl>
-                    <FormControl>
-                      <InputLabel id="status">Trạng thái hóa đơn</InputLabel>
-                      <Controller
-                        defaultValue={data?.STATUS || ''}
-                        name="status"
-                        control={control}
-                        rules={{ required: 'Vui lòng chọn trạng thái hóa đơn', }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            sx={{ height: '100%' }}
-                            id="status"
-                            label="Trạng thái hóa đơn"
-                            labelId="status"
-                            name='status'
-                            error={!!errors.status}
-                          >
-                            {!isEdited && <MenuItem value=''>--</MenuItem>}
-                            {SALE_INVOICE_STATUS.map(item => (
-                              <MenuItem key={item.value} value={item.value} color={item.color} disabled={item.disable || !item.validate(data?.STATUS)}>
-
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  {item.value === 'DRAFT' && <ModeEditIcon color={item.color} />}
-                                  {item.value === 'CONFIRMED' && <CheckCircleIcon color={item.color} />}
-                                  {item.value === 'PAYMENTED' && <AssuredWorkloadIcon color={item.color} />}
-                                  {item.value === 'CANCELLED' && <CancelIcon color={item.color} />}
-                                  <Typography color={item.color}>{item.label}</Typography>
-                                </Box>
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {!!errors.status &&
-                        <Typography variant='caption' color='error'>
-                          {errors.status?.message}
-                        </Typography>}
-                    </FormControl>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Box>
-        <Card sx={{ bgcolor: 'white', borderRadius: '5px', boxShadow: (theme) => theme.shadows[1], }}>
-          <CardHeader
-            title={
-              <Stack flexDirection='row' justifyContent='space-between' alignItems='center'>
-                <Typography variant="body1" fontWeight={600}>Hàng hóa: </Typography>
-                <Stack flexDirection='row' gap={2} alignItems='center'>
-                  <SearchVoucherInput searchOption='PRODUCT' available notExpired onItemClick={handleAddGlobalVoucher} />
-                  <SearchItemInput properPosition='bottom-end' searchOption='product' onItemClick={handleAddItem} />
-                </Stack>
-              </Stack>
-            }
-            sx={{
-              bgcolor: 'rgb(249, 250, 253)',
-            }}
-          ></CardHeader>
-          <CardContent>
-            <TableContainer component={Paper} sx={{ mt: 1 }}>
-              <Table >
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Sản phẩm</TableCell>
-                    <TableCell>Giá</TableCell>
-                    <TableCell>Số lượng</TableCell>
-                    <TableCell>Voucher</TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {items?.map((item) => (
-                    <TableRow key={item.ITEM_CODE}>
-                      <TableCell>
-                        <Stack flexDirection='row' gap={2} alignItems='center'>
-                          <Box
-                            sx={{
-                              width: '70px',
-                              height: '70px',
-                              borderRadius: '5px',
-                              marginRight: '10px',
-                              backgroundRepeat: 'no-repeat',
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center',
-                              backgroundImage: item?.AVATAR_IMAGE_URL ? `url('${item?.AVATAR_IMAGE_URL}` : `url(${formatUrl('https://placehold.co/100', { text: item?.ITEM_NAME_EN })})`,
+                        }}
+                        render={({ field, fieldState }) => (
+                          <LocationSelector
+                            disable={!canEditUserInfo || isReadOnly}
+                            label='Phường, quận/huyện, Thành phố:'
+                            value={{
+                              city: data?.DELIVERY_INFORMATION?.ADDRESS?.CITY,
+                              district: data?.DELIVERY_INFORMATION?.ADDRESS?.DISTRICT,
+                              ward: data?.DELIVERY_INFORMATION?.ADDRESS?.WARD,
                             }}
+                            onChange={field.onChange}
+                            error={fieldState.error}
                           />
-                          <Stack gap={1}>
-                            <Typography variant='body1' px={1}>{item?.ITEM_NAME}</Typography>
-                            <Typography variant='caption' px={1}>{item?.ITEM_CODE}</Typography>
-                            <Chip label={item?.ITEM_TYPE_NAME} sx={{ width: 'fit-content' }} />
-                          </Stack>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>
-                        <Stack>
-                          <Typography variant='body1'>
-                            {`${formatCurrency(item?.PRICE)} ${item?.UNIT_INVOICE.UNIT_ABB}`}
-                          </Typography>
-                          {item?.voucher?._id && (
-                            <Typography variant='caption' color='text.secondary'>
-                              {`- ${formatCurrency(getPriceDecreasedByVoucher(item))} ${item?.UNIT_INVOICE.UNIT_ABB}`}
-                            </Typography>
+                        )}
+                      />
+                      <TextField
+                        {...register('address', {
+                          validate: (value) => {
+                            const location = watch('addressSelector')
+                            if (!!location?.ward && !value) return 'Vui lòng nhập địa chỉ'
+                          }
+                        })}
+                        sx={{
+                          '& .MuiInputBase-input.Mui-disabled': {
+                            color: '#000000',
+                          },
+                          '& .MuiInputBase-root.Mui-disabled': {
+                            backgroundColor: '#f0f0f0',
+                            color: '#000000',
+                          },
+                          '& .MuiInputLabel-root.Mui-disabled': {
+                            color: '#888888',
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#cccccc',
+                          },
+                        }}
+                        disabled={!canEditUserInfo}
+                        defaultValue={data?.DELIVERY_INFORMATION?.ADDRESS?.DETAIL}
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <LocationOnIcon color='action' />
+                            )
+                          }
+                        }}
+                        label='Đường'
+                        id="address"
+                        name="address"
+                        fullWidth
+                        type="text"
+                        error={!!errors.address}
+                        helperText={errors.address?.message}
+                      />
+                      <TextField
+                        {...register('nameReceiver', {
+                          validate: (value) => {
+                            const purchaseMethod = watch('purchaseMethod')
+                            if (purchaseMethod === 'DELIVERY' && !value) return 'Vui lòng nhập tên người nhận hàng'
+                          }
+                        })}
+                        sx={{
+                          '& .MuiInputBase-input.Mui-disabled': {
+                            color: '#000000',
+                          },
+                          '& .MuiInputBase-root.Mui-disabled': {
+                            backgroundColor: '#f0f0f0',
+                            color: '#000000',
+                          },
+                          '& .MuiInputLabel-root.Mui-disabled': {
+                            color: '#888888',
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#cccccc',
+                          },
+                        }}
+                        disabled={!canEditUserInfo}
+                        defaultValue={data?.DELIVERY_INFORMATION?.NAME}
+                        label='Tên người nhận'
+                        id="nameReceiver"
+                        name="nameReceiver"
+                        fullWidth
+                        type="text"
+                        error={!!errors.nameReceiver}
+                        helperText={errors.nameReceiver?.message}
+                      />
+                      <Controller
+                        name="phoneNumberReceiver"
+                        control={control}
+                        defaultValue={data?.DELIVERY_INFORMATION?.PHONE_NUMBER}
+                        rules={{
+                          validate: (value) => {
+                            const purchaseMethod = watch('purchaseMethod')
+                            if (purchaseMethod === 'DELIVERY' && !value) return 'Vui lòng nhập tên người nhận hàng'
+                          }
+                        }}
+                        render={({ field }) => (
+                          <MuiTelInput
+                            {...field}
+                            fullWidth
+                            name="phoneNumberReceiver"
+                            label="Số điện thoại"
+                            onChange={(value) => {
+                              field.onChange(value)
+                            }}
+                            error={!!errors.phoneNumberReceiver}
+                            helperText={errors.phoneNumberReceiver?.message}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={6}>
+                <Card sx={{ borderRadius: '5px', }}>
+                  <CardHeader
+                    title={<Typography variant="body1" fontWeight={600}>Phí phát sinh</Typography>}
+                    sx={{
+                      color: 'gray',
+                      bgcolor: 'rgb(249, 250, 253)',
+                      padding: 2,
+                    }}
+                  ></CardHeader>
+                  <CardContent>
+                    <Stack spacing={2}>
+                      <TextField
+                        {...register('tax', {
+                          min: { value: 0, message: 'Thuế phải lớn hơn 0' },
+                          max: { value: 100, message: 'Thuế phải nhỏ hơn 100' }
+                        })}
+                        defaultValue={data?.TAX}
+                        size='small'
+                        label="Phần trăm thuế"
+                        name='tax'
+                        fullWidth
+                        type='number'
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position='start'><TbReceiptTax /></InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position='end'>%</InputAdornment>
+                            )
+                          },
+                          htmlInput: { min: 0, max: 100 }
+                        }}
+                        error={!!errors.tax}
+                        helperText={errors.tax?.message}
+                      />
+                      <Controller
+                        name="extraFee"
+                        control={control}
+                        defaultValue={data?.EXTRA_FEE ?? 0}
+                        rules={{
+                          min: { value: 0, message: 'Giá trị nhập vào >= 0' }
+                        }}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            size='small'
+                            label="Phí phát sinh"
+                            name='extraFee'
+                            fullWidth
+                            type='number'
+                            slotProps={{
+                              input: {
+                                startAdornment: (
+                                  <InputAdornment position='start'><AttachMoneyIcon fontSize='small' /></InputAdornment>
+                                )
+                              },
+                              htmlInput: { min: 0 }
+                            }}
+                            error={!!errors.extraFee}
+                            helperText={errors.extraFee?.message}
+                          />
+                        )}
+                      />
+                      {!isLoadingUnitInvoice && !isErrorUnitInvoice && !!dataUnitInvoice && <FormControl>
+                        <InputLabel id="extraFeeUnit">Đơn vị tiền tệ phí phát sinh</InputLabel>
+                        <Controller
+                          defaultValue={data?.EXTRA_FEE_UNIT || ''}
+                          name="extraFeeUnit"
+                          control={control}
+                          rules={{ required: 'Vui lòng chọn đơn vị tiền tệ', }}
+                          disabled={isReadOnly}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              sx={{ height: '100%' }}
+                              id="extraFeeUnit"
+                              label="Đơn vị tiền tệ"
+                              labelId="extraFeeUnit"
+                              name='extraFeeUnit'
+                              error={!!errors.extraFeeUnit}
+                            >
+                              <MenuItem value=''>--</MenuItem>
+                              {dataUnitInvoice?.data?.map((unitInvoice) => (
+                                <MenuItem key={unitInvoice._id} value={unitInvoice._id}>
+                                  {unitInvoice.UNIT_NAME}
+                                </MenuItem>
+                              ))}
+                            </Select>
                           )}
-                        </Stack>
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          size='small'
-                          type='number'
-                          name='bomMaterials'
-                          sx={{ maxWidth: '100px' }}
-                          slotProps={{
-                            htmlInput: { min: 1 },
-                            input: {
-                              endAdornment: (
-                                <InputAdornment position='end'>{item.UNIT_NAME}</InputAdornment>
-                              )
-                            }
-                          }}
-                          value={item?.QUANTITY}
-                          onChange={(e) => handleQuantityChange(e, item.ITEM_CODE)}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={item?.voucher?._id || ''}
-                          onChange={(e) => handleChangeVoucher(e, item.ITEM_CODE)}
-                          sx={{ width: '250px', fontSize: '0.8rem', }}
-                        >
-                          <MenuItem value='' sx={{ textAlign: 'center', fontSize: '0.8rem', color: 'grey' }}>--</MenuItem>
-                          {getAvailableVouchers(item).map(voucher =>
-                            <MenuItem key={voucher._id} value={voucher._id} disabled={!!voucher.disableStatus} sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
-                              <Badge
-                                badgeContent={voucher.disableStatus}
-                                color="error"
-                                anchorOrigin={{
-                                  vertical: 'top',
-                                  horizontal: 'right',
-                                }}
-                                sx={{
-                                  '& .MuiBadge-badge': {
-                                    fontSize: '8px',
-                                    height: '18px',
-                                    minWidth: '30px',
-                                    right: '-13px'
-                                  },
-                                }}
-                                overlap="rectangular"
-                              >
-                                {`Giảm ${voucher.VALUE} ${voucher.TYPE === 'FIXED_AMOUNT' ? items.at(0).UNIT_INVOICE.UNIT_ABB : '%'}
-                                ${voucher.TYPE === 'PERCENTAGE' && voucher.MAX_DISCOUNT ? `(Tối đa ${formatCurrency(voucher.MAX_DISCOUNT)} ${items.at(0).UNIT_INVOICE.UNIT_ABB})` : ''}`}
-                              </Badge>
-                            </MenuItem>
+                        {!!errors.extraFeeUnit &&
+                          <Typography variant='caption' color='error'>
+                            {errors.extraFeeUnit?.message}
+                          </Typography>}
+                      </FormControl>
+                      }
+                      <Controller
+                        name="extraFeeNote"
+                        control={control}
+                        defaultValue={data?.EXTRA_FEE_NOTE || ''}
+                        rules={{}}
+                        render={({ field }) => (
+                          <Box sx={{ position: 'relative', width: '100%' }}>
+                            <InputLabel shrink sx={{ mb: 0.5 }}>
+                              Lý do phát sinh phí
+                            </InputLabel>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                              <EditNoteIcon sx={{ mt: '6px' }} />
+                              <TextField
+                                {...field}
+                                size="small"
+                                name="extraFeeNote"
+                                fullWidth
+                                type="text"
+                                multiline
+                                minRows={3}
+                                error={!!errors.extraFeeNote}
+                                helperText={errors.extraFeeNote?.message}
+                              />
+                            </Box>
+                          </Box>
+                        )}
+                      />
+                      <Controller
+                        name="note"
+                        control={control}
+                        defaultValue={data?.NOTE}
+                        rules={{}}
+                        render={({ field }) => (
+                          <Box sx={{ width: '100%' }}>
+                            <InputLabel shrink htmlFor="note" sx={{ mb: 0.5 }}>
+                              Ghi chú
+                            </InputLabel>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                              <EditNoteIcon sx={{ mt: '6px', color: 'text.secondary' }} />
+                              <TextField
+                                {...field}
+                                id="note"
+                                name="note"
+                                size="small"
+                                fullWidth
+                                type="text"
+                                multiline
+                                minRows={3}
+                                error={!!errors.note}
+                                helperText={errors.note?.message}
+                              />
+                            </Box>
+                          </Box>
+                        )}
+                      />
+                      <FormControl>
+                        <InputLabel id="paymentMethod">Hình thức thanh toán</InputLabel>
+                        <Controller
+                          defaultValue={data?.PAYMENT_METHOD || ''}
+                          name="paymentMethod"
+                          control={control}
+                          rules={{ required: 'Vui lòng chọn Hình thức thanh toán', }}
+                          disabled={isReadOnly}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              sx={{ height: '100%' }}
+                              id="paymentMethod"
+                              label="Đơn vị tiền tệ"
+                              labelId="paymentMethod"
+                              name='paymentMethod'
+                              error={!!errors.paymentMethod}
+                            >
+                              <MenuItem value=''>--</MenuItem>
+                              {PAYMENT_STATUS.map(item => (
+                                <MenuItem key={item.value} value={item.value} disabled={item?.disable}>{item.label}</MenuItem>
+                              ))}
+                            </Select>
                           )}
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton aria-label="delete" size="large" onClick={() => handleRemove(item.ITEM_CODE)}>
-                          <DeleteIcon color='error'/>
-                        </IconButton>
-                      </TableCell>
+                        />
+                        {!!errors.paymentMethod &&
+                          <Typography variant='caption' color='error'>
+                            {errors.paymentMethod?.message}
+                          </Typography>}
+                      </FormControl>
+                      <FormControl>
+                        <InputLabel id="status">Trạng thái hóa đơn</InputLabel>
+                        <Controller
+                          defaultValue={data?.STATUS || ''}
+                          name="status"
+                          control={control}
+                          rules={{ required: 'Vui lòng chọn trạng thái hóa đơn', }}
+                          disabled={isReadOnly}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              sx={{ height: '100%' }}
+                              id="status"
+                              label="Trạng thái hóa đơn"
+                              labelId="status"
+                              name='status'
+                              error={!!errors.status}
+                            >
+                              {!isEdited && <MenuItem value=''>--</MenuItem>}
+                              {SALE_INVOICE_STATUS.map(item => (
+                                <MenuItem key={item.value} value={item.value} color={item.color} disabled={item.disable || !item.validate(data?.STATUS)}>
+
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    {item.value === 'DRAFT' && <ModeEditIcon color={item.color} />}
+                                    {item.value === 'CONFIRMED' && <CheckCircleIcon color={item.color} />}
+                                    {item.value === 'PAYMENTED' && <AssuredWorkloadIcon color={item.color} />}
+                                    {item.value === 'CANCELLED' && <CancelIcon color={item.color} />}
+                                    <Typography color={item.color}>{item.label}</Typography>
+                                  </Box>
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          )}
+                        />
+                        {!!errors.status &&
+                          <Typography variant='caption' color='error'>
+                            {errors.status?.message}
+                          </Typography>}
+                      </FormControl>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+          <Card sx={{ bgcolor: 'white', borderRadius: '5px', boxShadow: (theme) => theme.shadows[1], }}>
+            <CardHeader
+              title={
+                <Stack flexDirection='row' justifyContent='space-between' alignItems='center'>
+                  <Typography variant="body1" fontWeight={600}>Hàng hóa: </Typography>
+                  <Stack flexDirection='row' gap={2} alignItems='center'>
+                    <SearchVoucherInput searchOption='PRODUCT' available notExpired onItemClick={handleAddGlobalVoucher} />
+                    <SearchItemInput properPosition='bottom-end' searchOption='product' onItemClick={handleAddItem} />
+                  </Stack>
+                </Stack>
+              }
+              sx={{
+                bgcolor: 'rgb(249, 250, 253)',
+              }}
+            ></CardHeader>
+            <CardContent>
+              <TableContainer component={Paper} sx={{ mt: 1 }}>
+                <Table >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Sản phẩm</TableCell>
+                      <TableCell>Giá</TableCell>
+                      <TableCell>Số lượng</TableCell>
+                      <TableCell>Voucher</TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
-                  ))}
-                  {items.length > 0 && (
-                    <>
-                      <TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {items?.map((item) => (
+                      <TableRow key={item.ITEM_CODE}>
                         <TableCell>
-                          <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                            Tổng tiền hàng:
-                          </Typography>
+                          <Stack flexDirection='row' gap={2} alignItems='center'>
+                            <Box
+                              sx={{
+                                width: '70px',
+                                height: '70px',
+                                borderRadius: '5px',
+                                marginRight: '10px',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundImage: item?.AVATAR_IMAGE_URL ? `url('${item?.AVATAR_IMAGE_URL}` : `url(${formatUrl('https://placehold.co/100', { text: item?.ITEM_NAME_EN })})`,
+                              }}
+                            />
+                            <Stack gap={1}>
+                              <Typography variant='body1' px={1}>{item?.ITEM_NAME}</Typography>
+                              <Typography variant='caption' px={1}>{item?.ITEM_CODE}</Typography>
+                              <Chip label={item?.ITEM_TYPE_NAME} sx={{ width: 'fit-content' }} />
+                            </Stack>
+                          </Stack>
                         </TableCell>
                         <TableCell>
-                          <Typography variant='h6'>
-                            {`${formatCurrency(totalItemPrice)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
-                          </Typography>
+                          <Stack>
+                            <Typography variant='body1'>
+                              {`${formatCurrency(item?.PRICE)} ${item?.UNIT_INVOICE.UNIT_ABB}`}
+                            </Typography>
+                            {item?.voucher?._id && (
+                              <Typography variant='caption' color='text.secondary'>
+                                {`- ${formatCurrency(getPriceDecreasedByVoucher(item))} ${item?.UNIT_INVOICE.UNIT_ABB}`}
+                              </Typography>
+                            )}
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            size='small'
+                            type='number'
+                            name='bomMaterials'
+                            sx={{ maxWidth: '100px' }}
+                            slotProps={{
+                              htmlInput: { min: 1 },
+                              input: {
+                                endAdornment: (
+                                  <InputAdornment position='end'>{item.UNIT_NAME}</InputAdornment>
+                                )
+                              }
+                            }}
+                            value={item?.QUANTITY}
+                            onChange={(e) => handleQuantityChange(e, item.ITEM_CODE)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            disabled={isReadOnly}
+                            value={item?.voucher?._id || ''}
+                            onChange={(e) => handleChangeVoucher(e, item.ITEM_CODE)}
+                            sx={{ width: '250px', fontSize: '0.8rem', }}
+                          >
+                            <MenuItem value='' sx={{ textAlign: 'center', fontSize: '0.8rem', color: 'grey' }}>--</MenuItem>
+                            {getAvailableVouchers(item).map(voucher =>
+                              <MenuItem key={voucher._id} value={voucher._id} disabled={!!voucher.disableStatus} sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
+                                <Badge
+                                  badgeContent={voucher.disableStatus}
+                                  color="error"
+                                  anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                  }}
+                                  sx={{
+                                    '& .MuiBadge-badge': {
+                                      fontSize: '8px',
+                                      height: '18px',
+                                      minWidth: '30px',
+                                      right: '-13px'
+                                    },
+                                  }}
+                                  overlap="rectangular"
+                                >
+                                  {`Giảm ${voucher.VALUE} ${voucher.TYPE === 'FIXED_AMOUNT' ? items.at(0).UNIT_INVOICE.UNIT_ABB : '%'}
+                                ${voucher.TYPE === 'PERCENTAGE' && voucher.MAX_DISCOUNT ? `(Tối đa ${formatCurrency(voucher.MAX_DISCOUNT)} ${items.at(0).UNIT_INVOICE.UNIT_ABB})` : ''}`}
+                                </Badge>
+                              </MenuItem>
+                            )}
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <IconButton aria-label="delete" size="large" onClick={() => handleRemove(item.ITEM_CODE)}>
+                            <DeleteIcon color='error' />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
-                      <TableRow>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Typography variant='caption'>
-                            Giảm cho sản phẩm:
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='caption'>
-                            {`- ${formatCurrency(items.reduce((acc, cur) => acc + getPriceDecreasedByVoucher(cur), 0))} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Typography variant='caption'>
-                            Giảm cho Hóa đơn:
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='caption'>
-                            <Chip label={`- ${formatCurrency(totalPriceDecreasedByGlobalVoucher)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`} variant="outlined" onDelete={() => setGlobalVoucher(null)} />
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell sx={{ textAlign: 'center', }}>
-                          <Typography variant='caption'>
-                            Thuế:
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='caption'>
-                            {`+ ${formatCurrency(taxValue)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB} (${tax} %)`}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                      {!!dataUnitInvoice && !!extraFeeUnit && (
+                    ))}
+                    {items.length > 0 && (
+                      <>
+                        <TableRow>
+                          <TableCell>
+                            <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                              Tổng tiền hàng:
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant='h6'>
+                              {`${formatCurrency(totalItemPrice)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
                         <TableRow>
                           <TableCell sx={{ textAlign: 'center' }}>
                             <Typography variant='caption'>
-                              Phí phát sinh:
+                              Giảm cho sản phẩm:
                             </Typography>
                           </TableCell>
                           <TableCell>
                             <Typography variant='caption'>
-                              {`+ ${formatCurrency(extraFee)} ${dataUnitInvoice?.data?.find(i => i._id === extraFeeUnit)?.UNIT_ABB}`}
+                              {`- ${formatCurrency(items.reduce((acc, cur) => acc + getPriceDecreasedByVoucher(cur), 0))} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
                             </Typography>
                           </TableCell>
                         </TableRow>
-                      )}
-                      <TableRow>
-                        <TableCell>
-                          <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                            Tổng số tiền:
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='h6'>
-                            {`${formatCurrency(priceAfterExtraFeeAndAllVoucher)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <Stack flexDirection='row' gap={2} justifyContent='center' mt={6}>
-              <Button
-                className='interceptor-loading'
-                type='submit'
-                variant="contained"
-                color="success"
-                endIcon={<CheckCircleIcon />}
-              >
-                Lưu
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Stack>
+                        <TableRow>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Typography variant='caption'>
+                              Giảm cho Hóa đơn:
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant='caption'>
+                              <Chip label={`- ${formatCurrency(totalPriceDecreasedByGlobalVoucher)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`} variant="outlined" onDelete={() => setGlobalVoucher(null)} />
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell sx={{ textAlign: 'center', }}>
+                            <Typography variant='caption'>
+                              Thuế:
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant='caption'>
+                              {`+ ${formatCurrency(taxValue)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB} (${tax} %)`}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                        {!!dataUnitInvoice && !!extraFeeUnit && (
+                          <TableRow>
+                            <TableCell sx={{ textAlign: 'center' }}>
+                              <Typography variant='caption'>
+                                Phí phát sinh:
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant='caption'>
+                                {`+ ${formatCurrency(extraFee)} ${dataUnitInvoice?.data?.find(i => i._id === extraFeeUnit)?.UNIT_ABB}`}
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        <TableRow>
+                          <TableCell>
+                            <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                              Tổng số tiền:
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant='h6'>
+                              {`${formatCurrency(priceAfterExtraFeeAndAllVoucher)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {!isReadOnly && (
+                <Stack flexDirection='row' gap={2} justifyContent='center' mt={6}>
+                  <Button
+                    type='submit'
+                    variant="contained"
+                    color="success"
+                    endIcon={<CheckCircleIcon />}
+                  >
+                    Lưu
+                  </Button>
+                </Stack>
+              )}
+            </CardContent>
+          </Card>
+        </Stack>
+      </fieldset>
     </form>
   )
 }
