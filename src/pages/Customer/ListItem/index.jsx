@@ -42,7 +42,7 @@ export default function ListItemPage() {
     return nameMatch && minMatch && maxMatch
   })
 
-  const itemsPerPage = 10 // hoặc 5
+  const itemsPerPage = 10 
 
   const paginated = filtered.slice(
     (currentPage - 1) * itemsPerPage,
@@ -60,7 +60,7 @@ export default function ListItemPage() {
             py: 0.5,
             display: 'flex',
             alignItems: 'center',
-            width: '100%',            // Chiếm full 1196px của Box cha
+            width: '100%',
             border: '1px solid #ccc',
             borderRadius: 2,
           }}
@@ -239,11 +239,11 @@ export default function ListItemPage() {
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <Pagination
-            count={Math.ceil(filtered.length / itemsPerPage)} // tính số trang
+            count={Math.ceil(filtered.length / itemsPerPage)} 
             page={currentPage}
             onChange={(e, value) => {
               setCurrentPage(value)
-              window.scrollTo({ top: 0, behavior: 'smooth' }) // Cuộn lên đầu trang
+              window.scrollTo({ top: 0, behavior: 'smooth' })
             }}
             
             shape="rounded"
