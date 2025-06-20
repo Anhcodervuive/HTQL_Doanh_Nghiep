@@ -232,7 +232,7 @@ export default function DashboardLayoutBasic(props) {
         }}
       >
         <RouteChangeProgress />
-        <Box sx={{ mx: 1, px: 3, pt: 3, backgroundColor: '#f5f7fa' }}>
+        <Box sx={{ mx: 1, px: 3, pt: 3, minHeight: '100vh', backgroundColor: '#f5f7fa' }}>
           <Outlet />
         </Box>
       </DashboardLayout>

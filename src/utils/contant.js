@@ -1,4 +1,4 @@
-export const PURCHASE_METHODS = [
+export const SALE_INVOICES_PURCHASE_METHODS = [
   { value: 'IN_STORE', label: 'Mua tại cửa hàng', color: 'success',
     validate: (currentMethod) => currentMethod !== 'ONLINE'
   },

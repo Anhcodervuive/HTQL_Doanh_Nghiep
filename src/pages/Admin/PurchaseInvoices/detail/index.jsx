@@ -61,6 +61,7 @@ export default function InvoiceDetail() {
       toast.success(`Đổi trạng thái sang ${newStatus} thành công!`)
       await refetch()
     } catch (err) {
+      console.log(err)
       toast.error('Đổi trạng thái thất bại!')
     } finally {
       handleMenuClose()
@@ -228,6 +229,7 @@ export default function InvoiceDetail() {
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'primary.main' }}>
                   <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Mã sản phẩm</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Tên nhà cung ứng</TableCell>
                   <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Tên sản phẩm</TableCell>
                   <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Số lượng</TableCell>
                   <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Đơn giá</TableCell>
@@ -242,6 +244,7 @@ export default function InvoiceDetail() {
                       '&:hover': { backgroundColor: '#f0f8ff' }
                     }}>
                     <TableCell>{item.ITEM_CODE}</TableCell>
+                    <TableCell>{item?.SUPPLIER?.SUPPLIER_NAME}</TableCell>
                     <TableCell>{item.ITEM_DETAIL?.ITEM_NAME}</TableCell>
                     <TableCell>{item.QUANTITY}</TableCell>
                     <TableCell>{item.UNIT_PRICE?.toLocaleString()} VND</TableCell>

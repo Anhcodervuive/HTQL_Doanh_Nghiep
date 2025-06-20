@@ -43,7 +43,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 import unitInvoiceService from '~/service/admin/unitInvoice.service'
-import { PAYMENT_STATUS, PURCHASE_METHODS, SALE_INVOICE_STATUS } from '~/utils/contant'
+import { PAYMENT_STATUS, SALE_INVOICES_PURCHASE_METHODS, SALE_INVOICE_STATUS } from '~/utils/contant'
 import SearchItemInput from '~/components/Admin/SearchItemInput'
 import SearchUserInput from '~/components/Admin/SearchUserInput'
 import { useMemo, useState } from 'react'
@@ -433,13 +433,13 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly=true }) {
                               {...field}
                               sx={{ height: '100%' }}
                               id="purchaseMethod"
-                              label="Đơn vị tiền tệ"
+                              label="Hình thức mua hàng"
                               labelId="purchaseMethod"
                               name='purchaseMethod'
                               error={!!errors.purchaseMethod}
                             >
                               <MenuItem value=''>--</MenuItem>
-                              {PURCHASE_METHODS.map(item => (
+                              {SALE_INVOICES_PURCHASE_METHODS.map(item => (
                                 <MenuItem value={item.value} disabled={item.disable || !item.validate(data?.PURCHASE_METHOD)}>{item.label}</MenuItem>
                               ))}
                             </Select>

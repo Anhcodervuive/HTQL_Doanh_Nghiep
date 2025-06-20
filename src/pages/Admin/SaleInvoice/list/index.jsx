@@ -32,7 +32,7 @@ import useUserInfo from '~/hooks/useUserInfo'
 import PriceRangeInput from '~/components/Admin/PriceRangeInput'
 import { formatCurrency, formatToVietnamTime } from '~/utils/formatter'
 import { getColorByValue, getLabelByValue } from '~/utils/mapper'
-import { PURCHASE_METHODS, SALE_INVOICE_STATUS } from '~/utils/contant'
+import { SALE_INVOICES_PURCHASE_METHODS, SALE_INVOICE_STATUS } from '~/utils/contant'
 import ActionMenu from '~/components/Admin/ActionMenu'
 import { toast } from 'react-toastify'
 
@@ -241,7 +241,7 @@ export default function SaleInvoiceList() {
         </Button>
       </Box>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="supplier table">
+        <Table sx={{ minWidth: 700 }} aria-label="table">
           <TableHead>
             <TableRow>
               <StyledTableCell>Mã</StyledTableCell>
@@ -294,8 +294,8 @@ export default function SaleInvoiceList() {
                       <StyledTableCell>{`${formatCurrency(invoice.TOTAL_WITH_TAX_EXTRA_FEE)} đ`}</StyledTableCell>
                       <StyledTableCell>
                         <Chip
-                          label={getLabelByValue(invoice.PURCHASE_METHOD, PURCHASE_METHODS)}
-                          color={getColorByValue(invoice.PURCHASE_METHOD, PURCHASE_METHODS)}
+                          label={getLabelByValue(invoice.PURCHASE_METHOD, SALE_INVOICES_PURCHASE_METHODS)}
+                          color={getColorByValue(invoice.PURCHASE_METHOD, SALE_INVOICES_PURCHASE_METHODS)}
                         />
                       </StyledTableCell>
                       <StyledTableCell>

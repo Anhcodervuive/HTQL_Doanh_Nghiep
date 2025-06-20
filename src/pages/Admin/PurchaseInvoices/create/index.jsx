@@ -12,10 +12,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  Select,
+  FormControl
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import SearchItemInput from '~/components/Admin/SearchItemInput'
@@ -24,6 +28,8 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 import invoicesService from '~/service/admin/invoices.service'
 import { toast } from 'react-toastify'
+import { cloneDeep } from 'lodash'
+import unitInvoiceService from '~/service/admin/unitInvoice.service'
 
 const STATUS_OPTIONS = [
   { label: 'DRAFT', value: 'DRAFT' },
@@ -47,6 +53,17 @@ export default function AddPurchaseInvoiceForm() {
   const [tax, setTax] = useState(10)
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
+  const { data: dataUnitInvoice, isLoading: isLoadingUnitInvoice, isError: isErrorUnitInvoice } = useQuery({
+    queryKey: ['unitInvoiceList'],
+    enabled: !!device_id,
+    queryFn: () => unitInvoiceService.search({
+      user_id,
+      device_id
+    }),
+    retry: false,
+    refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
+    // staleTime: 1000 * 60 * 3
+  })
 
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
@@ -64,15 +81,25 @@ export default function AddPurchaseInvoiceForm() {
   })
 
   const handleItemClick = (item) => {
-    setSelectedItems((prev) => [
-      ...prev,
-      {
-        ITEM_CODE: item.ITEM_CODE,
-        ITEM_NAME: item.ITEM_NAME,
-        SUPPLIER_ID: '', // chưa có, người dùng sẽ chọn
-        QUANTITY: 1
+    setSelectedItems((prev) => {
+      const newItems = cloneDeep(prev)
+      const isItemInserted = newItems.find(i => i.ITEM_CODE === item.ITEM_CODE)
+      if (isItemInserted) {
+        isItemInserted.QUANTITY += 1
+      } else {
+        const newAddItem = {
+          ITEM_CODE: item.ITEM_CODE,
+          ITEM_NAME: item.ITEM_NAME,
+          SUPPLIER_ID: '', // chưa có, người dùng sẽ chọn
+          QUANTITY: 1,
+          UNIT_PRICE: 0,
+          UNIT: '',
+          UNIT_ITEM_NAME: item.UNIT_NAME,
+        }
+        newItems.push(newAddItem)
       }
-    ])
+      return newItems
+    })
   }
 
   const handleSupplierSelect = (itemIndex, supplierId) => {
@@ -90,16 +117,42 @@ export default function AddPurchaseInvoiceForm() {
       )
     )
   }
+
+  const handlePriceChange = (itemIndex, price) => {
+    setSelectedItems((prev) =>
+      prev.map((item, index) =>
+        index === itemIndex ? { ...item, UNIT_PRICE: price } : item
+      )
+    )
+  }
+
+  const handleChangUnitInvoiceItem = (itemIndex, unitInvocieId) => {
+    setSelectedItems((prev) =>
+      prev.map((item, index) =>
+        index === itemIndex ? { ...item, UNIT: unitInvocieId } : item
+      )
+    )
+  }
+
   const handleDeleteItem = (itemIndex) => {
     setSelectedItems((prev) => prev.filter((_, index) => index !== itemIndex))
   }
 
   const handleSubmit = () => {
+    const formatedSelectedItems = cloneDeep(selectedItems)
+    formatedSelectedItems.forEach(item => {
+      delete item.UNIT_ITEM_NAME
+      delete item.ITEM_NAME
+      if (!item.UNIT) {
+        toast.error('Vui lòng chọn đơn vị tiền tệ cho tất cả nguyên liệu!')
+        return
+      }
+    })
     const data = {
       statusName,
       tax,
       paymented,
-      items: selectedItems
+      items: formatedSelectedItems
     }
 
     // Validate: tất cả SUPPLIER_ID đã chọn
@@ -115,7 +168,7 @@ export default function AddPurchaseInvoiceForm() {
 
 
   return (
-    <Paper sx={{ p: 3, maxWidth: 1000, mx: 'auto' }}>
+    <Paper sx={{ p: 3, mx: 'auto' }}>
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button
@@ -132,7 +185,7 @@ export default function AddPurchaseInvoiceForm() {
         ))}
       </Box>
       <Typography variant="h5" gutterBottom>
-        Tạo mới hóa đơn mua hàng
+        Tạo mới hóa đơn mua nhập
       </Typography>
 
       {/* Search sản phẩm */}
@@ -190,7 +243,7 @@ export default function AddPurchaseInvoiceForm() {
       </Box>
 
       {/* Bảng sản phẩm đã chọn */}
-      <TableContainer component={Paper} sx={{ mb: 2 }}>
+      <TableContainer component={Paper} sx={{ mb: 2 }} >
         <Table>
           <TableHead>
             <TableRow>
@@ -198,18 +251,21 @@ export default function AddPurchaseInvoiceForm() {
               <TableCell>Tên sản phẩm</TableCell>
               <TableCell>Nhà cung cấp</TableCell>
               <TableCell>Số lượng</TableCell>
+              <TableCell>Giá nhập</TableCell>
+              <TableCell>đơn vị tiền tệ</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {selectedItems.map((item, index) => (
-              <TableRow key={index}>
+              <TableRow key={item._id || item.ITEM_CODE}>
                 <TableCell>{item.ITEM_CODE}</TableCell>
                 <TableCell>{item.ITEM_NAME}</TableCell>
                 <TableCell
                   sx={{
                     position: 'relative',
                     backgroundColor: '#fff',
+                    maxWidth: '200px',
                     zIndex: 0
                   }}
                 >
@@ -224,11 +280,53 @@ export default function AddPurchaseInvoiceForm() {
                   <TextField
                     type="number"
                     size="small"
+                    sx={{ maxWidth: '100px' }}
                     value={item.QUANTITY}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position='end'>{item.UNIT_ITEM_NAME}</InputAdornment>
+                        )
+                      }
+                    }}
                     onChange={(e) =>
                       handleQuantityChange(index, Number(e.target.value))
                     }
                   />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    size="small"
+                    sx={{ maxWidth: '150px' }}
+                    value={item.UNIT_PRICE}
+                    onChange={(e) =>
+                      handlePriceChange(index, Number(e.target.value))
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  {!isLoadingUnitInvoice && !isErrorUnitInvoice && !!dataUnitInvoice && <FormControl fullWidth size='small'>
+                    <InputLabel id="extraFeeUnit">Đơn vị tiền tệ</InputLabel>
+                    <Select
+                      sx={{ height: '100%' }}
+                      id="extraFeeUnit"
+                      label="Đơn vị tiền tệ"
+                      labelId="extraFeeUnit"
+                      name='extraFeeUnit'
+                      value={item.UNIT}
+                      fullWidth
+                      onChange={(e) => handleChangUnitInvoiceItem(index, e.target.value)}
+                    >
+                      <MenuItem value=''>--</MenuItem>
+                      {dataUnitInvoice?.data?.map((unitInvoice) => (
+                        <MenuItem key={unitInvoice._id} value={unitInvoice._id}>
+                          {unitInvoice.UNIT_NAME}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  }
                 </TableCell>
                 <TableCell>
                   <IconButton color='error' onClick={() => handleDeleteItem(index)}>
