@@ -7,7 +7,6 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
 import ItemCreateForm from '../form/create'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 import imageService from '~/service/image.service'
 import { useState } from 'react'
@@ -73,7 +72,6 @@ function ItemCreate() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <ProgressBar />
       <Box sx={{ mb: 3 }}>
         {breadcrumbs.map((item, index) => (
           <Button

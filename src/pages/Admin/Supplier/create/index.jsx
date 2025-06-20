@@ -7,7 +7,6 @@ import supplierService from '~/service/admin/supplier.service'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 
 function SupplierCreate() {
@@ -32,7 +31,6 @@ function SupplierCreate() {
 
   return (
     <Box sx={{ minHeight: '700px' }}>
-      <ProgressBar />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

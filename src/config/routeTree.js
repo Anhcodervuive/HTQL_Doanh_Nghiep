@@ -25,7 +25,7 @@ export const routeTree = [
         path: '/admin/purchase-invoices', name: 'Invoices', children: [
           { path: '/admin/purchase-invoices', name: 'List' },
           { path: '/admin/purchase-invoices/create', name: 'Create' },
-          // { path: '/admin/supplier/:id/edit', name: 'Edit' }
+          { path: '/admin/purchase-invoices/:id/edit', name: 'Edit' }
         ]
       },
       {
@@ -33,13 +33,14 @@ export const routeTree = [
           { path: '/admin/vouchers', name: 'List' },
           { path: '/admin/vouchers/create', name: 'Create' },
           { path: '/admin/vouchers/:id/edit', name: 'Edit' },
+          { path: '/admin/vouchers/:id/detail', name: 'Detail' },
         ]
       },
       {
         path: '/admin/sale-invoices', name: 'Invoices', children: [
           { path: '/admin/sale-invoices', name: 'List' },
           { path: '/admin/sale-invoices/create', name: 'Create' },
-          // { path: '/admin/supplier/:id/edit', name: 'Edit' }
+          { path: '/admin/sale-invoices/:id/edit', name: 'Edit' }
         ]
       },
     ]

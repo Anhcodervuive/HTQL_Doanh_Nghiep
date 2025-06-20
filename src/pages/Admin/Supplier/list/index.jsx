@@ -24,7 +24,6 @@ import { useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
 import useDebounce from '~/hooks/useDebounce'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 import { Tooltip, IconButton } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
@@ -96,7 +95,6 @@ export default function SupplierList() {
 
   return (
     <Box>
-      <ProgressBar isLoading={isLoading} />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

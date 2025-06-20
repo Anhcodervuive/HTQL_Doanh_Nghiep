@@ -15,10 +15,8 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 import itemTypeService from '~/service/admin/itemType.service'
 import unitInvoiceService from '~/service/admin/unitInvoice.service'
-import ProgressBar from '~/components/ProgressBar'
 import MyEditor from '~/components/MyEditor'
 import itemUnitService from '~/service/admin/itemUnit.service'
-import BomMaterial from './BomMaterialCreate'
 import { Accordion, AccordionDetails, AccordionSummary, Backdrop, CircularProgress } from '@mui/material'
 import itemService from '~/service/admin/item.service'
 import { useNavigate, Link } from 'react-router-dom'
@@ -192,7 +190,6 @@ function ItemUpdateForm({ data, viewOnly }) {
       }}
       pb={20}
     >
-      <ProgressBar/>
       <Backdrop
         sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
         open={isUpdating}

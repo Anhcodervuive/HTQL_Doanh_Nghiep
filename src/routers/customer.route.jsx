@@ -7,9 +7,11 @@ export default [
     path: '/customer',
     element: <CustomerLayout />,
     children : [
-      { path: 'detail-Item',
+      {
+        // path: 'detail-Item',
+        path: 'detail-Item/:id',
         element: <DetailItem />,
-        //loader: composeLoaders(isAuthenticate),
+        //loader: composeLoaders(isAuthenticate),item/:id/detail
       },
       {
         path: 'home',

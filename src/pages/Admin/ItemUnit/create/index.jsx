@@ -7,7 +7,6 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
 import ItemUnitForm from '../form'
-import ProgressBar from '~/components/ProgressBar'
 import useUserInfo from '~/hooks/useUserInfo'
 
 function ItemUnitCreate() {
@@ -32,7 +31,6 @@ function ItemUnitCreate() {
 
   return (
     <Box sx={{ minHeight: '700px' }}>
-      <ProgressBar />
       <Box sx={{ mb: 2 }}>
         {breadcrumbs.map((item, index) => (
           <Button

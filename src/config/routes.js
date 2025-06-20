@@ -29,9 +29,10 @@ export default {
       create: '/admin/purchase-invoices/create',
     },
     saleInvoices: {
-      list: 'admin/sale-invoices',
-      create : 'admin/sale-invoices/create',
-      edit: (id) => `/admin/sale-invoices/${id || ':id'}/edit`
+      list: '/admin/sale-invoices',
+      create : '/admin/sale-invoices/create',
+      edit: (id) => `/admin/sale-invoices/${id || ':id'}/edit`,
+      detail: (id) => `/admin/sale-invoices/${id || ':id'}/detail`,
     },
     item : {
       list : '/admin/item',
@@ -70,7 +71,8 @@ export default {
     forbidden403: '/forbidden'
   },
   customer: {
-    detailItem: '/detail-Item',
+    // detailItem: '/detail-Item',
+    detailItem: (id) => `/detail-Item/${id}`,
     home: '/home',
     listItem: '/list-Item'
   }

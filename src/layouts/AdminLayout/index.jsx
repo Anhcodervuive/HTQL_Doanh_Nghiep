@@ -27,6 +27,7 @@ import UserMenu from './UserMenu'
 import { Routes } from '~/config'
 import { logo } from '~/assets/images'
 import useAuth from '~/hooks/useAuth'
+import RouteChangeProgress from '~/components/RouteChangeProgress'
 
 const NAVIGATION = [
   {
@@ -230,6 +231,7 @@ export default function DashboardLayoutBasic(props) {
           ),
         }}
       >
+        <RouteChangeProgress />
         <Box sx={{ mx: 1, px: 3, pt: 3, backgroundColor: '#f5f7fa' }}>
           <Outlet />
         </Box>
