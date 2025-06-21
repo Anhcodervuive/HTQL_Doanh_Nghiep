@@ -34,6 +34,7 @@ import SaleInvoiceCreate from '~/pages/Admin/SaleInvoice/create'
 import { Navigate } from 'react-router-dom'
 import SaleInvoiceList from '~/pages/Admin/SaleInvoice/list'
 import SaleInvoiceEdit from '~/pages/Admin/SaleInvoice/edit'
+import EditPurchaseInvoiceForm from '~/pages/Admin/PurchaseInvoices/edit'
 
 export default [
   {
@@ -153,7 +154,12 @@ export default [
       {
         path: 'purchase-invoices/create',
         element: <AddPurchaseInvoiceForm />,
-        // loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'purchase-invoices/:id/edit',
+        element: <EditPurchaseInvoiceForm />,
+        loader: composeLoaders(isAuthenticate),
       },
       {
         path: 'purchase-invoices/:id',

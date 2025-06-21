@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Button,
-  TextField,
   Typography,
-  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -13,59 +11,81 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  InputAdornment,
-  InputLabel,
+  TextField,
   Select,
-  FormControl
+  MenuItem,
+  InputLabel,
+  FormControl,
+  InputAdornment
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import EditNoteIcon from '@mui/icons-material/EditNote'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useLocation, Link, useNavigate } from 'react-router-dom'
-import { findBreadcrumbs, routeTree } from '~/config/routeTree'
-import SearchItemInput from '~/components/Admin/SearchItemInput'
-import SearchSupplierInput from '~/components/Admin/SearchSupplierInput'
-import { useDeviceId } from '~/hooks/useDeviceId'
-import useUserInfo from '~/hooks/useUserInfo'
-import invoicesService from '~/service/admin/invoices.service'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
-import { cloneDeep } from 'lodash'
+import EditNoteIcon from '@mui/icons-material/EditNote'
+
+import invoicesService from '~/service/admin/invoices.service'
 import unitInvoiceService from '~/service/admin/unitInvoice.service'
+import useUserInfo from '~/hooks/useUserInfo'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import { Controller, useForm } from 'react-hook-form'
 import { PURCHASE_INVOICE_PAYMENT_METHODS, PURCHASE_INVOICE_STATUS } from '~/utils/contant'
+import SearchSupplierInput from '~/components/Admin/SearchSupplierInput'
+import { cloneDeep } from 'lodash'
+import SearchItemInput from '~/components/Admin/SearchItemInput'
 
-
-export default function AddPurchaseInvoiceForm() {
-  const { register, handleSubmit, formState: { errors }, watch, control } = useForm()
-  const location = useLocation()
+export default function EditPurchaseInvoiceForm() {
+  const { id } = useParams() // INVOICE_CODE
   const navigate = useNavigate()
-  const [selectedItems, setSelectedItems] = useState([])
-  const device_id = useDeviceId()
+  const location = useLocation()
+  const { register, handleSubmit, formState: { errors }, watch, control } = useForm()
   const { userId: user_id } = useUserInfo()
-  const { data: dataUnitInvoice, isLoading: isLoadingUnitInvoice, isError: isErrorUnitInvoice } = useQuery({
-    queryKey: ['unitInvoiceList'],
+  const device_id = useDeviceId()
+  const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
+  const [selectedItems, setSelectedItems] = useState([])
+
+  // Fetch hóa đơn hiện tại
+  const { data: invoiceData, isLoading, isError } = useQuery({
     enabled: !!device_id,
-    queryFn: () => unitInvoiceService.search({
-      user_id,
-      device_id
-    }),
+    queryKey: ['invoiceDetail', id],
+    queryFn: () => invoicesService.getInvoiceDetail(id, { device_id, user_id }),
+    refetchOnWindowFocus: false,
     retry: false,
-    refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
-    // staleTime: 1000 * 60 * 3
   })
 
-  const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
+  // Fetch danh sách đơn vị tiền tệ
+  const { data: dataUnitInvoice, isLoading: isLoadingUnitInvoice, isError: isErrorUnitInvoice } = useQuery({
+    queryKey: ['unitInvoiceList'],
+    queryFn: () => unitInvoiceService.search({ user_id, device_id }),
+    enabled: !!device_id,
+    refetchOnWindowFocus: false,
+  })
 
+  // Cập nhật lại selectedItems khi có dữ liệu
+  useEffect(() => {
+    if (invoiceData?.data?.ITEMS) {
+      const formatedItems = invoiceData.data.ITEMS.map(item => ({
+        ITEM_CODE: item.ITEM_CODE,
+        ITEM_NAME: item.ITEM_DETAIL.ITEM_NAME,
+        QUANTITY: item.QUANTITY,
+        UNIT_PRICE: item.UNIT_PRICE,
+        UNIT: item.UNIT._id,
+        SUPPLIER_ID: item.SUPPLIER._id
+      }))
+      setSelectedItems(formatedItems)
+    }
+  }, [invoiceData])
+
+  // Submit cập nhật hóa đơn
   const mutation = useMutation({
-    mutationFn: (data) => invoicesService.create( { user_id, device_id } ,data),
-    onSuccess: (res) => {
-      console.log('Tạo hóa đơn thành công:', res)
-      toast.success('Tạo hóa đơn thành công!')
-      navigate(`/admin/purchase-invoices/${res.data.INVOICE_CODE}`)
+    mutationFn: (data) => invoicesService.update(invoiceData.data._id, { user_id, device_id, ...data }),
+    onSuccess: () => {
+      toast.success('Cập nhật hóa đơn thành công!')
+      navigate(`/admin/purchase-invoices/${id}`)
     },
-    onError: (err) => {
-      console.error('Lỗi:', err)
-      toast.error('Đã xảy ra lỗi khi tạo hóa đơn!')
+    onError: () => {
+      toast.error('Đã xảy ra lỗi khi cập nhật hóa đơn!')
     }
   })
 
@@ -89,14 +109,6 @@ export default function AddPurchaseInvoiceForm() {
       }
       return newItems
     })
-  }
-
-  const handleSupplierSelect = (itemIndex, supplierId) => {
-    setSelectedItems((prev) =>
-      prev.map((item, index) =>
-        index === itemIndex ? { ...item, SUPPLIER_ID: supplierId } : item
-      )
-    )
   }
 
   const handleQuantityChange = (itemIndex, quantity) => {
@@ -123,42 +135,38 @@ export default function AddPurchaseInvoiceForm() {
     )
   }
 
-  const handleDeleteItem = (itemIndex) => {
-    setSelectedItems((prev) => prev.filter((_, index) => index !== itemIndex))
+  // Xóa sản phẩm khỏi danh sách
+  const handleDeleteItem = (index) => {
+    setSelectedItems(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSupplierSelect = (itemIndex, supplierId) => {
+    setSelectedItems((prev) =>
+      prev.map((item, index) =>
+        index === itemIndex ? { ...item, SUPPLIER_ID: supplierId } : item
+      )
+    )
   }
 
   const submit = (data) => {
-    const formatedSelectedItems = cloneDeep(selectedItems)
-    formatedSelectedItems.forEach(item => {
-      delete item.UNIT_ITEM_NAME
-      delete item.ITEM_NAME
-      if (!item.UNIT) {
-        toast.error('Vui lòng chọn đơn vị tiền tệ cho tất cả nguyên liệu!')
-        return
-      }
-    })
-    const filteredData = {
-      ...data,
-      tax: Number.parseInt(data.tax),
-      extraFee: Number.parseInt(data.extraFee),
-      items: formatedSelectedItems
-    }
-
-    Object.keys(filteredData).forEach(key => {
-      if (key.includes('price-item') || key.includes('unit-invoice-item') || !filteredData[key])
-        delete filteredData[key]
-    })
-
-    // Validate: tất cả SUPPLIER_ID đã chọn
-    const missingSuppliers = selectedItems.some(item => !item.SUPPLIER_ID)
-    if (missingSuppliers) {
-      toast.error('Vui lòng chọn đầy đủ nhà cung cấp cho từng sản phẩm.')
+    if (selectedItems.length === 0) {
+      toast.warning('Hóa đơn cần ít nhất một sản phẩm.')
       return
     }
-    console.log(filteredData)
-    mutation.mutate(filteredData)
+    console.log({
+      ...data,
+      items: selectedItems
+    })
+    // mutation.mutate({
+    //   ...data,
+    //   items: selectedItems
+    // })
   }
-
+  if (!device_id || !user_id || isLoading) {
+    console.log('device_id hoặc user_id chưa sẵn sàng:', { device_id, user_id })
+    return <Typography>Đang tải dữ liệu hóa đơn...</Typography>
+  }
+  if (isError) return <Typography color="error">Không thể tải hóa đơn.</Typography>
 
   return (
     <form onSubmit={handleSubmit(submit)}>
@@ -170,16 +178,16 @@ export default function AddPurchaseInvoiceForm() {
               variant="text"
               color={location.pathname === item.path ? 'primary' : 'secondary'}
               disabled={location.pathname === item.path}
-              component={Link}
-              to={item.path}
+              component="span"
             >
               {item.name}
-              {location.pathname !== item.path && ' > '}
+              {index < breadcrumbs.length - 1 && ' > '}
             </Button>
           ))}
         </Box>
+
         <Typography variant="h5" gutterBottom>
-          Tạo mới hóa đơn mua nhập
+                  Chỉnh sửa hóa đơn
         </Typography>
 
         {/* Search sản phẩm */}
@@ -198,8 +206,7 @@ export default function AddPurchaseInvoiceForm() {
           </Box>
         </Box>
 
-
-        {/* Chọn trạng thái và phương thức thanh toán */}
+        {/* Thông tin thanh toán (readonly) */}
         <Box mb={2} sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField
             {...register('statusName', {
@@ -207,13 +214,13 @@ export default function AddPurchaseInvoiceForm() {
             })}
             label="Trạng thái"
             select
-            defaultValue=''
-            sx={{ width: 200, }}
+            defaultValue={invoiceData.data.STATUS.STATUS_NAME || ''}
+            sx={{ minWidth: 180 }}
             error={!!errors.statusName}
             helperText={errors.statusName?.message}
           >
             <MenuItem value=''>
-              --
+                          --
             </MenuItem>
             {PURCHASE_INVOICE_STATUS.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -226,9 +233,9 @@ export default function AddPurchaseInvoiceForm() {
               required: 'Vui lòng chọn trạng thái'
             })}
             label="Phương thức thanh toán"
-            defaultValue=''
             select
-            sx={{ width: 200, }}
+            defaultValue={invoiceData.data.PAYMENTED || ''}
+            sx={{ minWidth: 180 }}
             error={!!errors.paymented}
             helperText={errors.paymented?.message}
           >
@@ -248,8 +255,9 @@ export default function AddPurchaseInvoiceForm() {
               max: { value: 100, message: 'Thuế phải >= 0 & <= 100' }
             })}
             label="Thuế (%)"
+            defaultValue={invoiceData.data.TAX}
             type='number'
-            sx={{ width: 200, }}
+            sx={{ minWidth: 120 }}
             error={!!errors.tax}
             helperText={errors.tax?.message}
           />
@@ -258,8 +266,9 @@ export default function AddPurchaseInvoiceForm() {
               min: { value: 0, message: 'Phí phát sinh phát >= 0' },
             })}
             label="Phi phát sinh"
+            defaultValue={invoiceData.data.EXTRA_FEE}
             type='number'
-            sx={{ width: 200, }}
+            sx={{ minWidth: 120 }}
             error={!!errors.extraFee}
             helperText={errors.extraFee}
           />
@@ -268,15 +277,15 @@ export default function AddPurchaseInvoiceForm() {
               {...register('extraFeeUnit', {
                 required: { value: !!watch('extraFee'), message: 'vui lòng chọn đơn vị tiền tệ của phí phát sinh' },
               })}
-              defaultValue=''
               label="Đơn vị tiền tệ phí phát sinh"
               select
-              sx={{ width: 200, }}
+              defaultValue={invoiceData.data.EXTRA_FEE || ''}
+              sx={{ minWidth: 180 }}
               error={!!errors.extraFeeUnit}
               helperText={errors.extraFeeUnit?.message}
             >
               <MenuItem value=''>
-                --
+              --
               </MenuItem>
               {dataUnitInvoice?.data.map((option) => (
                 <MenuItem key={option._id} value={option._id}>
@@ -287,7 +296,7 @@ export default function AddPurchaseInvoiceForm() {
           )}
           <Box sx={{ position: 'relative', width: '100%' }}>
             <InputLabel shrink sx={{ mb: 0.5 }}>
-              Lý do phát sinh phí
+                                        Lý do phát sinh phí
             </InputLabel>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
               <EditNoteIcon sx={{ mt: '6px' }} />
@@ -307,8 +316,8 @@ export default function AddPurchaseInvoiceForm() {
           </Box>
         </Box>
 
-        {/* Bảng sản phẩm đã chọn */}
-        <TableContainer component={Paper} sx={{ mb: 2, width: '100%', overflowX: 'auto' }} >
+        {/* Bảng sản phẩm */}
+        <TableContainer component={Paper} sx={{ mb: 2, width: '100%', overflowX: 'auto' }}>
           <Table sx={{ minWidth: 1200 }} aria-label="table">
             <TableHead>
               <TableRow>
@@ -317,30 +326,23 @@ export default function AddPurchaseInvoiceForm() {
                 <TableCell>Nhà cung cấp</TableCell>
                 <TableCell>Số lượng</TableCell>
                 <TableCell>Giá nhập</TableCell>
-                <TableCell>đơn vị tiền tệ</TableCell>
+                <TableCell>Đơn vị tiền tệ</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {selectedItems.map((item, index) => (
-                <TableRow key={item._id || item.ITEM_CODE}>
+              {selectedItems?.map((item, index) => (
+                <TableRow key={item.ITEM_CODE}>
                   <TableCell>{item.ITEM_CODE}</TableCell>
                   <TableCell>{item.ITEM_NAME}</TableCell>
-                  <TableCell
-                    sx={{
-                      position: 'relative',
-                      backgroundColor: '#fff',
-                      maxWidth: '300px',
-                      zIndex: 0
-                    }}
-                  >
+                  <TableCell sx={{ overflow: 'hidden' }}>
                     <SearchSupplierInput
                       index={index}
+                      needInitialFetch
                       selectedSupplier={item.SUPPLIER_ID}
                       onSelect={(supplierId) => handleSupplierSelect(index, supplierId)}
                     />
                   </TableCell>
-
                   <TableCell>
                     <TextField
                       type="number"
@@ -420,7 +422,7 @@ export default function AddPurchaseInvoiceForm() {
                     }
                   </TableCell>
                   <TableCell>
-                    <IconButton color='error' onClick={() => handleDeleteItem(index)}>
+                    <IconButton color="error" onClick={() => handleDeleteItem(index)}>
                       <CloseIcon />
                     </IconButton>
                   </TableCell>
@@ -430,14 +432,13 @@ export default function AddPurchaseInvoiceForm() {
           </Table>
         </TableContainer>
 
-        {/* Submit */}
         <Button
           variant="contained"
           color="primary"
           type='submit'
           disabled={mutation.isPending}
         >
-          {mutation.isPending ? 'Đang lưu...' : 'Lưu hóa đơn'}
+          {mutation.isPending ? 'Đang cập nhật...' : 'Lưu thay đổi'}
         </Button>
       </Paper>
     </form>

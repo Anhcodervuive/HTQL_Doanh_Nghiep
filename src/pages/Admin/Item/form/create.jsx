@@ -109,7 +109,7 @@ function ItemCreateForm({ submit }) {
   return (
     <Box
       sx={{
-        minHeight: '400px',
+        // minHeight: '100vh',
       }}
       pb={20}
     >
@@ -194,38 +194,6 @@ function ItemCreateForm({ submit }) {
                 </Card>
               </Grid>
               <Grid size={5}>
-                <Card sx={{ mb: 3 }}>
-                  <CardHeader
-                    title={<Typography variant="body1" fontWeight={600}>Kho: </Typography>}
-                    sx={{
-                      color: 'gray',
-                      bgcolor: 'rgb(249, 250, 253)',
-                      padding: 2,
-                    }}
-                  >
-                  </CardHeader>
-                  <CardContent>
-                    <Controller
-                      name="stock"
-                      control={control}
-                      rules={{ }}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          label="Số lượng trong kho"
-                          slotProps={{
-                            htmlInput: { min: 0 }
-                          }}
-                          name='stock'
-                          fullWidth
-                          type='number'
-                          error={!!errors.stock}
-                          helperText={errors.stock?.message}
-                        />
-                      )}
-                    />
-                  </CardContent>
-                </Card>
                 <Card>
                   <CardHeader
                     title={<Typography variant="body1" fontWeight={600}>Giá cả: </Typography>}

@@ -43,6 +43,19 @@ export const VOUCHER_SCOPES = [
   { value: 'PRODUCT', label: 'Sản phẩm' },
 ]
 
+export const PURCHASE_INVOICE_STATUS = [
+  { label: 'Nháp', value: 'DRAFT' },
+  { label: 'Chờ xác nhận', value: 'PENDING_APPROVAL' },
+  { label: 'Đã hoàn thành', value: 'CONFIRMED' },
+  { label: 'Từ chối', value: 'REJECTED' },
+  { label: 'Đã thanh toán', value: 'PAYMENTED' }
+]
+
+export const PURCHASE_INVOICE_PAYMENT_METHODS = [
+  { label: 'Tiền mặt', value: 'Tiền mặt' },
+  { label: 'Chuyển khoản', value: 'Chuyển khoản' }
+]
+
 export const interceptorLoadingElements = (calling) => {
   // DOM lấy ra toàn bộ phần tử trên page hiện tại có className là 'interceptor-loading'
   const elements = document.querySelectorAll('.interceptor-loading')
