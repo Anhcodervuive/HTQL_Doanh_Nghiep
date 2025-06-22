@@ -1,0 +1,109 @@
+import React, { useState, useRef } from 'react'
+import {
+  Badge, IconButton, Popper, Typography, Box, Divider, Button, Paper
+} from '@mui/material'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { defaultImage } from '~/assets/images'
+import { createSelector } from '@reduxjs/toolkit'
+
+
+export default function MiniCart() {
+  const selectCartItems = createSelector(
+    state => state.cart.items,
+    items => items ?? []
+  )
+
+
+  const cartItems = useSelector(selectCartItems)
+
+  const totalQty = cartItems.reduce((sum, i) => sum + (i.QUANTITY ?? 0), 0)
+  const anchorRef = useRef(null)
+  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const handleMouseEnter = () => setOpen(true)
+  const handleMouseLeave = () => setOpen(false)
+
+  return (
+    <Box sx={{ display: 'inline-block' }} onMouseLeave={handleMouseLeave}>
+      {/* ICON CART */}
+      <Box
+        ref={anchorRef}
+        onMouseEnter={handleMouseEnter}
+        sx={{ display: 'inline-block' }}
+      >
+        <IconButton color="inherit" onClick={() => navigate('/customer/cart')}>
+          <Badge badgeContent={totalQty} color="success">
+            <ShoppingCartIcon />
+          </Badge>
+        </IconButton>
+      </Box>
+
+      {/* POPOVER CART */}
+      <Popper
+        open={open}
+        anchorEl={anchorRef.current}
+        placement="bottom-end"
+        disablePortal
+        style={{ zIndex: 1300 }}
+      >
+        <Paper
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          sx={{ width: 320, mt: 1 }}
+        >
+          <Box p={2} maxHeight={350} overflow="auto">
+            <Typography variant="subtitle2" mb={1}>
+              Giỏ hàng ({totalQty})
+            </Typography>
+            <Divider />
+            {cartItems.length === 0 ? (
+              <Typography my={2} textAlign="center" color="text.secondary">
+                Giỏ hàng trống
+              </Typography>
+            ) : (
+              cartItems.slice(0, 5).map((p, idx) => (
+                <Box key={`${p.ITEM_CODE}-${idx}`} display="flex" my={1.5}>
+                  <Box
+                    component="img"
+                    src={p.ITEM_AVATAR || defaultImage}
+                    alt={p.ITEM_NAME}
+                    sx={{ width: 56, height: 56, objectFit: 'cover', mr: 1 }}
+                  />
+                  <Box flex={1} minWidth={0}>
+                    <Typography variant="body2" noWrap>{p.ITEM_NAME}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      x{p.QUANTITY}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" fontWeight={700}>
+                    ₫{p.ITEM_DISCOUNTED_PRICE}
+                  </Typography>
+                </Box>
+              ))
+            )}
+          </Box>
+
+          {cartItems.length > 0 && (
+            <>
+              <Divider />
+              <Box p={1.5}>
+                <Button
+                  fullWidth variant="contained" size="small"
+                  onClick={() => {
+                    setOpen(false)
+                    navigate('/customer/cart')
+                  }}
+                >
+                  Xem giỏ hàng
+                </Button>
+              </Box>
+            </>
+          )}
+        </Paper>
+      </Popper>
+    </Box>
+  )
+}

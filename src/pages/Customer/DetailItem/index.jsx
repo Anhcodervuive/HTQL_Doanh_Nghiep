@@ -13,6 +13,7 @@ import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useState, useRef } from 'react'
 import itemService from '~/service/admin/item.service'
+import cartService from '~/service/customer/cart.service'
 import { defaultImage } from '~/assets/images'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
@@ -23,6 +24,11 @@ import 'slick-carousel/slick/slick-theme.css'
 import { useEffect } from 'react'
 import { useTheme } from '@mui/material'
 import DOMPurify from 'dompurify'
+import { toast } from 'react-toastify'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useDispatch } from 'react-redux'
+import { addCartThunk } from '~/redux/thunks/cart.thunk'
+
 
 
 export default function DetailItem() {
@@ -34,6 +40,7 @@ export default function DetailItem() {
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const cleanHTML = (html) => DOMPurify.sanitize(html, { USE_PROFILES: { html: true } })
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
@@ -48,13 +55,28 @@ export default function DetailItem() {
     }),
     enabled: !!id,
   })
-  console.log('data: ', data)
+  // console.log('data: ', data)
+  const handleAddToCart = () => {
+    dispatch(addCartThunk({
+      itemCode: item.ITEM_CODE,
+      quantity: qty,
+      credential: { user_id, device_id }
+    }))
+      .unwrap()
+      .then(() => toast.success('Đã thêm vào giỏ hàng!'))
+      .catch((err) => {
+        console.error('❌ Lỗi thêm giỏ hàng:', err)
+        toast.error(typeof err === 'string' ? err : 'Thêm vào giỏ hàng thất bại!')
+      })
+
+  }
+
 
   const item = data?.data?.items?.[0] || {}
   const thumbnails = item.LIST_IMAGE?.map(i => i.URL) || []
   const avatar = item.AVATAR_IMAGE_URL || defaultImage
   const price = item.PRICE?.[0]?.PRICE_AMOUNT || 0
-  console.log('avatar: ', avatar)
+  // console.log('avatar: ', avatar)
 
   const vouchers = item.LIST_VOUCHER_ACTIVE || []
   const bestDiscount = vouchers.reduce((max, v) => {
@@ -90,6 +112,17 @@ export default function DetailItem() {
     staleTime: 0,
   })
   const relatedItems = relatedData?.data?.items?.filter(p => p._id !== item._id) || []
+
+  const queryClient = useQueryClient()
+  const addCartMutation = useMutation({
+    mutationFn: (payload) => cartService.addCart({ user_id, device_id, }, payload),
+    onSuccess: () => {
+      // toast.success('Đã thêm vào giỏ hàng!')
+      queryClient.invalidateQueries({ queryKey: ['cart', user_id, device_id,] })
+    },
+    // onError: () => toast.error('Thêm vào giỏ hàng thất bại!'),
+  })
+
   const IMG_H = { xs: 280, md: 400 }
   const THUMB = 60
 
@@ -109,7 +142,6 @@ export default function DetailItem() {
           boxShadow: 2,
         }}
       >
-        {/* === Hình ảnh === */}
         <Box sx={{ width: 400 }}>
           <Box sx={{ width: '100%', height: 400, borderRadius: 2, overflow: 'hidden', mb: 1 }}>
             <CardMedia
@@ -250,8 +282,10 @@ export default function DetailItem() {
               startIcon={<ShoppingCart />}
               color="primary"
               sx={{ px: 3 }}
+              onClick={handleAddToCart}
+              disabled={addCartMutation.isLoading}
             >
-              Thêm Vào Giỏ Hàng
+              {addCartMutation.isLoading ? 'Đang thêm…' : 'Thêm Vào Giỏ Hàng'}
             </Button>
 
             <Button variant="contained" size="large" color="primary" sx={{ px: 5 }}>
@@ -262,104 +296,105 @@ export default function DetailItem() {
 
       </Box>
       { /*các sản phẩm liên  quan*/}
-      <Box sx={{ py: 5, bgcolor: theme.palette.background.default }}>
-        <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 0 } }}>
-          <Typography variant="h6" fontWeight={700} mb={2}>
-            SẢN PHẨM LIÊN QUAN
-          </Typography>
+      {!relatedLoading && relatedItems.length > 0 && (
+        <Box sx={{ py: 5, bgcolor: theme.palette.background.default }}>
+          <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 0 } }}>
+            <Typography variant="h6" fontWeight={700} mb={2}>
+              SẢN PHẨM LIÊN QUAN
+            </Typography>
 
-          <Slider
-            key={item._id}
-            dots={false}
-            infinite={false}
-            speed={500}
-            slidesToShow={4}
-            slidesToScroll={2}
-            responsive={[
-              { breakpoint: 960, settings: { slidesToShow: 2 } },
-              { breakpoint: 600, settings: { slidesToShow: 1 } },
-            ]}
-          >
-            {relatedItems.map(p => {
-              const base = p.PRICE?.[0]?.PRICE_AMOUNT ?? 0
+            <Slider
+              key={item._id}
+              dots={false}
+              infinite={false}
+              speed={500}
+              slidesToShow={4}
+              slidesToScroll={2}
+              responsive={[
+                { breakpoint: 960, settings: { slidesToShow: 2 } },
+                { breakpoint: 600, settings: { slidesToShow: 1 } },
+              ]}
+            >
+              {relatedItems.map(p => {
+                const base = p.PRICE?.[0]?.PRICE_AMOUNT ?? 0
 
-              const bestDisc = (p.LIST_VOUCHER_ACTIVE ?? []).reduce((max, v) => {
-                let d = 0
-                if (v.TYPE === 'FIXED_AMOUNT') {
-                  d = v.MAX_DISCOUNT ? Math.min(v.VALUE, v.MAX_DISCOUNT) : v.VALUE
-                } else if (v.TYPE === 'PERCENTAGE') {
-                  const raw = base * v.VALUE / 100
-                  d = v.MAX_DISCOUNT ? Math.min(raw, v.MAX_DISCOUNT) : raw
-                }
-                return Math.max(max, d)
-              }, 0)
+                const bestDisc = (p.LIST_VOUCHER_ACTIVE ?? []).reduce((max, v) => {
+                  let d = 0
+                  if (v.TYPE === 'FIXED_AMOUNT') {
+                    d = v.MAX_DISCOUNT ? Math.min(v.VALUE, v.MAX_DISCOUNT) : v.VALUE
+                  } else if (v.TYPE === 'PERCENTAGE') {
+                    const raw = base * v.VALUE / 100
+                    d = v.MAX_DISCOUNT ? Math.min(raw, v.MAX_DISCOUNT) : raw
+                  }
+                  return Math.max(max, d)
+                }, 0)
 
-              const final = Math.max(base - bestDisc, 0)
+                const final = Math.max(base - bestDisc, 0)
 
-              return (
-                <Box key={p._id} sx={{ px: 1, height: 240, display: 'flex' }}>
-                  <Box
-                    onClick={() => navigate(`/customer/detail-Item/${p._id}`)}
-                    sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 2,
-                      bgcolor: 'background.paper',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      flexGrow: 1,
-                    }}
-                  >
-                    {/* ẢNH */}
+                return (
+                  <Box key={p._id} sx={{ px: 1, height: 240, display: 'flex' }}>
                     <Box
+                      onClick={() => navigate(`/customer/detail-Item/${p._id}`)}
                       sx={{
-                        height: 160,
-                        flexShrink: 0,
+                        height: '100%',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        bgcolor: 'background.paper',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        flexGrow: 1,
                       }}
                     >
-                      <img
-                        src={p.AVATAR_IMAGE_URL || p.LIST_IMAGE?.[0]?.URL || defaultImage}
-                        alt={p.ITEM_NAME}
-                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                      />
-                    </Box>
+                      {/* ẢNH */}
+                      <Box
+                        sx={{
+                          height: 160,
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <img
+                          src={p.AVATAR_IMAGE_URL || p.LIST_IMAGE?.[0]?.URL || defaultImage}
+                          alt={p.ITEM_NAME}
+                          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                        />
+                      </Box>
 
-                    {/* NỘI DUNG */}
-                    <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                      <Typography variant="body2" noWrap>{p.ITEM_NAME}</Typography>
+                      {/* NỘI DUNG */}
+                      <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                        <Typography variant="body2" noWrap>{p.ITEM_NAME}</Typography>
 
-                      <Box sx={{ mt: 'auto' }}>   {/* đẩy giá xuống đáy, card luôn cùng chiều cao */}
-                        {bestDisc > 0 ? (
-                          <>
-                            <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+                        <Box sx={{ mt: 'auto' }}>
+                          {bestDisc > 0 ? (
+                            <>
+                              <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+                                ₫{base.toLocaleString()}
+                              </Typography>
+                              <Typography variant="subtitle2" fontWeight={700} color="error.main">
+                                ₫{final.toLocaleString()}
+                              </Typography>
+                            </>
+                          ) : (
+                            <Typography variant="subtitle2" fontWeight={700} color="error.main">
                               ₫{base.toLocaleString()}
                             </Typography>
-                            <Typography variant="subtitle2" fontWeight={700} color="error.main">
-                              ₫{final.toLocaleString()}
-                            </Typography>
-                          </>
-                        ) : (
-                          <Typography variant="subtitle2" fontWeight={700} color="error.main">
-                            ₫{base.toLocaleString()}
-                          </Typography>
-                        )}
+                          )}
+                        </Box>
                       </Box>
                     </Box>
                   </Box>
-                </Box>
-              )
-            })}
+                )
+              })}
 
-          </Slider>
+            </Slider>
+          </Box>
         </Box>
-      </Box>
-
+      )}
 
     </>
   )

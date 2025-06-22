@@ -1,275 +1,163 @@
 import {
-  Box, Typography, IconButton, Button, Select,
-  MenuItem, Checkbox
+  Box, Typography, Checkbox, Button, Stack, Tooltip, Chip
 } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
-import { Add, Remove, DeleteOutline } from '@mui/icons-material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined'
 import { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import useUserInfo from '~/hooks/useUserInfo'
+import cartService from '~/service/customer/cart.service'
+import vouchersService from '~/service/admin/vouchers.service'
+import CartRow from './CartRow'
+import { toast } from 'react-toastify'
+import { useQueryClient } from '@tanstack/react-query'
+import { useDispatch } from 'react-redux'
+import { removeItems } from '~/redux/slices/cart.slice'
 
 
+export default function Cart() {
+  const device_id = useDeviceId()
+  const { userId } = useUserInfo()
+  const cred = useMemo(() => ({ user_id: userId, device_id }), [userId, device_id])
+  const queryClient = useQueryClient()
+  const dispatch = useDispatch()
 
-/* ---------- CartRow NHÚNG TRONG FILE NÀY ---------- */
-function CartRow({ product = {}, checked, onToggle }) {
-  const theme = useTheme()
 
-  const {
-    name = 'Sản phẩm chưa đặt tên',
-    img = 'https://via.placeholder.com/70x70?text=No+Image',
-    price = 0,
-    originalPrice = 0,
-    variant: initialVariant = '',
-    variantOptions = [],
-  } = product
+  const { data: cartRes, isLoading } = useQuery({
+    queryKey: ['cart', cred],
+    queryFn: () => cartService.getCarts(cred),
+    enabled: !!cred.user_id,
+  })
 
-  const [qty, setQty] = useState(1)
-  const dec = () => setQty((n) => Math.max(1, n - 1))
-  const inc = () => setQty((n) => n + 1)
-  const [variant, setVariant] = useState(initialVariant)
+  const products = cartRes?.data?.items ?? []
+  console.log('cart: ', products)
 
-  const options = useMemo(() => {
-    if (variantOptions.length) return variantOptions
-    return ['Mặc định']
-  }, [variantOptions])
 
-  
+  const { data: globalRes, isFetching: globalLoading } = useQuery({
+    queryKey: ['global-vouchers', cred],
+    enabled: !!userId,
+    queryFn: () => vouchersService.search(cred, {
+      isActive: true,
+      filterByExpiration: true,
+      applyScope: 'GLOBAL',
+    }),
+    staleTime: 5 * 60_000,
+  })
+  const globalVouchers = globalRes?.data?.vouchers ?? []
+  const [selected, setSelected] = useState([])
+
+  const toggleAll = () =>
+    setSelected(selected.length === products.length ? [] : products.map(i => i.ITEM_CODE))
+
+  const toggleOne = (code) =>
+    setSelected(selected.includes(code) ? selected.filter(c => c !== code) : [...selected, code])
+
+  const totalMoney = selected.reduce((sum, code) => {
+    const p = products.find(i => i.ITEM_CODE === code)
+    return sum + (p?.ITEM_DISCOUNTED_PRICE ?? 0) * (p?.QUANTITY ?? 1)
+  }, 0)
+  const handleDeleteSelected = async () => {
+    if (selected.length === 0) {
+      toast.info('Vui lòng chọn sản phẩm để xóa')
+      return
+    }
+
+    try {
+      const res = await cartService.removeItems(cred, selected)
+      if (res.success) {
+        toast.success('Xóa sản phẩm thành công!')
+        dispatch(removeItems(selected))
+        setSelected([])
+        queryClient.invalidateQueries({ queryKey: ['cart', cred] })
+      } else {
+        toast.error(res.message || 'Xóa thất bại')
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Lỗi không xác định!'
+      toast.error(msg)
+      console.error(err)
+    }
+  }
+
   return (
-    <>
-      <Box sx={{ border: '1px solid #eee', mb: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, columnGap: 2 }}>
-          <Checkbox sx={{ p: 0.5 }} checked={checked} onChange={onToggle} />
+    <Box p={2} bgcolor="background.paper">
+      {isLoading ? 'Đang tải…' : products.map((item) => (
+        <CartRow
+          key={item.ITEM_CODE}
+          item={item}
+          checked={selected.includes(item.ITEM_CODE)}
+          onToggle={() => toggleOne(item.ITEM_CODE)}
+        />
+      ))}
 
-          <Box
-            component="img"
-            src={img}
-            alt={name}
-            sx={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 1 }}
-          />
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography noWrap maxWidth={360} sx={{ fontSize: 16, fontWeight: 600, pl: 3 }}>
-              {name}
-            </Typography>
-            {product.flashSaleEnd && (
-              <Typography
-                sx={{
-                  color: 'primary.main',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  pl: 3,
-                }}
-              >
-                Flash Sale kết thúc lúc <b>{product.flashSaleEnd}</b>
-              </Typography>
-            )}
-          </Box>
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        border={1}
+        borderColor="#eee"
+        p={2}
+        mt={2}
+        flexWrap="wrap"
+      >
+        {globalLoading ? (
+          <Typography variant="body2">Đang tải voucher...</Typography>
+        ) : globalVouchers.length === 0 ? (
+          <Typography variant="body2">Hiện chưa có voucher cho hóa đơn</Typography>
+        ) : (
+          globalVouchers.map((v) => {
+            const isPct = v.TYPE === 'PERCENTAGE'
+            const label = `${v.VOUCHER_CODE} - ${isPct ? `Giảm ${v.VALUE}%` : `Giảm ₫${v.VALUE.toLocaleString()}`}`
+            const tooltip = isPct
+              ? `Áp dụng giảm ${v.VALUE}% tối đa ₫${v.MAX_DISCOUNT?.toLocaleString() ?? 0}`
+              : `Giảm trực tiếp ₫${v.VALUE.toLocaleString()}`
 
-          <Box sx={{ minWidth: 120, textAlign: 'right' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
-              {originalPrice > 0 && (
-                <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.disabled' }}>
-                  ₫{originalPrice.toLocaleString()}
-                </Typography>
-              )}
-              <Typography variant="subtitle2" fontWeight={700} color="primary">
-                ₫{price.toLocaleString()}
-              </Typography>
-            </Box>
-          </Box>
+            return (
+              <Tooltip key={v._id} title={tooltip} arrow>
+                <Chip
+                  label={label}
+                  size="small"
+                  sx={{
+                    bgcolor: 'secondary.main',
+                    color: 'secondary.contrastText',
+                    fontWeight: 700,
+                  }}
+                />
+              </Tooltip>
+            )
+          })
+        )}
+      </Stack>
 
 
-
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              border: `1px solid ${theme.palette.divider}`,
-              mx: 2,
-              height: 32,
-            }}
+      <Box
+        position="sticky" bottom={0} py={2} px={2} mt={2}
+        bgcolor="background.paper" borderTop={1} borderColor="#eee"
+        display="flex" flexWrap="wrap" justifyContent="space-between" alignItems="center"
+      >
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Checkbox size="small" checked={selected.length === products.length && products.length} onChange={toggleAll} />
+          <Typography variant="body2" fontWeight={700} color="primary.main">
+            Chọn tất cả ({products.length})
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ cursor: 'pointer' }}
+            onClick={handleDeleteSelected}
           >
-            <IconButton onClick={dec} size="small"><Remove fontSize="small" /></IconButton>
-            <Typography sx={{ width: 30, textAlign: 'center', fontWeight: 700 }}>{qty}</Typography>
-            <IconButton onClick={inc} size="small"><Add fontSize="small" /></IconButton>
-          </Box>
-
-          <Typography variant="subtitle2" fontWeight={700} color="primary" sx={{ minWidth: 100 }}>
-            ₫{(price * qty).toLocaleString()}
+            Xóa
           </Typography>
 
-          <Box sx={{ textAlign: 'right', minWidth: 110 }}>
-            <Button startIcon={<DeleteOutline />} variant="text" color="primary" sx={{ p: 0, minWidth: 'auto', fontSize: 13 }}>
-              Xóa
-            </Button>
-          </Box>
-        </Box>
+        </Stack>
 
+        <Stack direction="row" spacing={2} alignItems="center" mt={{ xs: 2, md: 0 }}>
+          <Typography variant="body2">Tổng cộng:</Typography>
+          <Typography fontSize={22} fontWeight={700} color="primary.main">
+            ₫{totalMoney.toLocaleString()}
+          </Typography>
+          <Button variant="contained" color="primary">Mua hàng</Button>
+        </Stack>
       </Box>
-
-
-    </>
-
-  )
-}
-
-/* ---------- Component chính để render danh sách ---------- */
-export default function Cart() {
-  const products = [
-    {
-      id: '1',
-      name: 'Sản phẩm demo 1',
-      img: 'https://i.pinimg.com/736x/3a/76/44/3a7644fbc654aefae9403d4075bf7217.jpg',
-      price: 190000,
-      originalPrice: 290000,
-      variant: 'Hồng',
-      flashSaleEnd: '09:00:00',
-    },
-    {
-      id: '2',
-      name: 'Sản phẩm demo 2',
-      img: 'https://i.pinimg.com/736x/3a/76/44/3a7644fbc654aefae9403d4075bf7217.jpg',
-      price: 250000,
-      originalPrice: 300000,
-      variant: 'Xanh',
-    },
-    {
-      id: '3',
-      name: 'Sản phẩm demo 3',
-      img: 'https://i.pinimg.com/736x/3a/76/44/3a7644fbc654aefae9403d4075bf7217.jpg',
-      price: 120000,
-      originalPrice: 0,
-      variant: 'Vàng',
-    },
-    {
-      id: '4',
-      name: 'Sản phẩm demo 4',
-      img: 'https://i.pinimg.com/736x/3a/76/44/3a7644fbc654aefae9403d4075bf7217.jpg',
-      price: 130000,
-      originalPrice: 0,
-      variant: 'Vàng',
-    },
-    {
-      id: '5',
-      name: 'Sản phẩm demo 5 ',
-      img: 'https://i.pinimg.com/736x/3a/76/44/3a7644fbc654aefae9403d4075bf7217.jpg',
-      price: 130000,
-      originalPrice: 0,
-      variant: 'Vàng',
-    },
-    {
-      id: '6',
-      name: 'Sản phẩm demo 6 ',
-      img: 'https://i.pinimg.com/736x/3a/76/44/3a7644fbc654aefae9403d4075bf7217.jpg',
-      price: 130000,
-      originalPrice: 0,
-      variant: 'Vàng',
-    },
-  ]
-  const [selectedItems, setSelectedItems] = useState([]);
-
-  const isAllSelected = selectedItems.length === products.length;
-
-  const toggleSelectAll = () => {
-    if (isAllSelected) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(products.map((p) => p.id));
-    }
-  };
-
-
-  return (
-    <>
-      
-      {/* Phần danh sách cuộn */}
-      <Box
-        sx={{
-          p: 2,
-          backgroundColor: '#fff',
-        }}
-      >
-        {products.map((item) => (
-          <CartRow key={item.id}
-            product={item}
-            checked={selectedItems.includes(item.id)}
-            onToggle={() => {
-              if (selectedItems.includes(item.id)) {
-                setSelectedItems(selectedItems.filter((id) => id !== item.id));
-              } else {
-                setSelectedItems([...selectedItems, item.id]);
-              }
-            }} />
-        ))}
-
-        {/* Phí vận chuyển */}
-        <Box sx={{ border: '1px solid #eee', backgroundColor: '#fff', mt: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, columnGap: 2 }}>
-            <LocalShippingOutlinedIcon fontSize="small" />
-            <Typography variant="body2" sx={{ fontSize: 13, fontWeight: 500, color: 'text.primary' }}>
-              Giảm <Box component="span" sx={{ fontWeight: 700, color: 'primary.main' }}>đ700.000</Box> phí vận chuyển đơn tối thiểu ₫0&nbsp;
-              <Box component="span" sx={{ color: 'primary.main', fontWeight: 600, cursor: 'pointer' }}>
-                Tìm hiểu thêm
-              </Box>
-            </Typography>
-
-          </Box>
-        </Box>
-
-        {/* Thanh mua hàng - sticky phía trên footer */}
-        <Box
-          sx={{
-            position: 'sticky',
-            bottom: 0,
-            zIndex: 1,
-            backgroundColor: '#fff',
-            borderTop: '1px solid #eee',
-            px: 2,
-            py: 2,
-            mt: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-          }}
-        >
-          {/* Trái: lựa chọn */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Checkbox
-              size="small"
-              checked={isAllSelected}
-              onChange={toggleSelectAll}
-            />
-            <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 700 }}>
-              Chọn Tất Cả ({products.length})
-            </Typography>
-            <Typography variant="body2" sx={{ cursor: 'pointer' }}>Xóa</Typography>
-          </Box>
-
-
-          {/* Phải: tổng tiền + nút */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-            {/* Trái: Text ngang hàng */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body2">
-                Tổng cộng (4 sản phẩm):
-              </Typography>
-              <Typography sx={{ fontSize: 22, fontWeight: 700, color: 'primary.main' }}>
-                ₫551.000
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 600 }}>
-                (Tiết kiệm ₫305k)
-              </Typography>
-            </Box>
-
-            {/* Phải: Nút */}
-            <Button variant="contained" sx={{ backgroundColor: 'primary', px: 4, py: 1.5 }}>
-              Mua Hàng
-            </Button>
-          </Box>
-
-        </Box>
-      </Box>
-
-    </>
+    </Box>
   )
 }

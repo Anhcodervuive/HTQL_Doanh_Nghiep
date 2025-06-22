@@ -4,6 +4,7 @@ import authService from '~/service/auth.service'
 import { Routes } from '~/config'
 import userService from '~/service/user.service'
 import { toast } from 'react-toastify'
+import { clearCart } from '../slices/cart.slice'
 
 export const login = createAsyncThunk(
   'user/login',
@@ -35,11 +36,13 @@ export const login = createAsyncThunk(
 export const logout = createAsyncThunk(
   'user/logout',
 
-  async ({ credentials, navigate }, { getState, rejectWithValue }) => {
+  async ({ credentials, navigate }, { getState, rejectWithValue, dispatch }) => {
     try {
       const tokenExpString = getState().user.currentUser.REFRESH_TOKEN_EXPIRY ?? getState().user.currentUser.ACCESS_TOKEN_EXPIRY
       const tokenExpTime = new Date(tokenExpString)
       const now = new Date()
+
+      dispatch(clearCart())
 
       if (now > tokenExpTime) {
         console.log('logout local ', 'token exp: ', tokenExpTime, 'Now: ', now)
