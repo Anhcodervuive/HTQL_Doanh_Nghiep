@@ -3,6 +3,7 @@ import storage from 'redux-persist/lib/storage'
 import { combineReducers } from 'redux'
 
 import userReducer from './slices/user.slice'
+import cartReducer from './slices/cart.slice'
 import { configureStore } from '@reduxjs/toolkit'
 import expireReducer from 'redux-persist-expire'
 
@@ -19,11 +20,11 @@ const persistConfig = {
 }
 
 const rootReducer = combineReducers({
-  user: userReducer
+  user: userReducer,
+  cart: cartReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
-
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>

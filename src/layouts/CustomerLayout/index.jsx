@@ -12,13 +12,19 @@ import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '~/redux/thunks/user.thunk'
 import { logo1 } from '~/assets/images'
 import themeCustomer from '../themeCustomer'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import MiniCart from './MiniCart'
 
 export default function CustomerLayout() {
   const user = useSelector(s => s.user.currentUser)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const device_id = useDeviceId()
 
-  const handleLogout = () => { dispatch(logout()); navigate('/') }
+  const handleLogout = () => {
+    const user_id = user.USER_ID
+    dispatch(logout({ credentials: { user_id, device_id }, navigate }))
+  }
 
   return (
     <ThemeProvider theme={themeCustomer}>
@@ -28,7 +34,6 @@ export default function CustomerLayout() {
       <AppBar position="fixed" color="primary">
         <Toolbar>
 
-          {/* Logo + tên shop */}
           <Box
             component={Link}
             to="/customer/home"
@@ -39,7 +44,6 @@ export default function CustomerLayout() {
               color: 'inherit',
             }}
           >
-            {/* logo */}
             <Box
               component="img"
               src={logo1}
@@ -54,9 +58,8 @@ export default function CustomerLayout() {
           </Box>
 
 
-          {/* Menu trung tâm */}
           <Box sx={{ flexGrow: 1, ml: 5, display: 'flex', gap: 3 }}>
-            {['/customer/home', '/contact', '/about'].map((path, i) => (
+            {['/customer/home', '/customer/list-Item', '/about'].map((path, i) => (
               <Button
                 key={path}
                 component={Link}
@@ -71,10 +74,10 @@ export default function CustomerLayout() {
             ))}
           </Box>
 
-          {/* Cart + Auth buttons */}
-          <IconButton color="inherit" component={Link} to="/cart">
+          {/* <IconButton color="inherit" component={Link} to="/customer/cart">
             <ShoppingCartIcon />
-          </IconButton>
+          </IconButton> */}
+          <MiniCart />
 
           {user ? (
             <>
@@ -99,7 +102,6 @@ export default function CustomerLayout() {
       </AppBar>
       <Toolbar />
 
-      {/* ---------- Nội dung ---------- */}
       <Box sx={{ minHeight: '80vh', py: 3, bgcolor: 'info.main' }}>
         <Container><Outlet /></Container>
       </Box>
@@ -111,7 +113,6 @@ export default function CustomerLayout() {
             sx={{
               display: 'grid',
               gap: 4,
-              // 1 cột trên mobile, 3 cột từ md trở lên
               gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
             }}
           >

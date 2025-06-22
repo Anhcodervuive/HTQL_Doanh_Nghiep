@@ -1,11 +1,7 @@
 import DetailItem from '~/pages/Customer/DetailItem'
 import CustomerLayout from '~/layouts/CustomerLayout'
 import HomePage from '~/pages/Customer/Home'
-<<<<<<< HEAD
-import ListItem from '~/pages/Customer/ListItem'
-=======
-import ProfileCustomer from '~/pages/Customer/Profile'
->>>>>>> 18a3bdb2b83b0422b51d7e94bd7d5126e320bf49
+import Cart from '~/pages/Customer/Cart'
 export default [
   {
     path: '/customer',
@@ -20,15 +16,6 @@ export default [
       {
         path: 'home',
         element: <HomePage />
-      },
-      {
-<<<<<<< HEAD
-        path: 'list-Item',
-        element: <ListItem />
-=======
-        path: 'profileCustomer',
-        element: <ProfileCustomer />
->>>>>>> 18a3bdb2b83b0422b51d7e94bd7d5126e320bf49
       }
     ]
   },
