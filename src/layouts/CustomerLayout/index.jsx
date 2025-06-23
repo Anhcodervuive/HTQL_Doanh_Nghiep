@@ -31,7 +31,7 @@ export default function CustomerLayout() {
   const navLinks = [
     { label: 'Trang chủ', path: '/customer/home' },
     { label: 'Sản phẩm', path: '/customer/list-Item' },
-    { label: 'Liên hệ', path: '/about' }
+    { label: 'Đơn hàng', path: '/customer/orderInfo' }
   ]
 
   return (

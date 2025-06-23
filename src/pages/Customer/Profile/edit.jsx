@@ -139,7 +139,7 @@ export default function EditProfile() {
           </Box>
 
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid sx={{ width: 250 } } item xs={12} sm={6}>
               <Controller
                 name="firstname"
                 control={control}
@@ -149,7 +149,7 @@ export default function EditProfile() {
                 )}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid sx={{ width: 250}} item xs={12} sm={6}>
               <Controller
                 name="lastname"
                 control={control}
@@ -160,7 +160,7 @@ export default function EditProfile() {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid sx={{ width: 250}} item xs={12} sm={6}>
               <Controller
                 name="gender"
                 control={control}
@@ -177,7 +177,7 @@ export default function EditProfile() {
                 )}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid sx={{ width: 250}} item xs={12} sm={6}>
               <Controller
                 name="dob"
                 control={control}
@@ -187,7 +187,7 @@ export default function EditProfile() {
                 )}
               />
             </Grid>
-<Grid item xs={12}>
+            <Grid sx={{ width: 500}} item xs={12}>
               <Controller
                 name="phoneNumber"
                 control={control}
@@ -208,7 +208,7 @@ export default function EditProfile() {
                 )}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid sx={{ width: 500 }} item xs={12}>
               <Controller
                 name="addressSelector"
                 control={control}
@@ -220,7 +220,7 @@ export default function EditProfile() {
                 )}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid sx={{ width: 250}} item xs={12}>
               <Controller
                 name="address1"
                 control={control}
@@ -230,7 +230,7 @@ export default function EditProfile() {
                 )}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid sx={{ width: 250}} item xs={12}>
               <Controller
                 name="address2"
                 control={control}

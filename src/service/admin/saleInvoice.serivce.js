@@ -149,6 +149,15 @@ class SaleInvoiceService {
       withCredentials: true,
     })).data
   }
+  async cancellingOrder(credential, id) {
+    console.log('data nè: ', credential)
+    return (await this.api.put(`/cancelling-order/${id}`, {
+      headers: {
+        ...credential
+      },
+      withCredentials: true
+    })).data
+  }
 }
 
 export default new SaleInvoiceService

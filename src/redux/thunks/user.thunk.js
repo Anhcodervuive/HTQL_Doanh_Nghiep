@@ -4,11 +4,12 @@ import authService from '~/service/auth.service'
 import { Routes } from '~/config'
 import userService from '~/service/user.service'
 import { toast } from 'react-toastify'
-import { clearCart } from '../slices/cart.slice'
+import { clearCart, setCart } from '../slices/cart.slice'
+import cartService from '~/service/customer/cart.service'
 
 export const login = createAsyncThunk(
   'user/login',
-  async ({ credentials, method = 'default' }, { rejectWithValue }) => {
+  async ({ credentials, method = 'default' }, { rejectWithValue, dispatch }) => {
     try {
       let res
 
@@ -21,6 +22,14 @@ export const login = createAsyncThunk(
       }
       if (!res.success) {
         return rejectWithValue(res.message || 'Đăng nhập thất bại!')
+      }
+
+      const user_id = res.data.USER_ID
+      const device_id = credentials.deviceId
+      const cartRes = await cartService.getCarts({ user_id, device_id })
+
+      if (cartRes.success && Array.isArray(cartRes.data?.items)) {
+        dispatch(setCart(cartRes.data.items))
       }
       return res.data
 
