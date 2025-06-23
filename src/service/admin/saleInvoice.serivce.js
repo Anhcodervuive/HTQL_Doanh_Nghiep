@@ -113,6 +113,42 @@ class SaleInvoiceService {
       withCredentials: true,
     })).data
   }
+
+  async statisticRevenueLastFourWeeks(credential, query = {}) {
+    return (await this.api.get('/statistic-revenue-last-four-weeks', {
+      headers: {
+        ...credential
+      },
+      params: {
+        ...query
+      },
+      withCredentials: true,
+    })).data
+  }
+
+  async statisticRevenueOfEachPurchaseMethodPerWeek(credential, query = {}) {
+    return (await this.api.get('/statistic-revenue-last-seven-days', {
+      headers: {
+        ...credential
+      },
+      params: {
+        ...query
+      },
+      withCredentials: true,
+    })).data
+  }
+
+  async statisticTotalRevenuePerItem(credential, query = {}) {
+    return (await this.api.get('/statistic-sales-items', {
+      headers: {
+        ...credential
+      },
+      params: {
+        ...query
+      },
+      withCredentials: true,
+    })).data
+  }
 }
 
 export default new SaleInvoiceService

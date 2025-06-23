@@ -75,7 +75,7 @@ function ItemUpdateForm({ data, viewOnly }) {
     const basicInfo = {
       itemName: dataBasic.itemName,
       itemNameEn: dataBasic.itemNameEn,
-      itemType: dataBasic.itemType,
+      itemTypeId: dataBasic.itemType,
       description
     }
     itemService.update({
