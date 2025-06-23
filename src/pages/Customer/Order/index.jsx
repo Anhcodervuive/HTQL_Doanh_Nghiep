@@ -181,7 +181,7 @@ export default function OrderSummary() {
                 </Typography>
                 {item.PRODUCT_VOUCHER_ID && (
                   <Typography fontSize={13} color="green">
-                    Có áp dụng mã sản phẩm
+                    Đã áp dụng mã giảm giá
                   </Typography>
                 )}
               </Box>

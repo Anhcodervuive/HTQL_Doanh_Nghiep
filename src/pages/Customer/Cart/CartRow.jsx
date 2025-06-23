@@ -27,9 +27,7 @@ export default function CartRow({ item, checked, onToggle }) {
     QUANTITY,
   } = item
 
-  const [qty, setQty] = useState(
-    QUANTITY != null ? QUANTITY.toString() : '1'
-  )
+  const [qty, setQty] = useState(String(QUANTITY ?? 1))
   const device_id = useDeviceId()
   const { userId } = useUserInfo()
   const credential = { user_id: userId, device_id }
@@ -141,12 +139,12 @@ export default function CartRow({ item, checked, onToggle }) {
     : `Giảm trực tiếp ${VOUCHER_VALUE}₫`
 
   return (
-    <Box onClick={goToDetail} sx={{ border: '1px solid #eee', mb: 2, p: 1.5, display: 'flex', alignItems: 'center', columnGap: 2, cursor: 'pointer' }}>
+    <Box sx={{ border: '1px solid #eee', mb: 2, p: 1.5, display: 'flex', alignItems: 'center', columnGap: 2, }}>
       <Checkbox checked={checked} onChange={onToggle} sx={{ p: 0.5 }} />
 
-      <Box component="img" src={ITEM_AVATAR} alt={ITEM_NAME} sx={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 1 }} />
+      <Box onClick={goToDetail} component="img" src={ITEM_AVATAR} alt={ITEM_NAME} sx={{ cursor: 'pointer', width: 90, height: 90, objectFit: 'cover', borderRadius: 1 }} />
 
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Box onClick={goToDetail} sx={{ flex: 1, minWidth: 0, cursor: 'pointer' }}>
         <Typography noWrap sx={{ fontWeight: 600 }}>{ITEM_NAME}</Typography>
 
         {VOUCHER_CODE && (

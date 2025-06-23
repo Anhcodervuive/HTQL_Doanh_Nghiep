@@ -8,6 +8,7 @@ import ListItemPage from '~/pages/Customer/ListItem'
 import Cart from '~/pages/Customer/Cart'
 import Order from '~/pages/Customer/Order'
 import OrderInfo from '~/pages/Customer/Order/info'
+import OrderDetail from '~/pages/Customer/Order/detail'
 export default [
   {
     path: '/customer',
@@ -46,7 +47,11 @@ export default [
       {
         path: 'orderInfo',
         element: <OrderInfo />
-      }
+      },
+      {
+        path: 'order/:id',
+        element: <OrderDetail />
+      },
     ]
   },
 ]
