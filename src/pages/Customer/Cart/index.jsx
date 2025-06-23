@@ -13,7 +13,7 @@ import { toast } from 'react-toastify'
 import { useQueryClient } from '@tanstack/react-query'
 import { useDispatch } from 'react-redux'
 import { removeItems } from '~/redux/slices/cart.slice'
-
+import { useNavigate } from 'react-router-dom'
 
 export default function Cart() {
   const device_id = useDeviceId()
@@ -21,7 +21,7 @@ export default function Cart() {
   const cred = useMemo(() => ({ user_id: userId, device_id }), [userId, device_id])
   const queryClient = useQueryClient()
   const dispatch = useDispatch()
-
+  const navigate = useNavigate()
 
   const { data: cartRes, isLoading } = useQuery({
     queryKey: ['cart', cred],
@@ -30,9 +30,6 @@ export default function Cart() {
   })
 
   const products = cartRes?.data?.items ?? []
-  console.log('cart: ', products)
-
-
   const { data: globalRes, isFetching: globalLoading } = useQuery({
     queryKey: ['global-vouchers', cred],
     enabled: !!userId,
@@ -56,6 +53,7 @@ export default function Cart() {
     const p = products.find(i => i.ITEM_CODE === code)
     return sum + (p?.ITEM_DISCOUNTED_PRICE ?? 0) * (p?.QUANTITY ?? 1)
   }, 0)
+
   const handleDeleteSelected = async () => {
     if (selected.length === 0) {
       toast.info('Vui lòng chọn sản phẩm để xóa')
@@ -78,6 +76,36 @@ export default function Cart() {
       console.error(err)
     }
   }
+
+  const handleCheckout = () => {
+    const items = products
+      .filter(p => selected.includes(p.ITEM_CODE))
+      .map(p => ({
+        ITEM_CODE: p.ITEM_CODE,
+        ITEM_NAME: p.ITEM_NAME,
+        ITEM_TYPE_NAME: p.ITEM_TYPE_NAME,
+        ITEM_IMAGE_URL: p.ITEM_AVATAR,
+        ITEM_ORIGINAL_PRICE: p.ITEM_PRICE,
+        ITEM_DISCOUNTED_PRICE: p.ITEM_DISCOUNTED_PRICE,
+        PRODUCT_VOUCHER_ID: p.PRODUCT_VOUCHER_ID ?? null,
+        VOUCHER_CODE: p.VOUCHER_CODE ?? '',
+        VOUCHER_TYPE: p.VOUCHER_TYPE ?? '',
+        VOUCHER_VALUE: p.VOUCHER_VALUE ?? 0,
+        VOUCHER_MAX_DISCOUNT: p.VOUCHER_MAX_DISCOUNT ?? 0,
+        QUANTITY: p.QUANTITY
+      }))
+    console.log('item: ', items)
+
+    if (items.length === 0) {
+      toast.info('Vui lòng chọn ít nhất 1 sản phẩm để mua hàng')
+      return
+    }
+
+    navigate('/customer/order', {
+      state: { selectedItems: items }
+    })
+  }
+
 
   return (
     <Box
@@ -138,7 +166,6 @@ export default function Cart() {
         )}
       </Stack>
 
-
       <Box
         position="sticky" bottom={0} py={2} px={2} mt={2}
         bgcolor="background.paper" borderTop={1} borderColor="#eee"
@@ -177,7 +204,7 @@ export default function Cart() {
           <Typography fontSize={22} fontWeight={700} color="primary.main">
             ₫{totalMoney.toLocaleString()}
           </Typography>
-          <Button variant="contained" color="primary">Mua hàng</Button>
+          <Button variant="contained" color="primary" onClick={handleCheckout}>Mua hàng</Button>
         </Stack>
       </Box>
     </Box>
