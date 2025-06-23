@@ -6,7 +6,7 @@ class VouchersService {
     this.api = createApiClient(baseUrl)
   }
   async search(credential, options = {}) {
-    // console.log('option: ', options)
+    console.log('option: ', options)
     console.log('credential: ', credential)
     // console.log('deviceId1: ', credential.device_id)
     // console.log('userId1: ', credential.user_id)
