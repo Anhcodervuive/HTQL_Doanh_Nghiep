@@ -22,7 +22,6 @@ import useUserInfo from '~/hooks/useUserInfo'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { removeCartItemThunk } from '~/redux/thunks/cart.thunk'
 import { removeItems } from '~/redux/slices/cart.slice'
 
 export default function OrderSummary() {
@@ -99,8 +98,8 @@ export default function OrderSummary() {
       toast.success('Đặt hàng thành công!')
       navigate('/customer/orderInfo')
     } catch (err) {
-      console.error(err)
-      toast.error('Lỗi khi đặt hàng!')
+      const msg = err?.response?.data?.message || err?.response?.data?.error
+      toast.error(msg)
     }
   }
 
@@ -208,7 +207,9 @@ export default function OrderSummary() {
 
             <Typography textAlign="center">{item.QUANTITY}</Typography>
             <Typography textAlign="right">
-              ₫{item.ITEM_DISCOUNTED_PRICE.toLocaleString()}
+              ₫{(
+                (item.ITEM_DISCOUNTED_PRICE ?? item.ITEM_ORIGINAL_PRICE) * (item.QUANTITY ?? 1)
+              ).toLocaleString()}
             </Typography>
 
           </Box>

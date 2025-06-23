@@ -22,6 +22,9 @@ import { useForm, Controller } from 'react-hook-form'
 import { emailRegex } from '~/config/formValidateRegex'
 import { MuiTelInput } from 'mui-tel-input'
 import { toast } from 'react-toastify'
+import dayjs from 'dayjs'
+import 'dayjs/locale/vi'
+
 
 import IconifyIcon from '../IconifyIcon'
 import authService from '~/service/auth.service'
@@ -299,7 +302,7 @@ const SignupForm = () => {
               {errors.gender && <Typography variant='body1' color='error'>{errors.gender.message}</Typography>}
             </FormControl>
             <Box sx={{ display: 'flex', flexDirection: 'column', width: '60%' }}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
                 <DemoContainer components={['DatePicker']} sx={{ p: 0, }}>
                   <Controller
                     name="dob"
@@ -324,6 +327,7 @@ const SignupForm = () => {
                       <DatePicker
                         {...field}
                         label="Ngày sinh"
+                        format="DD/MM/YYYY"
                         name='dob'
                         value={field.value || null}
                         onChange={(date) => field.onChange(date)}
