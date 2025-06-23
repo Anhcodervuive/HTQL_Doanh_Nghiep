@@ -75,7 +75,7 @@ export default {
     detailItem: (id) => `/detail-Item/${id}`,
     home: '/home',
     cart: '/cart',
-    profile: '/profileCustomer',
+    profile: '/customer/profileCustomer',
     listItem: '/list-Item'
   }
 }

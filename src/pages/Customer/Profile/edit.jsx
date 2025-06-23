@@ -5,43 +5,114 @@ import {
   Button,
   Avatar,
   TextField,
+  InputLabel,
+  MenuItem,
+  Select,
+  FormControl,
+  Grid,
 } from '@mui/material'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Save } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import { PhotoCamera } from '@mui/icons-material'
+import { useForm, Controller } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
+import { useDeviceId } from '~/hooks/useDeviceId'
+import { updateProfileCus } from '~/redux/thunks/user.thunk'
+import { useNavigate } from 'react-router-dom'
+import ImageUploader from '~/components/AvatarUploader'
+import { toast } from 'react-toastify'
+import imageService from '~/service/image.service'
+import useUserInfo from '~/hooks/useUserInfo'
+import dayjs from 'dayjs'
+import LocationSelector from '~/components/LocationSelector'
+import { MuiTelInput } from 'mui-tel-input'
 
 
 export default function EditProfile() {
   const theme = useTheme()
-  const fileInputRef = useRef()
-  const [formData, setFormData] = useState({
-    name: 'Trần Ngân',
-    email: 'tranquocviet07072003@gmail.com',
-    gender: 'Nữ',
-    birthDate: '2/1/2000',
-    country: 'Vietnam',
-    city: 'Ho Chi Minh',
-    district: 'District 1',
-    phone: '0987654321',
-    avatar:
-            'https://i.pinimg.com/736x/3d/4f/b5/3d4fb590a068c374506bce49307be094.jpg',
-  })
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const deviceId = useDeviceId()
+  const { nameInfo, gender, phoneNumberInfo } = useUserInfo()
+  const user = useSelector(state => state.user.currentUser)
+  const userId = user?.USER_ID
+  const [avatarFile, setAvatarFile] = useState(null)
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm({ defaultValues: { dob: '' } })
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  useEffect(() => {
+    if (nameInfo) {
+      setValue('firstname', nameInfo.firstName || '')
+      setValue('lastname', nameInfo.lastName || '')
+    }
+    const fullPhone = `${phoneNumberInfo?.COUNTRY_CODE || ''}${phoneNumberInfo?.PHONE_NUMBER || ''}`
+    setValue('phoneNumber', fullPhone)
+    setValue('gender', gender ?? '')
+    setValue('addressSelector', {
+      city: { name: 'Cần Thơ' },
+      district: { name: 'Ninh Kiều' },
+      ward: { name: 'An Khánh' },
+    })
+    setValue('address1', user?.ADDRESS?.ADDRESS_1 || '')
+    setValue('address2', user?.ADDRESS?.ADDRESS_2 || '')
+  }, [nameInfo, gender, phoneNumberInfo, setValue, user])
 
-  const handleSubmit = () => {
-    console.log('Đã lưu thông tin:', formData)
-    // Gửi dữ liệu lên backend tại đây nếu cần
-  }
-  const handleAvatarChange = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-      const imageUrl = URL.createObjectURL(file)
-      setFormData((prev) => ({ ...prev, avatar: imageUrl }))
+  useEffect(() => {
+    if (user?.dob) {
+      setValue('dob', user.dob.slice(0, 10))
+    }
+    if (user?.BIRTH_DATE) {
+      const dobValue = dayjs(user.BIRTH_DATE).format('YYYY-MM-DD')
+      setValue('dob', dobValue)
+    }
+  }, [user, setValue])
+
+  const submit = async (data) => {
+    try {
+      const rawPhone = data.phoneNumber.replace(/\D/g, '')
+      const countryCode = `+${rawPhone.substring(0, 2)}`
+      const areaCode = rawPhone.substring(2, 4)
+      const number = rawPhone.substring(2)
+
+      const phone = {
+        countryCode,
+        countryName: 'Vietnam',
+        areaCode,
+        phoneNumber: number,
+        fullPhoneNumber: `${countryCode}${number}`,
+      }
+
+      let newAvt = null
+      if (avatarFile) {
+        const avatarUrl = await imageService.uploadAvatar(avatarFile, userId, user.AVATAR_IMG_URL)
+        newAvt = avatarUrl.data.url
+      }
+
+      const address = {
+        country: 'Vietnam',
+        city: data.addressSelector?.city?.name || '',
+        district: data.addressSelector?.district?.name || '',
+        ward: data.addressSelector?.ward?.name || '',
+        state: 'SG',
+        address1: data.address1 || '',
+        address2: data.address2 || '',
+      }
+
+      const payload = {
+        firstName: data.firstname,
+        lastName: data.lastname,
+        gender: data.gender,
+        dob: data.dob,
+        address,
+        phone,
+        avatar: newAvt || user.AVATAR_IMG_URL,
+        contact: { relationship: 'vvv' },
+      }
+
+      dispatch(updateProfileCus({ credentials: { user_Id: userId, device_Id: deviceId }, payload, navigate }))
+      toast.success('Cập nhật thành công!')
+    } catch (error) {
+      toast.error('Cập nhật thất bại!')
     }
   }
 
@@ -58,132 +129,126 @@ export default function EditProfile() {
         alignItems: 'flex-start',
       }}
     >
-      <Paper
-        elevation={3}
-        sx={{
-          maxWidth: 600,
-          width: '100%',
-          px: 4,
-          py: 3,
-          borderRadius: 3,
-          backgroundColor: theme.palette.background.paper,
-        }}
-      >
-        {/* Avatar */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'relative' }}>
-          <Avatar
-            src={formData.avatar}
-            alt="avatar"
-            sx={{ width: 100, height: 100, cursor: 'pointer' }}
-            onClick={() => fileInputRef.current.click()}
-          />
-          {/* Nút icon máy ảnh */}
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: 0,
-              right: 'calc(50% - 12px)', // căn giữa ngang avatar
-              backgroundColor: theme.palette.primary.main,
-              borderRadius: '50%',
-              width: 24,
-              height: 24,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-            onClick={() => fileInputRef.current.click()}
-          >
-            <PhotoCamera sx={{ color: '#fff', fontSize: 16 }} />
+      <form onSubmit={handleSubmit(submit)}>
+        <Paper
+          elevation={3}
+          sx={{ maxWidth: 600, width: '100%', px: 4, py: 3, borderRadius: 3 }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <ImageUploader onImageUpload={(file) => setAvatarFile(file)} />
           </Box>
 
-          {/* Input file ẩn */}
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={handleAvatarChange}
-          />
-        </Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Controller
+                name="firstname"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} fullWidth label="Họ" />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Controller
+                name="lastname"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} fullWidth label="Tên" />
+                )}
+              />
+            </Grid>
 
+            <Grid item xs={12} sm={6}>
+              <Controller
+                name="gender"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Giới tính</InputLabel>
+                    <Select {...field} fullWidth label="Giới tính">
+                      <MenuItem value="Nam">Nam</MenuItem>
+                      <MenuItem value="Nữ">Nữ</MenuItem>
+                      <MenuItem value="Khác">Khác</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Controller
+                name="dob"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} type="date" fullWidth label="Ngày sinh" InputLabelProps={{ shrink: true }} />
+                )}
+              />
+            </Grid>
+<Grid item xs={12}>
+              <Controller
+                name="phoneNumber"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: 'Vui lòng nhập Số điện thoại',
+                  validate: (value) => value.trim() !== '' || 'Số điện thoại không hợp lệ'
+                }}
+                render={({ field }) => (
+                  <MuiTelInput
+                    {...field}
+                    fullWidth
+                    defaultCountry="VN"
+                    label="Số điện thoại"
+                    error={!!errors.phoneNumber}
+                    helperText={errors.phoneNumber?.message}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="addressSelector"
+                control={control}
+                render={({ field }) => (
+                  <LocationSelector
+                    value={{ city: 'Cần Thơ', district: 'Ninh Kiều', ward: 'An Khánh' }}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="address1"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} fullWidth label="Địa chỉ 1" />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name="address2"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} fullWidth label="Địa chỉ 2" />
+                )}
+              />
+            </Grid>
+          </Grid>
 
-        {/* Form fields */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label="Họ và tên"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Giới tính"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Ngày sinh"
-            name="birthDate"
-            value={formData.birthDate}
-            onChange={handleChange}
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-          />
-          <TextField
-            label="Quốc gia"
-            name="country"
-            value={formData.country}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Tỉnh / Thành phố"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Quận / Huyện"
-            name="district"
-            value={formData.district}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Số điện thoại"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            fullWidth
-          />
-
-        </Box>
-
-        {/* Nút Lưu */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<Save />}
-            onClick={handleSubmit}
-            sx={{ borderRadius: 10 }}
-          >
-                        Lưu thay đổi
-          </Button>
-        </Box>
-      </Paper>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button type="submit" variant="contained" startIcon={<Save />}>
+              Lưu thay đổi
+            </Button>
+          </Box>
+        </Paper>
+      </form>
     </Box>
   )
 }

@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import {
   Box,
   Typography,
@@ -8,23 +7,21 @@ import {
 } from '@mui/material'
 import { Edit } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
+import useUserInfo from '~/hooks/useUserInfo'
+import { Link } from 'react-router-dom'
 
 export default function ProfileIndex() {
   const theme = useTheme()
 
-  const user = {
-    name: 'Trần Ngân',
-    email: 'tranquocviet07072003@gmail.com',
-    gender: 'Nữ',
-    birthDate: '2/1/2000',
-    country: 'Vietnam',
-    city: 'Ho Chi Minh',
-    district1: 'District 1',
-    district2: 'District 2',
-    phone: '0987654321',
-    avatar:
-            'https://i.pinimg.com/736x/3d/4f/b5/3d4fb590a068c374506bce49307be094.jpg',
-  }
+  const {
+    nameInfo,
+    email,
+    gender,
+    birthDate,
+    avatarImgUrl,
+    addressInfo,
+    phoneNumberInfo,
+  } = useUserInfo()
 
   const InfoItem = ({ icon, label, value }) => (
     <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -36,6 +33,10 @@ export default function ProfileIndex() {
     </Box>
   )
 
+  if (!nameInfo) {
+    return <Typography sx={{ p: 2 }}>Không tìm thấy thông tin người dùng</Typography>
+  }
+
   return (
     <Box
       sx={{
@@ -46,10 +47,9 @@ export default function ProfileIndex() {
         pb: 4,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'flex-start', // ✅ để nội dung bắt đầu từ trên
+        alignItems: 'flex-start',
       }}
     >
-  
       <Paper
         elevation={3}
         sx={{
@@ -60,13 +60,11 @@ export default function ProfileIndex() {
           backgroundColor: theme.palette.background.paper,
         }}
       >
-
-
         {/* Avatar chính giữa */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <Avatar
-            src={user.avatar}
-            alt={user.name}
+            src={avatarImgUrl}
+            alt={nameInfo.fullName}
             sx={{ width: 100, height: 100 }}
           />
         </Box>
@@ -74,28 +72,39 @@ export default function ProfileIndex() {
         {/* Thông tin cá nhân */}
         <Box sx={{ textAlign: 'center', mb: 3 }}>
           <Typography variant="h6" fontWeight={700}>
-            {user.name}
+            {nameInfo.fullName}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {user.email}
+            {email}
           </Typography>
         </Box>
 
-        {/* Thông tin chi tiết */}
         <Box>
-          <InfoItem icon={<span>👩</span>} label="Giới tính" value={user.gender} />
-          <InfoItem icon={<span>📅</span>} label="Ngày sinh" value={user.birthDate} />
-          <InfoItem icon={<span>🌍</span>} label="Quốc gia" value={user.country} />
-          <InfoItem icon={<span>🏙️</span>} label="Tỉnh / Thành phố" value={user.city} />
-          <InfoItem icon={<span>📍</span>} label="Quận / Huyện" value={user.district1} />
-          <InfoItem icon={<span>📍</span>} label="Quận / Huyện" value={user.district2} />
+          <InfoItem icon={<span>👤</span>} label="Giới tính" value={gender || 'Không rõ'} />
+          <InfoItem
+            icon={<span>📅</span>}
+            label="Ngày sinh"
+            value={birthDate ? new Date(birthDate).toLocaleDateString('vi-VN') : 'Không rõ'}
+          />
+          <InfoItem icon={<span>🌍</span>} label="Quốc gia" value={addressInfo?.COUNTRY || 'Chưa cập nhật'} />
+          <InfoItem icon={<span>🏙️</span>} label="Tỉnh / Thành phố" value={addressInfo?.CITY || 'Chưa cập nhật'} />
+          <InfoItem icon={<span>📍</span>} label="Quận / Huyện" value={addressInfo?.DISTRICT || 'Chưa cập nhật'} />
 
-          <InfoItem icon={<span>📞</span>} label="Số điện thoại" value={user.phone} />
+          {addressInfo?.ADDRESS_1 && (
+            <InfoItem icon={<span>🏠</span>} label="Địa chỉ 1" value={addressInfo.ADDRESS_1} />
+          )}
+          {addressInfo?.ADDRESS_2 && (
+            <InfoItem icon={<span>🏠</span>} label="Địa chỉ 2" value={addressInfo.ADDRESS_2} />
+          )}
+
+          <InfoItem icon={<span>📞</span>} label="Số điện thoại" value={phoneNumberInfo?.PHONE_NUMBER || 'Chưa có'} />
         </Box>
 
-        {/* Nút chỉnh sửa bên dưới bên phải */}
+
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
           <Button
+            component={Link}
+            to="/customer/editProfile"
             variant="outlined"
             startIcon={<Edit />}
             sx={{
@@ -105,7 +114,7 @@ export default function ProfileIndex() {
               fontWeight: 600,
             }}
           >
-                        Chỉnh sửa thông tin
+            Chỉnh sửa thông tin
           </Button>
         </Box>
       </Paper>

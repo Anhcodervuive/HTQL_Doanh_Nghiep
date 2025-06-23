@@ -72,7 +72,7 @@ export default function CustomerLayout() {
             <MiniCart />
             {user ? (
               <>
-                <IconButton color="inherit" component={Link} to="/profile">
+                <IconButton color="inherit" component={Link} to="/customer/profileCustomer">
                   <Avatar src={user.AVATAR_IMG_URL} sx={{ width: 30, height: 30 }} />
                 </IconButton>
                 <IconButton color="inherit" onClick={handleLogout}>
