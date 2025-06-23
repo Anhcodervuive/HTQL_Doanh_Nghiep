@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { CircularProgress, MenuItem, Select, TextField, TableFooter, FormControl, InputLabel, Pagination } from '@mui/material'
@@ -15,7 +15,7 @@ import { useState, useEffect } from 'react'
 import useDebounce from '~/hooks/useDebounce'
 import { useQuery } from '@tanstack/react-query'
 
-import { findBreadcrumbs, routeTree } from '~/config/routeTree' 
+import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import { Routes } from '~/config'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import AddIcon from '@mui/icons-material/Add'
@@ -25,6 +25,7 @@ import invoicesService from '~/service/admin/invoices.service'
 import useUserInfo from '~/hooks/useUserInfo'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import dayjs from 'dayjs'
+import ActionMenu from '~/components/Admin/ActionMenu'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -46,12 +47,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-const showdRecordOption = [2, 5, 10, 25]
+const showdRecordOption = [5, 10, 25]
 
 
 export default function InvoiceList() {
   const location = useLocation()
-
+  const navigate = useNavigate()
   const [searchValue, setSearchValue] = useState('')
   const [fromDate, setFromDate] = useState('')
   const [thruDate, setThruDate] = useState('')
@@ -95,7 +96,7 @@ export default function InvoiceList() {
   })
 
   // Nếu deviceId hoặc user_id chưa sẵn sàng, có thể hiển thị loading spinner (tuỳ bạn)
-  if (!deviceId || !user_id) {
+  if (!deviceId || !user_id || isLoading) {
     console.log('deviceId hoặc user_id chưa sẵn sàng:', { deviceId, user_id })
     return <div>Loading...</div>
   }
@@ -249,16 +250,10 @@ export default function InvoiceList() {
 
                     <StyledTableCell align="center">
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          sx={{ mr: 1 }}
-                          color="info"
-                          component={Link}
-                          to={Routes.admin.purchaseInvoices.invoiceDetail(invoice.INVOICE_CODE)}
-                        >
-                          Chi tiết
-                        </Button>
+                        <ActionMenu
+                          onDetail={() => navigate(Routes.admin.purchaseInvoices.invoiceDetail(invoice.INVOICE_CODE))}
+                          onEdit={() => navigate(Routes.admin.purchaseInvoices.edit(invoice.INVOICE_CODE))}
+                        />
                       </Box>
                     </StyledTableCell>
                   </StyledTableRow>

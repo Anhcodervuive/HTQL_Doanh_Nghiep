@@ -74,6 +74,20 @@ export const updateProfile = createAsyncThunk(
     }
   }
 )
+export const updateProfileCus = createAsyncThunk(
+  'user/updateProfile',
+  async ({ credentials, payload, navigate }, { rejectWithValue }) => {
+    try {
+      const res = await userService.updateProfile(payload, credentials)
+
+
+      navigate(Routes.customer.profile)
+      return res?.data?.user_data
+    } catch (error) {
+      return rejectWithValue(error)
+    }
+  }
+)
 
 export const verifyUser = createAsyncThunk(
   'user/verify',
