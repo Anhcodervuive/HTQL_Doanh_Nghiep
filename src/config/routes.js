@@ -76,6 +76,7 @@ export default {
     home: '/home',
     cart: '/cart',
     profile: '/profileCustomer',
-    listItem: '/list-Item'
+    listItem: '/list-Item',
+    order: '/order',
   }
 }

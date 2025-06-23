@@ -3,6 +3,7 @@ import CustomerLayout from '~/layouts/CustomerLayout'
 import HomePage from '~/pages/Customer/Home'
 import ListItemPage from '~/pages/Customer/ListItem'
 import Cart from '~/pages/Customer/Cart'
+import Order from '~/pages/Customer/Order'
 export default [
   {
     path: '/customer',
@@ -25,6 +26,10 @@ export default [
       {
         path: 'list-Item',
         element: <ListItemPage />
+      },
+      {
+        path: 'order',
+        element: <Order />
       }
     ]
   },
