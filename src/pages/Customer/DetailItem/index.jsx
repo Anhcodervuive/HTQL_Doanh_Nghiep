@@ -73,7 +73,7 @@ export default function DetailItem() {
   const item = data?.data?.items?.[0] || {}
   const thumbnails = item.LIST_IMAGE?.map(i => i.URL) || []
   const avatar = item.AVATAR_IMAGE_URL || defaultImage
-  const price = item.PRICE?.[0]?.PRICE_AMOUNT || 0
+  const price = item.PRICE?.at(-1)?.PRICE_AMOUNT ?? 0
   // console.log('avatar: ', avatar)
 
   const vouchers = item.LIST_VOUCHER_ACTIVE || []
@@ -122,34 +122,34 @@ export default function DetailItem() {
   })
 
   const IMG_H = { xs: 280, md: 400 }
-  const THUMB = 60
+  const THUMB = { xs: 48, sm: 60 }
 
   return (
     <>
       <Box
         sx={{
           px: { xs: 2, md: 4 },
-          py: 4,
+          py: { xs: 2, md: 4 },
           maxWidth: 1200,
           mx: 'auto',
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
-          gap: { xs: 3, md: 4 },
+          gap: { xs: 2, md: 4 },
           bgcolor: theme.palette.background.paper,
           borderRadius: 2,
           boxShadow: 2,
         }}
       >
-        <Box sx={{ width: 400 }}>
-          <Box sx={{ width: '100%', height: 400, borderRadius: 2, overflow: 'hidden', mb: 1 }}>
+        <Box sx={{ width: { xs: '100%', md: 400 } }}>
+          <Box sx={{ width: '100%', height: { xs:240, md:400 }, maxHeight: { xs: '60vh', md: 400 }, borderRadius: 2, overflow: 'hidden', mb: { xs: 0.5, md: 1 } }}>
             <CardMedia
               component="img"
               image={selectedImage}
               alt={item.ITEM_NAME}
               sx={{
                 width: '100%',
-                height: IMG_H,
-                objectFit: 'cover',
+                height: '100%',
+                objectFit: 'contain',
                 borderRadius: 2,
               }}
             />
@@ -252,14 +252,14 @@ export default function DetailItem() {
           {/* Mô tả */}
           {item.DESCRIPTION && (
             <Box
-              sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.6 }}
+              sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.6, maxHeight:{ xs:160, md:'none' }, overflowY:{ xs:'auto', md:'visible' } }}
               dangerouslySetInnerHTML={{ __html: cleanHTML(item.DESCRIPTION) }}
             />
           )}
 
           {/* Số lượng */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Typography sx={{ minWidth: 80, color: 'text.secondary' }}>Số Lượng</Typography>
+            <Typography sx={{ minWidth: 80, color: 'text.secondary', }}>Số Lượng</Typography>
             <Box sx={{
               display: 'flex', alignItems: 'center',
               border: `1px solid ${theme.palette.divider}`,
@@ -273,22 +273,23 @@ export default function DetailItem() {
           </Box>
 
           {/* Nút hành động */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ mt: 2 }}>
             <Button
               variant="outlined"
               size="large"
               startIcon={<ShoppingCart />}
               color="primary"
-              sx={{ px: 3 }}
+              fullWidth
+              sx={{ py: 1, fontSize: { xs: '1rem', md: '1.125rem' }, fontWeight: 700 }}
               onClick={handleAddToCart}
               disabled={addCartMutation.isLoading}
             >
               {addCartMutation.isLoading ? 'Đang thêm…' : 'Thêm Vào Giỏ Hàng'}
             </Button>
-
-            <Button variant="contained" size="large" color="primary" sx={{ px: 5 }}>
+            {/*
+            <Button variant="contained" size="large" color="primary" sx={{ px: 5, width:{ xs:'100%', md:'auto' },whiteSpace:'nowrap' }}>
               Mua Ngay
-            </Button>
+            </Button> */}
           </Box>
         </Box>
 
@@ -307,7 +308,7 @@ export default function DetailItem() {
               infinite={false}
               speed={500}
               slidesToShow={4}
-              slidesToScroll={2}
+              slidesToScroll={1}
               responsive={[
                 { breakpoint: 960, settings: { slidesToShow: 2 } },
                 { breakpoint: 600, settings: { slidesToShow: 1 } },
@@ -330,7 +331,7 @@ export default function DetailItem() {
                 const final = Math.max(base - bestDisc, 0)
 
                 return (
-                  <Box key={p._id} sx={{ px: 1, height: 240, display: 'flex' }}>
+                  <Box key={p._id} sx={{ px: 1, height: { xs:220, sm:240 }, display: 'flex' }}>
                     <Box
                       onClick={() => navigate(`/customer/detail-Item/${p._id}`)}
                       sx={{
@@ -346,7 +347,6 @@ export default function DetailItem() {
                         flexGrow: 1,
                       }}
                     >
-                      {/* ẢNH */}
                       <Box
                         sx={{
                           height: 160,
@@ -407,4 +407,5 @@ const navBtnStyle = {
   height: 32,
   backgroundColor: 'rgba(255,255,255,0.9)',
   border: '1px solid #ddd',
+  display:{ xs:'none', md:'flex' }
 }

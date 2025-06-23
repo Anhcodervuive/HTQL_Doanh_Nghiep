@@ -90,28 +90,47 @@ const HomePage = () => {
   const { data: catProdData, isLoading: catProdLoading } =
     useProductsByCategory(cred, activeCat, catPage)
 
+  const getBasePrice = (product) =>
+    product.PRICE?.at(-1)?.PRICE_AMOUNT ?? 0
+
+  const applyVoucher = (price, voucher) => {
+    if (!voucher) return { final: price, discount: 0 }
+
+    let discount = 0
+    if (voucher.TYPE === 'FIXED_AMOUNT') {
+      discount = voucher.MAX_DISCOUNT
+        ? Math.min(voucher.VALUE, voucher.MAX_DISCOUNT)
+        : voucher.VALUE
+    } else if (voucher.TYPE === 'PERCENTAGE') {
+      const raw = price * (voucher.VALUE / 100)
+      discount = voucher.MAX_DISCOUNT ? Math.min(raw, voucher.MAX_DISCOUNT) : raw
+    }
+    return { final: Math.max(price - discount, 0), discount }
+  }
+
+  const getBestPriceInfo = (product) => {
+    const price = getBasePrice(product)
+    const vouchers = product.LIST_VOUCHER_ACTIVE ?? []
+
+    if (vouchers.length === 0) return { finalPrice: price, bestDiscount: 0 }
+
+    return vouchers.reduce(
+      (best, v) => {
+        const { final, discount } = applyVoucher(price, v)
+        return final < best.finalPrice
+          ? { finalPrice: final, bestDiscount: discount }
+          : best
+      },
+      { finalPrice: price, bestDiscount: 0 }
+    )
+  }
+
 
   /* product card */
   const renderCard = (p) => {
-    const price = p.PRICE?.[0]?.PRICE_AMOUNT ?? 0
+    const basePrice = getBasePrice(p)
 
-    let bestDiscount = 0
-    p.LIST_VOUCHER_ACTIVE?.forEach((voucher) => {
-      let discount = 0
-      if (voucher.TYPE === 'FIXED_AMOUNT') {
-        discount = voucher.MAX_DISCOUNT
-          ? Math.min(voucher.VALUE, voucher.MAX_DISCOUNT)
-          : voucher.VALUE
-      } else if (voucher.TYPE === 'PERCENTAGE') {
-        const raw = price * (voucher.VALUE / 100)
-        discount = voucher.MAX_DISCOUNT ? Math.min(raw, voucher.MAX_DISCOUNT) : raw
-      }
-      if (discount > bestDiscount) {
-        bestDiscount = discount
-      }
-    })
-
-    const finalPrice = Math.max(price - bestDiscount, 0)
+    const { finalPrice, bestDiscount } = getBestPriceInfo(p)
 
     return (
       <Grid
@@ -225,7 +244,7 @@ const HomePage = () => {
                         color: theme.palette.text.secondary,
                       }}
                     >
-                      {price.toLocaleString()}₫
+                      {basePrice.toLocaleString()}₫
                     </Typography>
                     <Typography
                       variant="body2"
@@ -243,7 +262,7 @@ const HomePage = () => {
                     fontWeight={600}
                     sx={{ color: theme.palette.text.primary }}
                   >
-                    {price.toLocaleString()}₫
+                    {basePrice.toLocaleString()}₫
                   </Typography>
                 )}
               </Box>
