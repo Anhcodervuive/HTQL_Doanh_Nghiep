@@ -74,6 +74,8 @@ export default {
     // detailItem: '/detail-Item',
     detailItem: (id) => `/detail-Item/${id}`,
     home: '/home',
-    cart: '/cart'
+    cart: '/cart',
+    profile: '/profileCustomer',
+    listItem: '/list-Item'
   }
 }
