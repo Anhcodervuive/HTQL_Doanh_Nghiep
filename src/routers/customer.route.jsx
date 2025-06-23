@@ -1,6 +1,7 @@
 import DetailItem from '~/pages/Customer/DetailItem'
 import CustomerLayout from '~/layouts/CustomerLayout'
 import HomePage from '~/pages/Customer/Home'
+import ListItemPage from '~/pages/Customer/ListItem'
 import Cart from '~/pages/Customer/Cart'
 export default [
   {
@@ -16,6 +17,14 @@ export default [
       {
         path: 'home',
         element: <HomePage />
+      },
+      {
+        path: 'cart',
+        element: <Cart />
+      },
+      {
+        path: 'list-Item',
+        element: <ListItemPage />
       }
     ]
   },

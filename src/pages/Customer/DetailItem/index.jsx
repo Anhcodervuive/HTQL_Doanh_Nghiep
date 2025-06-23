@@ -29,8 +29,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDispatch } from 'react-redux'
 import { addCartThunk } from '~/redux/thunks/cart.thunk'
 
-
-
 export default function DetailItem() {
   const theme = useTheme()
   const { id } = useParams()
@@ -65,7 +63,7 @@ export default function DetailItem() {
       .unwrap()
       .then(() => toast.success('Đã thêm vào giỏ hàng!'))
       .catch((err) => {
-        console.error('❌ Lỗi thêm giỏ hàng:', err)
+        console.error('Lỗi thêm giỏ hàng:', err)
         toast.error(typeof err === 'string' ? err : 'Thêm vào giỏ hàng thất bại!')
       })
 

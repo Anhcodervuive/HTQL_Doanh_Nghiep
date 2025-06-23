@@ -1,6 +1,4 @@
-export default function Cart() {
-  console.log('Thùy')
-}import {
+import {
   Box, Typography, Checkbox, Button, Stack, Tooltip, Chip
 } from '@mui/material'
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined'
@@ -82,7 +80,16 @@ export default function Cart() {
   }
 
   return (
-    <Box p={2} bgcolor="background.paper">
+    <Box
+      position="sticky"
+      bottom={0}
+      py={2}
+      px={2}
+      mt={2}
+      bgcolor="background.paper"
+      borderTop={1}
+      borderColor="#eee"
+    >
       {isLoading ? 'Đang tải…' : products.map((item) => (
         <CartRow
           key={item.ITEM_CODE}
@@ -137,14 +144,21 @@ export default function Cart() {
         bgcolor="background.paper" borderTop={1} borderColor="#eee"
         display="flex" flexWrap="wrap" justifyContent="space-between" alignItems="center"
       >
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack
+          direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+
           <Checkbox size="small" checked={selected.length === products.length && products.length} onChange={toggleAll} />
-          <Typography variant="body2" fontWeight={700} color="primary.main">
+          <Typography
+            variant="body2"
+            fontWeight={700}
+            color="primary.main"
+            sx={{ whiteSpace: 'nowrap' }}
+          >
             Chọn tất cả ({products.length})
           </Typography>
           <Typography
             variant="body2"
-            sx={{ cursor: 'pointer' }}
+            sx={{ cursor: 'pointer', color: 'error.main', ml: 1 }}
             onClick={handleDeleteSelected}
           >
             Xóa
@@ -152,7 +166,13 @@ export default function Cart() {
 
         </Stack>
 
-        <Stack direction="row" spacing={2} alignItems="center" mt={{ xs: 2, md: 0 }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          justifyContent="flex-end"
+          mt={{ xs: 1, sm: 0 }}
+        >
           <Typography variant="body2">Tổng cộng:</Typography>
           <Typography fontSize={22} fontWeight={700} color="primary.main">
             ₫{totalMoney.toLocaleString()}
