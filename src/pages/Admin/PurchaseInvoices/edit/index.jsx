@@ -79,7 +79,7 @@ export default function EditPurchaseInvoiceForm() {
 
   // Submit cập nhật hóa đơn
   const mutation = useMutation({
-    mutationFn: (data) => invoicesService.update(invoiceData.data._id, { user_id, device_id, ...data }),
+    mutationFn: (data) => invoicesService.update({ user_id, device_id, }, invoiceData.data.INVOICE_CODE, data),
     onSuccess: () => {
       toast.success('Cập nhật hóa đơn thành công!')
       navigate(`/admin/purchase-invoices/${id}`)
@@ -157,10 +157,10 @@ export default function EditPurchaseInvoiceForm() {
       ...data,
       items: selectedItems
     })
-    // mutation.mutate({
-    //   ...data,
-    //   items: selectedItems
-    // })
+    mutation.mutate({
+      ...data,
+      items: selectedItems
+    })
   }
   if (!device_id || !user_id || isLoading) {
     console.log('device_id hoặc user_id chưa sẵn sàng:', { device_id, user_id })
@@ -214,7 +214,7 @@ export default function EditPurchaseInvoiceForm() {
             })}
             label="Trạng thái"
             select
-            defaultValue={invoiceData.data.STATUS.STATUS_NAME || ''}
+            defaultValue={invoiceData?.data?.STATUS?.at(-1)?.STATUS_NAME || ''}
             sx={{ minWidth: 180 }}
             error={!!errors.statusName}
             helperText={errors.statusName?.message}

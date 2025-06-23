@@ -192,6 +192,8 @@ export default function InvoiceDetail() {
               }}
             />
           </Typography>
+          <Typography><strong>Phí phát sinh:</strong> {invoice?.EXTRA_FEE?.toLocaleString()} VND</Typography>
+          <Typography><strong>Lý do phát sinh:</strong> {invoice?.EXTRA_FEE_NOTE}</Typography>
           <Typography><strong>Thanh toán:</strong> {invoice?.PAYMENTED ? 'Đã thanh toán' : 'Chưa thanh toán'}</Typography>
           <Typography><strong>Thuế:</strong> {invoice?.TAX}%</Typography>
           <Typography><strong>Tổng cộng:</strong> {invoice?.TOTAL_WITH_TAX_EXTRA_FEE?.toLocaleString()} VND</Typography>

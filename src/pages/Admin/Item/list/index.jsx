@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-binary-expression */
 
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
@@ -129,6 +130,10 @@ export default function ItemList() {
   })
 
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
+
+  const getFullPrice = (item) => {
+    return `${item.PRICE?.at(-1)?.PRICE_AMOUNT?.toLocaleString()} ${item.PRICE?.at(-1)?.PRICE_AMOUNT ? item.PRICE?.at(-1)?.UNIT_ABB : ''}`
+  }
 
   const handleDelete = async (id) => {
     itemService.delete({
@@ -300,17 +305,17 @@ export default function ItemList() {
                       <SearchResultNotFound message='Không tìm thấy hàng hóa'/>
                     </TableCell>
                   </TableRow>
-                  : data?.data?.items?.map((supplier) => (
-                    <StyledTableRow key={supplier._id}>
-                      <StyledTableCell>{supplier.ITEM_CODE}</StyledTableCell>
-                      <StyledTableCell>{supplier.ITEM_NAME}</StyledTableCell>
-                      <StyledTableCell>{supplier.ITEM_NAME_EN}</StyledTableCell>
-                      <StyledTableCell>{supplier.ITEM_TYPE_NAME}</StyledTableCell>
-                      <StyledTableCell>{supplier.PRICE.at(-1).PRICE_AMOUNT.toLocaleString() + '' + supplier.PRICE.at(-1).UNIT_ABB}</StyledTableCell>
+                  : data?.data?.items?.map((item) => (
+                    <StyledTableRow key={item._id}>
+                      <StyledTableCell>{item.ITEM_CODE}</StyledTableCell>
+                      <StyledTableCell>{item.ITEM_NAME}</StyledTableCell>
+                      <StyledTableCell>{item.ITEM_NAME_EN ?? ''}</StyledTableCell>
+                      <StyledTableCell>{item.ITEM_TYPE_NAME}</StyledTableCell>
+                      <StyledTableCell>{getFullPrice(item)}</StyledTableCell>
                       {/* <StyledTableCell align="center">
-                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info" LinkComponent={Link} to={Routes.admin.item.detail(supplier._id)}>Detail</Button>
-                        <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(supplier._id)}>Edit</Button>
-                        <Button variant="contained" size="small" color="error" onClick={() => handleDelete(supplier._id)}>Delete</Button>
+                        <Button variant="contained" size="small" sx={{ mr: 1 }} color="info" LinkComponent={Link} to={Routes.admin.item.detail(item._id)}>Detail</Button>
+                        <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(item._id)}>Edit</Button>
+                        <Button variant="contained" size="small" color="error" onClick={() => handleDelete(item._id)}>Delete</Button>
                       </StyledTableCell> */}
                       <StyledTableCell align="center">
                         <Tooltip title="Chi tiết">
@@ -329,7 +334,7 @@ export default function ItemList() {
                               height: 35,
                             }}
                             component={Link}
-                            to={Routes.admin.item.detail(supplier._id)}
+                            to={Routes.admin.item.detail(item._id)}
                           >
                             <Box component="span" sx={{ fontWeight: 'bold', fontSize: 14 }}>i</Box>
                           </IconButton>
@@ -347,7 +352,7 @@ export default function ItemList() {
                               mr: 1,
                             }}
                             component={Link}
-                            to={Routes.admin.item.edit(supplier._id)}
+                            to={Routes.admin.item.edit(item._id)}
                           >
                             <EditIcon />
                           </IconButton>
@@ -364,7 +369,7 @@ export default function ItemList() {
                                 backgroundColor: '#c62828',
                               },
                             }}
-                            onClick={() => handleDelete(supplier._id)}
+                            onClick={() => handleDelete(item._id)}
                           >
                             <DeleteIcon />
                           </IconButton>
