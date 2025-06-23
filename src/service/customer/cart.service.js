@@ -24,7 +24,7 @@ class CartsService {
     })).data
   }
   async updateQuantity(credential, data) {
-    console.log('data: ', data)
+    console.log('data update quantity: ', data)
     return (await this.api.put('/quantity', data, {
       headers: {
         ...credential
