@@ -38,9 +38,17 @@ class InvoicesService {
       withCredentials: true
     })).data
   }
-  async update(credential, id, statusName) {
-    console.log('status: ', statusName)
-    return (await this.api.put(`/${id}`, statusName, {
+  async update(credential, id, data) {
+    console.log('data: ', data)
+    return (await this.api.put(`/${id}`, data, {
+      headers: {
+        ...credential
+      },
+      withCredentials: true
+    })).data
+  }
+  async deleteItems(credential, id, items) {
+    return (await this.api.put(`/${id}`, items, {
       headers: {
         ...credential
       },

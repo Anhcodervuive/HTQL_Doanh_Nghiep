@@ -40,7 +40,7 @@ function ItemCreate() {
             )
           }
 
-          if (itemDescImgFiles) {
+          if (itemDescImgFiles?.length > 0) {
             const descImagesListRes = await imageService.upLoadListImage(itemDescImgFiles, 'PRODUCT', res.data._id,)
             await itemService.updateListDescImages(
               credential,

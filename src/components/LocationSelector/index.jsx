@@ -13,6 +13,7 @@ const TABS = ['Tỉnh/Thành phố', 'Quận/Huyện', 'Phường']
 
 function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', disable }) {
   const [tab, setTab] = useState(0)
+  const [open, setOpen] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const [location, setLocation] = useState({
     city: {
@@ -182,6 +183,7 @@ function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', dis
         ...location,
         ward: option
       }
+      setOpen(false)
       setLocation(newLocation)
       onChange(newLocation)
     }
@@ -205,11 +207,16 @@ function LocationSelector({ value, onChange, error, label = 'Địa chỉ:', dis
             freeSolo
             autoSelect
             disablePortal
+            open={open}
+            onOpen={() => setOpen(true)}
+            onClose={() => setOpen(false)}
             disabled={disable}
             getOptionLabel={(option) => option.name || ''}
             options={locationOption[Object.keys(locationOption)[tab]] ?? []}
             inputValue={searchInput}
-            onInputChange={(event, newValue) => setSearchInput(newValue)}
+            onInputChange={(event, newValue) => {
+              setSearchInput(newValue)
+            }}
             renderInput={(params) => (
               <TextField
                 id='search-location-input'
