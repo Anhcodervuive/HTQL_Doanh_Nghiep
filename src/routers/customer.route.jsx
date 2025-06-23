@@ -4,6 +4,8 @@ import HomePage from '~/pages/Customer/Home'
 import ListItem from '~/pages/Customer/ListItem'
 import ProfileCustomer from '~/pages/Customer/Profile'
 import EditProfile from '~/pages/Customer/Profile/edit'
+import ListItemPage from '~/pages/Customer/ListItem'
+import Cart from '~/pages/Customer/Cart'
 export default [
   {
     path: '/customer',
@@ -18,6 +20,10 @@ export default [
       {
         path: 'home',
         element: <HomePage />
+      },
+      {
+        path: 'cart',
+        element: <Cart />
       },
       {
         path: 'list-Item',
