@@ -6,15 +6,15 @@ import useDebounce from '~/hooks/useDebounce'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 
-export default function SearchSupplierInput({ index, selectedSupplier, onSelect }) {
+export default function SearchSupplierInput({ index, selectedSupplier, onSelect, needInitialFetch }) {
   const [supplierSearch, setSupplierSearch] = useState('')
   const supplierSearchDebounced = useDebounce(supplierSearch, 500)
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
 
   const { data: supplierData } = useQuery({
-    enabled: !!supplierSearchDebounced && !!device_id && !!user_id,
-    queryKey: ['searchSupplier', supplierSearchDebounced, index],
+    enabled: !!device_id && !!user_id && (!!supplierSearchDebounced || !!needInitialFetch),
+    queryKey: ['searchSupplier', supplierSearchDebounced],
     queryFn: () =>
       supplierService.search(
         { user_id, device_id },
@@ -42,7 +42,7 @@ export default function SearchSupplierInput({ index, selectedSupplier, onSelect 
           label="Chọn nhà cung cấp"
           value={selectedSupplier}
           onChange={(e) => onSelect(e.target.value)}
-          sx={{ mt: 1, minWidth: 250 }}
+          sx={{ mt: 1, minWidth: 200 }}
         >
           {supplierData.data.suppliers.map((supplier) => (
             <MenuItem key={supplier._id} value={supplier._id}>

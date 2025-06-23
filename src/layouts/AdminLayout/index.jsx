@@ -40,7 +40,7 @@ const NAVIGATION = [
     icon: <DashboardIcon />,
   },
   {
-    segment: 'orders',
+    segment: Routes.admin.orders.list.slice(1),
     title: 'Orders',
     icon: <ShoppingCartIcon />,
   },

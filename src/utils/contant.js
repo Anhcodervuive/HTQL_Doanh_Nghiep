@@ -1,4 +1,4 @@
-export const PURCHASE_METHODS = [
+export const SALE_INVOICES_PURCHASE_METHODS = [
   { value: 'IN_STORE', label: 'Mua tại cửa hàng', color: 'success',
     validate: (currentMethod) => currentMethod !== 'ONLINE'
   },
@@ -41,6 +41,19 @@ export const VOUCHER_TYPES = [
 export const VOUCHER_SCOPES = [
   { value: 'GLOBAL', label: 'Hóa đơn' },
   { value: 'PRODUCT', label: 'Sản phẩm' },
+]
+
+export const PURCHASE_INVOICE_STATUS = [
+  { label: 'Nháp', value: 'DRAFT' },
+  { label: 'Chờ xác nhận', value: 'PENDING_APPROVAL' },
+  { label: 'Đã hoàn thành', value: 'CONFIRMED' },
+  { label: 'Từ chối', value: 'REJECTED' },
+  { label: 'Đã thanh toán', value: 'PAYMENTED' }
+]
+
+export const PURCHASE_INVOICE_PAYMENT_METHODS = [
+  { label: 'Tiền mặt', value: 'Tiền mặt' },
+  { label: 'Chuyển khoản', value: 'Chuyển khoản' }
 ]
 
 export const interceptorLoadingElements = (calling) => {

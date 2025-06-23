@@ -56,7 +56,7 @@ import { Badge } from '@mui/material'
 import useAuth from '~/hooks/useAuth'
 import { MuiTelInput } from 'mui-tel-input'
 
-function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
+function OrderForm({ submit, data, isEdited, isReadOnly }) {
   const {
     control,
     handleSubmit,
@@ -95,7 +95,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
   } : null)
   const canEditUserInfo = !isEdited || data?.PURCHASE_METHOD !== 'ONLINE'
   const [globalVoucher, setGlobalVoucher] = useState(null)
-  const [items, setItems] = useState(data?.ITEMS
+  const items = useMemo(() => data?.ITEMS
     ? data?.ITEMS.map(item => {
       const formattedItem = {
         ...item,
@@ -105,8 +105,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
       }
       return formattedItem
     })
-    : []
-  )
+    : [], [data?.ITEMS])
   const { data: dataUnitInvoice, isLoading: isLoadingUnitInvoice, isError: isErrorUnitInvoice } = useQuery({
     queryKey: ['unitInvoiceList'],
     enabled: !!deviceId,
@@ -119,88 +118,14 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
     // staleTime: 1000 * 60 * 3
   })
 
-  console.log('form validate errors: ', errors)
-  const handleUserChose = (user) => {
-    const nameInfo = user.LIST_CONTACT?.at(-1)
-    const emailInfo = user.LIST_EMAIL?.at(-1)
-    const phoneNumberInfo = user.LIST_PHONE_NUMBER?.at(-1)
-    const addressInfo = user.LIST_ADDRESS?.at(-1)
-    setSelectedUser({
-      _id: user._id,
-      NAME: nameInfo.FULL_NAME ?? `${nameInfo.LAST_NAME} ${nameInfo.FIRST_NAME}`,
-      EMAIL: emailInfo.EMAIL,
-      PHONE_NUMBER: phoneNumberInfo.PHONE_NUMBER,
-      CITY: addressInfo.CITY,
-      DISTRICT: addressInfo.DISTRICT,
-      WARD: addressInfo.WARD,
-      ADDRESS_1: addressInfo.ADDRESS_1,
-      ADDRESS_2: addressInfo.ADDRESS_2,
-    })
-  }
-
-  const onSubmit = async (formData) => {
-    const saleInvoiceData = {
-      ...formData,
-      items: items.map(item => ({
-        ITEM_CODE: item.ITEM_CODE,
-        QUANTITY: item.QUANTITY,
-        PRODUCT_VOUCHER_ID: item.voucher?._id || null
-      })),
-      country: 'Việt Nam',
-      city: formData.addressSelector?.city?.name || '',
-      district: formData.addressSelector?.district?.name || '',
-      ward: formData.addressSelector?.ward?.name || '',
-      detail: formData.address,
-      voucherGlobalId: globalVoucher?._id || null,
-      customerId: selectedUser?._id || null,
-      name: formData.nameReceiver,
-      phoneNumber: formData.phoneNumberReceiver
-    }
-    delete saleInvoiceData.address
-    delete saleInvoiceData.addressSelector
-    delete saleInvoiceData.nameReceiver
-    delete saleInvoiceData.phoneNumberReceiver
-    console.log(saleInvoiceData)
-    submit(saleInvoiceData)
-  }
-
-  const handleAddItem = (itemToAdd) => {
-    const isItemInserted = items.find(i => i.ITEM_CODE === itemToAdd.ITEM_CODE)
-    let newItems
-    if (isItemInserted) {
-      isItemInserted.QUANTITY += 1
-      newItems = [...items]
+  const getPriceDecreasedByVoucher = (item) => {
+    if (!item.voucher?._id) return 0
+    if (item.voucher.TYPE === 'PERCENTAGE') {
+      const discount = item.PRICE * item.voucher.VALUE / 100
+      return item.voucher.MAX_DISCOUNT ? Math.min(discount, item.voucher.MAX_DISCOUNT) : discount
     } else {
-      newItems = [...items, { ...itemToAdd, QUANTITY: 1 }]
-      newItems = newItems.map(item => {
-        const availableVouchers = getAvailableVouchers(item)
-        const priceInfo = item.PRICE?.at(-1)
-        console.log(priceInfo)
-        if (availableVouchers.length > 0) {
-          const highestVoucher = getHighestVoucher(availableVouchers, priceInfo.PRICE_AMOUNT)
-          return { ...item,
-            PRICE: priceInfo.PRICE_AMOUNT,
-            UNIT_INVOICE: { _id: priceInfo.UNIT, UNIT_ABB: priceInfo.UNIT_ABB, UNIT_NAME: item.PRICE?.at(-1).UNIT_NAME },
-            voucher: highestVoucher
-          }
-        }
-        return item
-      })
+      return item.voucher.VALUE
     }
-    setItems(newItems)
-  }
-
-  const handleQuantityChange = (e, itemCode) => {
-    const targetItem = items.find(item => item.ITEM_CODE === itemCode)
-    targetItem.QUANTITY = Number.parseInt(e.target.value)
-    let newItems = [...items]
-    setItems(newItems)
-    // changeBomMaterials(newItemMaterials)
-  }
-
-  const handleRemove = (itemCode) => {
-    const filteredItemMaterials = items.filter(item => item.ITEM_CODE !== itemCode)
-    setItems(filteredItemMaterials)
   }
 
   const getAvailableVouchers = (item) => {
@@ -221,48 +146,6 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
     }) || []
   }
 
-  const getHighestVoucher = (vouchers, itemPrice) => {
-    const voucherValues = vouchers.map(voucher => {
-      if (voucher.TYPE === 'PERCENTAGE') {
-        const discount = itemPrice * voucher.VALUE / 100
-        return voucher.MAX_DISCOUNT ? Math.min(discount, voucher.MAX_DISCOUNT) : discount
-      } else if (voucher.TYPE === 'FIXED_AMOUNT') {
-        return voucher.VALUE
-      }
-      return 0
-    })
-
-    return vouchers[voucherValues.indexOf(Math.max(...voucherValues))]
-  }
-
-  const getPriceDecreasedByVoucher = (item) => {
-    if (!item.voucher?._id) return 0
-    if (item.voucher.TYPE === 'PERCENTAGE') {
-      const discount = item.PRICE * item.voucher.VALUE / 100
-      return item.voucher.MAX_DISCOUNT ? Math.min(discount, item.voucher.MAX_DISCOUNT) : discount
-    } else {
-      return item.voucher.VALUE
-    }
-  }
-
-  const handleChangeVoucher = (e, itemCode) => {
-    const targetItem = items.find(item => item.ITEM_CODE === itemCode)
-    if (e.target.value === '') {
-      targetItem.voucher = null
-    } else {
-      const selectedVoucher = getAvailableVouchers(targetItem).find(voucher => voucher._id === e.target.value)
-      if (selectedVoucher) {
-        targetItem.voucher = selectedVoucher
-      }
-    }
-    let newItems = [...items]
-    setItems(newItems)
-  }
-
-  const handleAddGlobalVoucher = (voucher) => {
-    setGlobalVoucher(voucher)
-  }
-
   const totalItemPrice = useMemo(() => items.reduce((acc, cur) => {
     const totalPriceOfItem = cur.QUANTITY * cur?.PRICE
     return acc + totalPriceOfItem
@@ -271,6 +154,10 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
   const priceAfterDecreaseByProductVoucher = useMemo(() => {
     return items.reduce((acc, cur) => acc + getPriceDecreasedByVoucher(cur), 0)
   }, [items])
+
+  const taxValue = useMemo(() => {
+    return (totalItemPrice) * tax / 100
+  }, [tax, totalItemPrice])
 
   const totalPriceDecreasedByGlobalVoucher = useMemo(() => {
     if (!globalVoucher) return 0
@@ -282,16 +169,17 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
     }
   }, [globalVoucher, priceAfterDecreaseByProductVoucher, totalItemPrice])
 
-  const taxValue = useMemo(() => {
-    return (totalItemPrice) * tax / 100
-  }, [tax, totalItemPrice])
-
   const priceAfterExtraFeeAndAllVoucher = useMemo(() => {
     const allExtraFee = Number.parseInt(taxValue) + Number.parseInt(extraFee)
     return totalItemPrice - priceAfterDecreaseByProductVoucher + allExtraFee - totalPriceDecreasedByGlobalVoucher
   },
   [extraFee, priceAfterDecreaseByProductVoucher, taxValue, totalItemPrice, totalPriceDecreasedByGlobalVoucher]
   )
+
+  const onSubmit = async (formData) => {
+
+    submit({ status: formData.status })
+  }
 
 
   return (
@@ -313,7 +201,6 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                   <CardContent>
                     <Stack gap={2}>
                       <Stack gap={2}>
-                        {canEditUserInfo && !isReadOnly && <SearchUserInput onItemClick={handleUserChose} placeholder='Nhập tên người mua' />}
                         <Stack spacing={1} sx={{ overflow: 'hidden' }}>
                           <UserInfoItem
                             label='Họ Tên'
@@ -437,6 +324,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                               labelId="purchaseMethod"
                               name='purchaseMethod'
                               error={!!errors.purchaseMethod}
+                              disabled={isReadOnly || isEdited}
                             >
                               <MenuItem value=''>--</MenuItem>
                               {SALE_INVOICES_PURCHASE_METHODS.map(item => (
@@ -563,6 +451,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           <MuiTelInput
                             {...field}
                             fullWidth
+                            disabled={isReadOnly || isEdited}
                             name="phoneNumberReceiver"
                             label="Số điện thoại"
                             onChange={(value) => {
@@ -588,6 +477,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                               id="status"
                               label="Trạng thái hóa đơn"
                               labelId="status"
+                              disabled={isReadOnly || !isEdited}
                               name='status'
                               error={!!errors.status}
                             >
@@ -639,6 +529,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                         name='tax'
                         fullWidth
                         type='number'
+                        disabled={isReadOnly || isEdited}
                         slotProps={{
                           input: {
                             startAdornment: (
@@ -668,6 +559,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                             name='extraFee'
                             fullWidth
                             type='number'
+                            disabled={isReadOnly || isEdited}
                             slotProps={{
                               input: {
                                 startAdornment: (
@@ -697,6 +589,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                               label="Đơn vị tiền tệ"
                               labelId="extraFeeUnit"
                               name='extraFeeUnit'
+                              disabled={isReadOnly || isEdited}
                               error={!!errors.extraFeeUnit}
                             >
                               <MenuItem value=''>--</MenuItem>
@@ -734,6 +627,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                                 type="text"
                                 multiline
                                 minRows={3}
+                                disabled={isReadOnly || isEdited}
                                 error={!!errors.extraFeeNote}
                                 helperText={errors.extraFeeNote?.message}
                               />
@@ -762,6 +656,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                                 type="text"
                                 multiline
                                 minRows={3}
+                                disabled={isReadOnly || isEdited}
                                 error={!!errors.note}
                                 helperText={errors.note?.message}
                               />
@@ -785,6 +680,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                               label="Đơn vị tiền tệ"
                               labelId="paymentMethod"
                               name='paymentMethod'
+                              disabled={isReadOnly || isEdited}
                               error={!!errors.paymentMethod}
                             >
                               <MenuItem value=''>--</MenuItem>
@@ -808,13 +704,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
           <Card sx={{ bgcolor: 'white', borderRadius: '5px', boxShadow: (theme) => theme.shadows[1], }}>
             <CardHeader
               title={
-                <Stack flexDirection='row' justifyContent='space-between' alignItems='center'>
-                  <Typography variant="body1" fontWeight={600}>Hàng hóa: </Typography>
-                  <Stack flexDirection='row' gap={2} alignItems='center'>
-                    <SearchVoucherInput searchOption='PRODUCT' available notExpired onItemClick={handleAddGlobalVoucher} />
-                    <SearchItemInput properPosition='bottom-end' searchOption='product' onItemClick={handleAddItem} />
-                  </Stack>
-                </Stack>
+                <Typography variant="body1" fontWeight={600}>Hàng hóa: </Typography>
               }
               sx={{
                 bgcolor: 'rgb(249, 250, 253)',
@@ -829,7 +719,6 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                       <TableCell>Giá</TableCell>
                       <TableCell>Số lượng</TableCell>
                       <TableCell>Voucher</TableCell>
-                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -869,61 +758,33 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           </Stack>
                         </TableCell>
                         <TableCell>
-                          <TextField
-                            size='small'
-                            type='number'
-                            name='bomMaterials'
-                            sx={{ maxWidth: '100px' }}
-                            slotProps={{
-                              htmlInput: { min: 1 },
-                              input: {
-                                endAdornment: (
-                                  <InputAdornment position='end'>{item.UNIT_NAME}</InputAdornment>
-                                )
-                              }
-                            }}
-                            value={item?.QUANTITY}
-                            onChange={(e) => handleQuantityChange(e, item.ITEM_CODE)}
-                          />
+                          {item?.QUANTITY}
                         </TableCell>
                         <TableCell>
-                          <Select
-                            disabled={isReadOnly}
-                            value={item?.voucher?._id || ''}
-                            onChange={(e) => handleChangeVoucher(e, item.ITEM_CODE)}
-                            sx={{ width: '250px', fontSize: '0.8rem', }}
-                          >
-                            <MenuItem value='' sx={{ textAlign: 'center', fontSize: '0.8rem', color: 'grey' }}>--</MenuItem>
-                            {getAvailableVouchers(item).map(voucher =>
-                              <MenuItem key={voucher._id} value={voucher._id} disabled={!!voucher.disableStatus} sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
-                                <Badge
-                                  badgeContent={voucher.disableStatus}
-                                  color="error"
-                                  anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                  }}
-                                  sx={{
-                                    '& .MuiBadge-badge': {
-                                      fontSize: '8px',
-                                      height: '18px',
-                                      minWidth: '30px',
-                                      right: '-13px'
-                                    },
-                                  }}
-                                  overlap="rectangular"
-                                >
-                                  {`Giảm ${voucher.VALUE} ${voucher.TYPE === 'FIXED_AMOUNT' ? items.at(0).UNIT_INVOICE.UNIT_ABB : '%'}
+                          {getAvailableVouchers(item).map(voucher =>
+                            <MenuItem key={voucher._id} value={voucher._id} disabled={!!voucher.disableStatus} sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
+                              <Badge
+                                badgeContent={voucher.disableStatus}
+                                color="error"
+                                anchorOrigin={{
+                                  vertical: 'top',
+                                  horizontal: 'right',
+                                }}
+                                sx={{
+                                  '& .MuiBadge-badge': {
+                                    fontSize: '8px',
+                                    height: '18px',
+                                    minWidth: '30px',
+                                    right: '-13px'
+                                  },
+                                }}
+                                overlap="rectangular"
+                              >
+                                {`Giảm ${voucher.VALUE} ${voucher.TYPE === 'FIXED_AMOUNT' ? items.at(0).UNIT_INVOICE.UNIT_ABB : '%'}
                                 ${voucher.TYPE === 'PERCENTAGE' && voucher.MAX_DISCOUNT ? `(Tối đa ${formatCurrency(voucher.MAX_DISCOUNT)} ${items.at(0).UNIT_INVOICE.UNIT_ABB})` : ''}`}
-                                </Badge>
-                              </MenuItem>
-                            )}
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <IconButton aria-label="delete" size="large" onClick={() => handleRemove(item.ITEM_CODE)}>
-                            <DeleteIcon color='error' />
-                          </IconButton>
+                              </Badge>
+                            </MenuItem>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -1028,4 +889,4 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
   )
 }
 
-export default SaleInvoiceForm
+export default OrderForm

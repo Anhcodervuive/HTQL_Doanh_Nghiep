@@ -27,6 +27,7 @@ export default {
       invoiceDetailPath: '/admin/purchase-invoices/:id',
       invoiceDetail: (id) => `/admin/purchase-invoices/${id}`,
       create: '/admin/purchase-invoices/create',
+      edit: (id) => `/admin/purchase-invoices/${id || ''}/edit`
     },
     saleInvoices: {
       list: '/admin/sale-invoices',
@@ -52,6 +53,10 @@ export default {
       edit: (id = '') => `/admin/vouchers/${id || ':id'}/edit`,
       statistics: '/admin/vouchers/statistics',
       addItems: (id) => `/admin/vouchers/${id || ':id'}/add-items`
+    },
+    orders: {
+      list: '/admin/orders',
+      edit: (id = '') => `/admin/orders/${id || ':id'}/edit`,
     }
   },
   auth: {
@@ -75,8 +80,8 @@ export default {
     detailItem: (id) => `/detail-Item/${id}`,
     home: '/home',
     cart: '/cart',
-    profile: '/profileCustomer',
-    listItem: '/list-Item',
     order: '/order',
+    profile: '/customer/profileCustomer',
+    listItem: '/list-Item'
   }
 }
