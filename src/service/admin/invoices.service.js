@@ -55,6 +55,14 @@ class InvoicesService {
       withCredentials: true
     })).data
   }
+  async delete(credential, id) {
+    return (await this.api.delete(`/${id}`, {
+      headers: {
+        ...credential
+      },
+      withCredentials: true
+    })).data
+  }
 
 }
 export default new InvoicesService

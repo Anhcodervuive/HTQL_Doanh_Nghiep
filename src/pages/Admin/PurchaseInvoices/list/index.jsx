@@ -26,6 +26,7 @@ import useUserInfo from '~/hooks/useUserInfo'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import dayjs from 'dayjs'
 import ActionMenu from '~/components/Admin/ActionMenu'
+import { toast } from 'react-toastify'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -70,7 +71,7 @@ export default function InvoiceList() {
     //refetch()
   }, [fromDate, thruDate])
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: [
       'invoiceList',
       page,
@@ -94,6 +95,22 @@ export default function InvoiceList() {
     retry: false,
     refetchOnWindowFocus: false,
   })
+
+  const handleDelete = (itemCode) => {
+    invoicesService.delete({
+      user_id,
+      device_id: deviceId
+    }, itemCode)
+      .then(res => {
+        console.log(res)
+        toast.success('Xóa hóa đơn thành công')
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error(err.response.data.message)
+        refetch()
+      })
+  }
 
   // Nếu deviceId hoặc user_id chưa sẵn sàng, có thể hiển thị loading spinner (tuỳ bạn)
   if (!deviceId || !user_id || isLoading) {
@@ -253,6 +270,7 @@ export default function InvoiceList() {
                         <ActionMenu
                           onDetail={() => navigate(Routes.admin.purchaseInvoices.invoiceDetail(invoice.INVOICE_CODE))}
                           onEdit={() => navigate(Routes.admin.purchaseInvoices.edit(invoice.INVOICE_CODE))}
+                          onDelete={invoice.STATUS?.at(-1)?.STATUS_NAME === 'DRAFT' ? () => handleDelete(invoice.INVOICE_CODE) : null}
                         />
                       </Box>
                     </StyledTableCell>

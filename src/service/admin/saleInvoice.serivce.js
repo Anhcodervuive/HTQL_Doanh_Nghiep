@@ -101,10 +101,13 @@ class SaleInvoiceService {
   }
 
   // Statistic
-  async statisticBaseOnStatus(credential) {
-    return (await this.api.get('/statistic-based-on-status  ', {
+  async statisticBaseOnStatus(credential, query = {}) {
+    return (await this.api.get('/statistic-based-on-status', {
       headers: {
         ...credential
+      },
+      params: {
+        ...query
       },
       withCredentials: true,
     })).data

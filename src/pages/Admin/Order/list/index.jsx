@@ -106,7 +106,7 @@ export default function OrderList() {
     queryFn: () => saleInvoiceService.statisticBaseOnStatus({
       user_id,
       device_id: deviceId
-    })
+    }, { purchaseMethod: 'ONLINE' })
   })
 
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
