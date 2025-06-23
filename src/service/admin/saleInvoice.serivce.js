@@ -20,6 +20,7 @@ class SaleInvoiceService {
   }
 
   async create(credential, data) {
+    console.log('data create: ', data)
     return (await this.api.post('/', data, {
       headers: {
         ...credential

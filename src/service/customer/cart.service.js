@@ -55,8 +55,5 @@ class CartsService {
       withCredentials: true
     })).data
   }
-
-
-
 }
 export default new CartsService
