@@ -53,11 +53,21 @@ function UpdateProfileForm() {
 
     setValue('gender', gender ?? '')
 
-    setValue('addressSelector', {
-      city: { name: 'Cần Thơ' },
-      district: { name: 'Ninh Kiều' },
-      ward: { name: 'An Khánh' }
-    })
+    // setValue('addressSelector', {
+    //   city: { name: 'Cần Thơ' },
+    //   district: { name: 'Ninh Kiều' },
+    //   ward: { name: 'An Khánh' }
+    // })
+    if (user?.ADDRESS) {
+      setValue('addressSelector', {
+     city    : { name: user.ADDRESS.CITY     || '' },
+     district: { name: user.ADDRESS.DISTRICT || '' },
+     ward    : { name: user.ADDRESS.WARD     || '' }
+   })
+
+   setValue('address1', user.ADDRESS.ADDRESS_1 || '')
+   setValue('address2', user.ADDRESS.ADDRESS_2 || '')
+ }
   }, [nameInfo, gender, phoneNumberInfo, setValue])
 
   useEffect(() => {
