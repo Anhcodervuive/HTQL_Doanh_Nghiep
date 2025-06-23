@@ -35,6 +35,8 @@ import { Navigate } from 'react-router-dom'
 import SaleInvoiceList from '~/pages/Admin/SaleInvoice/list'
 import SaleInvoiceEdit from '~/pages/Admin/SaleInvoice/edit'
 import EditPurchaseInvoiceForm from '~/pages/Admin/PurchaseInvoices/edit'
+import OrderList from '~/pages/Admin/Order/list'
+import OrderEdit from '~/pages/Admin/Order/edit'
 
 export default [
   {
@@ -214,6 +216,16 @@ export default [
       {
         path: 'sale-invoices/:id/detail',
         element: <SaleInvoiceEdit />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'orders',
+        element: <OrderList />,
+        loader: composeLoaders(isAuthenticate),
+      },
+      {
+        path: 'orders/:id/edit',
+        element: <OrderEdit />,
         loader: composeLoaders(isAuthenticate),
       }
     ]

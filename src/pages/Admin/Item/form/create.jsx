@@ -24,13 +24,14 @@ import itemUnitService from '~/service/admin/itemUnit.service'
 import BomMaterial from './BomMaterialCreate'
 import { Link } from 'react-router-dom'
 import { Routes } from '~/config'
+import { Stack } from '@mui/material'
 
 
 function ItemCreateForm({ submit }) {
   const {
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors }, watch
   } = useForm()
   const [itemAvtFile, setItemAvtFile] = useState(null)
   const [itemDescImgFiles, setItemDescImgFiles] = useState([])
@@ -68,26 +69,38 @@ function ItemCreateForm({ submit }) {
     retry: false,
     refetchOnWindowFocus: false,
   })
+  const { data: dataMaterialItemType } = useQuery({
+    enabled: !!user_id && !!device_id,
+    queryKey: ['materialItems'],
+    queryFn: () => itemTypeService.findOneByName({
+      user_id,
+      device_id
+    }, 'Nguyên liệu'),
+    retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5
+  })
+  const isMaterial = dataMaterialItemType?.data?._id === watch('itemType')
 
   const onSubmit = async (data) => {
-    console.log('data:', {
+    const validatedData = {
       ...data,
       description,
       itemAvtFile,
       itemDescImgFiles,
-      bomMaterials
-    })
+      stock: 0
+    }
 
-    await submit({
-      ...data,
-      description,
-      itemAvtFile,
-      itemDescImgFiles,
-      bomMaterials
-    })
+    if (bomMaterials.length > 0) {
+      validatedData.bomMaterials = bomMaterials
+    }
+
+    console.log('data:', validatedData)
+
+    await submit(validatedData)
   }
 
-  console.log(itemAvtFile, itemDescImgFiles)
+  console.log(errors)
 
   const handleChangeFiles = useCallback((files) => {
     console.log('files:', files)
@@ -114,201 +127,196 @@ function ItemCreateForm({ submit }) {
       pb={20}
     >
       <form noValidate onSubmit={handleSubmit(onSubmit)} id='form-create-update-item'>
-        <Grid container spacing={2}>
-          <Grid size={12}>
+        <Card>
+          <CardHeader
+            title={<Typography variant="body1" fontWeight={600}>Thông tin cơ bản</Typography>}
+            sx={{
+              color: 'gray',
+              bgcolor: 'rgb(249, 250, 253)',
+              padding: 2,
+            }}
+          >
+          </CardHeader>
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Grid container spacing={2}>
-              <Grid size={7}>
-                <Card>
-                  <CardHeader
-                    title={<Typography variant="body1" fontWeight={600}>Thông tin cơ bản</Typography>}
-                    sx={{
-                      color: 'gray',
-                      bgcolor: 'rgb(249, 250, 253)',
-                      padding: 2,
-                    }}
-                  >
-                  </CardHeader>
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Grid size={6}>
+                <Stack gap={2}>
+                  <Controller
+                    name="itemName"
+                    control={control}
+                    rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Tên"
+                        name='itemName'
+                        fullWidth
+                        error={!!errors.itemName}
+                        helperText={errors.itemName?.message}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="itemNameEn"
+                    control={control}
+                    rules={{ required: 'Vui lòng nhập tên tiếng Anh', }}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Tên tiếng Anh"
+                        name='itemNameEn'
+                        fullWidth
+                        error={!!errors.itemNameEn}
+                        helperText={errors.itemNameEn?.message}
+                      />
+                    )}
+                  />
+                  {!isLoadingItemType && !errorItemType && !!dataItemType && <FormControl>
+                    <InputLabel id="itemType">loại</InputLabel>
                     <Controller
-                      name="itemName"
+                      defaultValue=''
+                      name="itemType"
                       control={control}
-                      rules={{ required: 'Vui lòng nhập tên loại mặt hàng', }}
+                      rules={{ required: 'Vui lòng chọn loại mặt hàng', }}
                       render={({ field }) => (
-                        <TextField
+                        <Select
                           {...field}
-                          label="Tên"
-                          name='itemName'
-                          fullWidth
-                          error={!!errors.itemName}
-                          helperText={errors.itemName?.message}
-                        />
+                          sx={{ height: '100%' }}
+                          id="itemType"
+                          label="Loại hàng hóa"
+                          labelId="itemType"
+                          name='itemType'
+                          error={!!errors.itemType}
+                        >
+                          <MenuItem value=''>--</MenuItem>
+                          {dataItemType?.data?.itemTypes?.map((itemType) => (
+                            <MenuItem key={itemType._id} value={itemType._id}>
+                              {itemType.ITEM_TYPE_NAME}
+                            </MenuItem>
+                          ))}
+                        </Select>
                       )}
                     />
-                    <Controller
-                      name="itemNameEn"
-                      control={control}
-                      rules={{ required: 'Vui lòng nhập tên tiếng Anh', }}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          label="Tên tiếng Anh"
-                          name='itemNameEn'
-                          fullWidth
-                          error={!!errors.itemNameEn}
-                          helperText={errors.itemNameEn?.message}
-                        />
-                      )}
-                    />
-                    {!isLoadingItemType && !errorItemType && !!dataItemType && <FormControl>
-                      <InputLabel id="itemType">loại</InputLabel>
-                      <Controller
-                        defaultValue=''
-                        name="itemType"
-                        control={control}
-                        rules={{ required: 'Vui lòng chọn loại mặt hàng', }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            sx={{ height: '100%' }}
-                            id="itemType"
-                            label="Loại hàng hóa"
-                            labelId="itemType"
-                            name='itemType'
-                            error={!!errors.itemType}
-                          >
-                            <MenuItem value=''>--</MenuItem>
-                            {dataItemType?.data?.itemTypes?.map((itemType) => (
-                              <MenuItem key={itemType._id} value={itemType._id}>
-                                {itemType.ITEM_TYPE_NAME}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                    </FormControl>
-                    }
-                    {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
-                    {errors.unitInvoiceId && <Typography variant='caption' color='error'>{errors.unitInvoiceId.message}</Typography>}
-                    <MyEditor content={description} handleChange={(html) => setDescription(html)} />
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid size={5}>
-                <Card>
-                  <CardHeader
-                    title={<Typography variant="body1" fontWeight={600}>Giá cả: </Typography>}
-                    sx={{
-                      color: 'gray',
-                      bgcolor: 'rgb(249, 250, 253)',
-                      padding: 2,
-                    }}
-                  >
-                  </CardHeader>
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {!isLoadingItemUnit && !errorItemUnit && !!dataItemUnit && <FormControl>
-                      <InputLabel id="unitId">Đơn vị tính</InputLabel>
-                      <Controller
-                        defaultValue=''
-                        name="unitId"
-                        control={control}
-                        rules={{ required: 'Vui lòng chọn đơn vị  tính', }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            sx={{ height: '100%' }}
-                            id="unitId"
-                            label="Đơn vị tính"
-                            labelId="unitId"
-                            name='unitId'
-                            error={!!errors.unitId}
-                          >
-                            <MenuItem value=''>--</MenuItem>
-                            {dataItemUnit?.data?.map((itemUnit) => (
-                              <MenuItem key={itemUnit._id} value={itemUnit._id}>
-                                {itemUnit.UNIT_ITEM_NAME}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                    </FormControl>
-                    }
-                    {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
-                    {errors.unitId && <Typography variant='caption' color='error'>{errors.unitId.message}</Typography>}
-                    {!isLoadingUnitInvoice && !errorUnitInvoice && !!dataUnitInvoice && <FormControl>
-                      <InputLabel id="unitInvoiceId">Đơn vị tiền tệ</InputLabel>
-                      <Controller
-                        defaultValue=''
-                        name="unitInvoiceId"
-                        control={control}
-                        rules={{ required: 'Vui lòng chọn đơn vị tiền tệ', }}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            sx={{ height: '100%' }}
-                            id="unitInvoiceId"
-                            label="Đơn vị tiền tệ"
-                            labelId="unitInvoiceId"
-                            name='unitInvoiceId'
-                            error={!!errors.unitInvoiceId}
-                          >
-                            <MenuItem value=''>--</MenuItem>
-                            {dataUnitInvoice?.data?.map((unitInvoice) => (
-                              <MenuItem key={unitInvoice._id} value={unitInvoice._id}>
-                                {unitInvoice.UNIT_NAME}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                    </FormControl>
-                    }
-                    {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
-                    {errors.unitInvoiceId && <Typography variant='caption' color='error'>{errors.unitInvoiceId.message}</Typography>}
-                    <Controller
-                      name="price"
-                      control={control}
-                      rules={{ required: 'Vui lòng nhập giá hàng hóa', }}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          label="Giá"
-                          name='price'
-                          type='number'
-                          fullWidth
-                          error={!!errors.price}
-                          helperText={errors.price?.message}
-                        />
-                      )}
-                    />
-                  </CardContent>
-                </Card>
+                  </FormControl>
+                  }
+                </Stack>
               </Grid>
               <Grid size={6}>
-                <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh đại diện</Typography>
-                <ImageUploader handleChange={handleChangeFiles} limit={1}/>
-              </Grid>
-              <Grid size={6}>
-                <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh mô tả</Typography>
-                <ImageUploader handleChange={handleChangeDescFiles} />
-              </Grid>
-              <Grid size={12}>
-                <Typography variant="h6" mb={2} fontWeight={600}>Thành phần sản xuất</Typography>
-                <BomMaterial changeBomMaterials={handleChangBomMaterial}/>
+                <Stack gap={2}>
+                  {!isLoadingItemUnit && !errorItemUnit && !!dataItemUnit && <FormControl>
+                    <InputLabel id="unitId">Đơn vị tính</InputLabel>
+                    <Controller
+                      defaultValue=''
+                      name="unitId"
+                      control={control}
+                      rules={{ required: 'Vui lòng chọn đơn vị  tính', }}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          sx={{ height: '100%' }}
+                          id="unitId"
+                          label="Đơn vị tính"
+                          labelId="unitId"
+                          name='unitId'
+                          error={!!errors.unitId}
+                        >
+                          <MenuItem value=''>--</MenuItem>
+                          {dataItemUnit?.data?.map((itemUnit) => (
+                            <MenuItem key={itemUnit._id} value={itemUnit._id}>
+                              {itemUnit.UNIT_ITEM_NAME}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      )}
+                    />
+                  </FormControl>
+                  }
+                  {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
+                  {errors.unitId && <Typography variant='caption' color='error'>{errors.unitId.message}</Typography>}
+                  {!isMaterial && (
+                    <>
+                      {!isLoadingUnitInvoice && !errorUnitInvoice && !!dataUnitInvoice && <FormControl>
+                        <InputLabel id="unitInvoiceId">Đơn vị tiền tệ</InputLabel>
+                        <Controller
+                          defaultValue=''
+                          name="unitInvoiceId"
+                          control={control}
+                          rules={{ required: 'Vui lòng chọn đơn vị tiền tệ', }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              sx={{ height: '100%' }}
+                              id="unitInvoiceId"
+                              label="Đơn vị tiền tệ"
+                              labelId="unitInvoiceId"
+                              name='unitInvoiceId'
+                              error={!!errors.unitInvoiceId}
+                            >
+                              <MenuItem value=''>--</MenuItem>
+                              {dataUnitInvoice?.data?.map((unitInvoice) => (
+                                <MenuItem key={unitInvoice._id} value={unitInvoice._id}>
+                                  {unitInvoice.UNIT_NAME}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          )}
+                        />
+                      </FormControl>
+                      }
+                      {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
+                      {errors.unitInvoiceId && <Typography variant='caption' color='error'>{errors.unitInvoiceId.message}</Typography>}
+                      <Controller
+                        name="price"
+                        control={control}
+                        rules={{ required: 'Vui lòng nhập giá hàng hóa', }}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            label="Giá"
+                            name='price'
+                            type='number'
+                            fullWidth
+                            error={!!errors.price}
+                            helperText={errors.price?.message}
+                          />
+                        )}
+                      />
+                    </>
+                  )}
+                </Stack>
               </Grid>
             </Grid>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-              <Button variant="outlined" color="secondary" type="reset"
-                LinkComponent={Link} to={Routes.admin.item.list}
-              >
-                            Hủy
-              </Button>
-              <Button variant="contained" color="primary" type="submit">
-                            Lưu
-              </Button>
-            </Box>
+            {errorItemType && <Typography variant='body1' color='error'>Lỗi khi tải loại hàng hóa:</Typography>}
+            {errors.unitInvoiceId && <Typography variant='caption' color='error'>{errors.unitInvoiceId.message}</Typography>}
+            <MyEditor content={description} handleChange={(html) => setDescription(html)} />
+          </CardContent>
+        </Card>
+        <Grid container spacing={2} my={4}>
+          <Grid size={6}>
+            <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh đại diện</Typography>
+            <ImageUploader handleChange={handleChangeFiles} limit={1}/>
+          </Grid>
+          <Grid size={6}>
+            <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh mô tả</Typography>
+            <ImageUploader handleChange={handleChangeDescFiles} />
           </Grid>
         </Grid>
+        {!isMaterial && (
+          <>
+            <Typography variant="h6" mb={2} fontWeight={600}>Thành phần sản xuất</Typography>
+            <BomMaterial changeBomMaterials={handleChangBomMaterial}/>
+          </>
+        )}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+          <Button variant="outlined" color="secondary" type="reset"
+            LinkComponent={Link} to={Routes.admin.item.list}
+          >
+                            Hủy
+          </Button>
+          <Button variant="contained" color="primary" type="submit">
+                            Lưu
+          </Button>
+        </Box>
       </form>
     </Box>
   )

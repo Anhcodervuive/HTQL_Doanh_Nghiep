@@ -53,6 +53,10 @@ export default {
       edit: (id = '') => `/admin/vouchers/${id || ':id'}/edit`,
       statistics: '/admin/vouchers/statistics',
       addItems: (id) => `/admin/vouchers/${id || ':id'}/add-items`
+    },
+    orders: {
+      list: '/admin/orders',
+      edit: (id = '') => `/admin/orders/${id || ':id'}/edit`,
     }
   },
   auth: {
