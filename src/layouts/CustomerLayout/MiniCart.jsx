@@ -32,7 +32,8 @@ export default function MiniCart() {
     if (isMobile) {
       navigate('/customer/cart')
     } else {
-      setOpen(o => !o)
+      setOpen(false)
+      navigate('/customer/cart')
     }
   }
 
@@ -57,6 +58,10 @@ export default function MiniCart() {
           style={{ zIndex: 1300 }}
         >
           <Paper
+            onClick={() => {
+              setOpen(false)
+              navigate('/customer/cart')
+            }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             sx={{

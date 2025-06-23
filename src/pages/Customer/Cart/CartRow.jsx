@@ -10,7 +10,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
 import { upsertItem, removeItem as removeItemFromRedux } from '~/redux/slices/cart.slice'
-
+import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 
 export default function CartRow({ item, checked, onToggle }) {
   const {
@@ -34,7 +35,10 @@ export default function CartRow({ item, checked, onToggle }) {
   const credential = { user_id: userId, device_id }
   const queryClient = useQueryClient()
   const dispatch = useDispatch()
-
+  const navigate = useNavigate()
+  useEffect(() => {
+    setQty(QUANTITY != null ? QUANTITY.toString() : '1')
+  }, [QUANTITY])
 
   const handleUpdate = async (body, restorePrev = false) => {
     try {
@@ -94,7 +98,7 @@ export default function CartRow({ item, checked, onToggle }) {
   }
 
   const handleInputChange = (e) => {
-    setQty(e.target.value) // cho phép người dùng xóa tạm thời
+    setQty(e.target.value)
   }
 
   const commitQuantity = () => {
@@ -124,13 +128,20 @@ export default function CartRow({ item, checked, onToggle }) {
     }
   }
 
+  const goToDetail = () => {
+    const id =
+      item.ITEM_ID
+
+    navigate(`/customer/detail-Item/${id}`)
+  }
+
 
   const tooltip = VOUCHER_TYPE === 'PERCENTAGE'
     ? `Giảm ${VOUCHER_VALUE}% (tối đa ${VOUCHER_MAX_DISCOUNT ?? 0}₫)`
     : `Giảm trực tiếp ${VOUCHER_VALUE}₫`
 
   return (
-    <Box sx={{ border: '1px solid #eee', mb: 2, p: 1.5, display: 'flex', alignItems: 'center', columnGap: 2 }}>
+    <Box onClick={goToDetail} sx={{ border: '1px solid #eee', mb: 2, p: 1.5, display: 'flex', alignItems: 'center', columnGap: 2, cursor: 'pointer' }}>
       <Checkbox checked={checked} onChange={onToggle} sx={{ p: 0.5 }} />
 
       <Box component="img" src={ITEM_AVATAR} alt={ITEM_NAME} sx={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 1 }} />
