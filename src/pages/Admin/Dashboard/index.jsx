@@ -12,6 +12,7 @@ import PaidIcon from '@mui/icons-material/Paid'
 import ModeEditIcon from '@mui/icons-material/ModeEdit'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import CancelIcon from '@mui/icons-material/Cancel'
+import CreditCardIcon from '@mui/icons-material/CreditCard'
 import {
   Chart as ChartJS,
   CategoryScale,

@@ -26,7 +26,7 @@ function useAuth() {
       newRoles.push('manager')
     }
     if (user?.ROLE?.IS_SERVICE_STAFF) {
-      newRoles.push('service staff')
+      newRoles.push('service_staff')
     }
     if (user?.ROLE?.IS_CUSTOMER) {
       newRoles.push('customer')

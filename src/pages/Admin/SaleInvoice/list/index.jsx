@@ -35,6 +35,8 @@ import { getColorByValue, getLabelByValue } from '~/utils/mapper'
 import { SALE_INVOICES_PURCHASE_METHODS, SALE_INVOICE_STATUS } from '~/utils/contant'
 import ActionMenu from '~/components/Admin/ActionMenu'
 import { toast } from 'react-toastify'
+import useAuth from '~/hooks/useAuth'
+import { hasAnyPermission } from '~/utils/rolePermission'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -78,6 +80,7 @@ export default function SaleInvoiceList() {
   const [page, setPage] = useState(1)
   const location = useLocation()
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, refetch: refetchList } = useQuery({
     queryKey: ['saleInvoiceList', page, showedRecord, searchValueDebounce, status, fromDate, thruDate, priceRangeDebounce],
@@ -308,8 +311,8 @@ export default function SaleInvoiceList() {
                       </StyledTableCell>
                       <StyledTableCell align="center">
                         <ActionMenu
-                          onEdit={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' ? () => navigate(Routes.admin.saleInvoices.edit(invoice.INVOICE_CODE)): null}
-                          onDelete={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' ? () => handleDelete(invoice.INVOICE_CODE): null}
+                          onEdit={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' && hasAnyPermission(roles, 'saleInvoice', 'update') ? () => navigate(Routes.admin.saleInvoices.edit(invoice.INVOICE_CODE)): null}
+                          onDelete={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' && hasAnyPermission(roles, 'saleInvoice', 'delete') ? () => handleDelete(invoice.INVOICE_CODE): null}
                           onDetail={() => navigate(Routes.admin.saleInvoices.detail(invoice.INVOICE_CODE))}
                         />
                       </StyledTableCell>

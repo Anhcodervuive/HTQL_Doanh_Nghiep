@@ -31,6 +31,8 @@ import PriceRangeInput from '~/components/Admin/PriceRangeInput'
 import { Tooltip, IconButton } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import useAuth from '~/hooks/useAuth'
+import { hasAnyPermission } from '~/utils/rolePermission'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -55,6 +57,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }))
 
 export default function ItemList() {
+  const { roles } = useAuth()
   const [showedRecord, setShowedRecord] = useState(showdRecordOption[0])
   const [searchValue, setSearchValue] = useState('')
   const searchValueDebounce = useDebounce(searchValue, 1000)
@@ -134,6 +137,8 @@ export default function ItemList() {
   const getFullPrice = (item) => {
     return `${item.PRICE?.at(-1)?.PRICE_AMOUNT?.toLocaleString()} ${item.PRICE?.at(-1)?.PRICE_AMOUNT ? item.PRICE?.at(-1)?.UNIT_ABB : ''}`
   }
+
+  console.log(roles, hasAnyPermission(roles, 'item', 'delete'))
 
   const handleDelete = async (id) => {
     itemService.delete({
@@ -320,6 +325,7 @@ export default function ItemList() {
                       <StyledTableCell align="center">
                         <Tooltip title="Chi tiết">
                           <IconButton
+                            disabled={!hasAnyPermission(roles, 'item', 'read')}
                             size="small"
                             sx={{
                               backgroundColor: '#1976d2',
@@ -342,6 +348,7 @@ export default function ItemList() {
 
                         <Tooltip title="Chỉnh sửa">
                           <IconButton
+                            disabled={!hasAnyPermission(roles, 'item', 'update')}
                             size="small"
                             sx={{
                               backgroundColor: '#fbc02d',
@@ -360,6 +367,7 @@ export default function ItemList() {
 
                         <Tooltip title="Xóa">
                           <IconButton
+                            disabled={!hasAnyPermission(roles, 'item', 'delete')}
                             size="small"
                             color="error"
                             sx={{
