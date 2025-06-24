@@ -27,6 +27,8 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import dayjs from 'dayjs'
 import ActionMenu from '~/components/Admin/ActionMenu'
 import { toast } from 'react-toastify'
+import useAuth from '~/hooks/useAuth'
+import { hasAnyPermission } from '~/utils/rolePermission'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -62,6 +64,7 @@ export default function InvoiceList() {
   const [page, setPage] = useState(1)
 
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
 
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
@@ -269,8 +272,8 @@ export default function InvoiceList() {
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
                         <ActionMenu
                           onDetail={() => navigate(Routes.admin.purchaseInvoices.invoiceDetail(invoice.INVOICE_CODE))}
-                          onEdit={() => navigate(Routes.admin.purchaseInvoices.edit(invoice.INVOICE_CODE))}
-                          onDelete={invoice.STATUS?.at(-1)?.STATUS_NAME === 'DRAFT' ? () => handleDelete(invoice.INVOICE_CODE) : null}
+                          onEdit={hasAnyPermission(roles, 'purchaseInvoice', 'update') ? () => navigate(Routes.admin.purchaseInvoices.edit(invoice.INVOICE_CODE)) : null}
+                          onDelete={invoice.STATUS?.at(-1)?.STATUS_NAME === 'DRAFT' && hasAnyPermission(roles, 'purchaseInvoice', 'delete') ? () => handleDelete(invoice.INVOICE_CODE) : null}
                         />
                       </Box>
                     </StyledTableCell>

@@ -26,6 +26,8 @@ import { Tooltip, IconButton } from '@mui/material'
 import InfoIcon from '@mui/icons-material/Info'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import useAuth from '~/hooks/useAuth'
+import { hasAnyPermission } from '~/utils/rolePermission'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -50,6 +52,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function ItemTypeList() {
   const location = useLocation()
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['itemTypeList'],
@@ -150,6 +153,7 @@ export default function ItemTypeList() {
 
                       <Tooltip title="Chỉnh sửa">
                         <IconButton
+                          disabled={!hasAnyPermission(roles, 'itemType', 'update')}
                           size="small"
                           sx={{
                             backgroundColor: '#fbc02d',
@@ -168,6 +172,7 @@ export default function ItemTypeList() {
 
                       <Tooltip title="Xóa">
                         <IconButton
+                          disabled={!hasAnyPermission(roles, 'itemType', 'delete')}
                           size="small"
                           color="error"
                           sx={{

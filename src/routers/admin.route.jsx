@@ -46,7 +46,7 @@ export default [
   {
     path: '/admin',
     element: <AdminLayout />,
-    // loader: isAuthenticate,
+    loader: isAuthenticate,
     children : [
       {
         path: 'dashboard',
@@ -56,7 +56,7 @@ export default [
       {
         path: 'user',
         element: <UserList />,
-        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['admin'])),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles('manager', 'admin', 'service staff')),
       },
       {
         path: 'user/create',
@@ -71,137 +71,137 @@ export default [
       {
         path: 'supplier',
         element: <SupplierList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'supplier/create',
         element: <SupplierCreate />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'supplier/:id/edit',
         element: <SupplierEdit />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'item-type',
         element: <ItemTypeList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'item-type/create',
         element: <ItemTypeCreate />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'item-type/:id/edit',
         element: <ItemTypeEdit />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'item-unit',
         element: <ItemUnitList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'item-unit/create',
         element: <ItemUnitCreate />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'item-unit/:id/edit',
         element: <ItemUnitEdit />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'item',
         element: <ItemList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'item/create',
         element: <ItemCreate />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'item/:id/edit',
         element: <ItemEdit />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'item/:id/detail',
         element: <ItemDetail />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'invoice-unit',
         element: <UnitInvoiceList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'invoice-unit/create',
         element: <UnitInvoiceCreate />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'invoice-unit/:id/edit',
         element: <UnitInvoiceEdit />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'purchase-invoices',
         element: <PurchaseInvoiceList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'purchase-invoices/create',
         element: <AddPurchaseInvoiceForm />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'purchase-invoices/:id/edit',
         element: <EditPurchaseInvoiceForm />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'purchase-invoices/:id',
         element: <InvoiceDetail />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'vouchers',
         element: <VouchersList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'vouchers/:id',
         element: <VoucherDetail/>,
-        loader: composeLoaders(isAuthenticate)
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff']))
       },
       {
         path: 'vouchers/create',
         element: <VoucherCreate />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'vouchers/:id/edit',
         element: <EditVoucher />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin'])),
       },
       {
         path: 'vouchers/statistics',
         element: <VoucherStatisticsPage />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {
         path: 'sale-invoices',
         element: <SaleInvoiceList />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['admin', 'manager', 'service staff'])),
       },
       {
         path: 'vouchers/:id/add-items',
         element: <VoucherAddItem />,
-        loader: composeLoaders(isAuthenticate)
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['admin', 'manager', 'service staff',]))
       },
       {
         path: 'sale-invoices/create',
@@ -211,7 +211,7 @@ export default [
       {
         path: 'sale-invoices/:id/edit',
         element: <SaleInvoiceEdit />,
-        loader: composeLoaders(isAuthenticate),
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['admin', 'manager', 'service staff'])),
       },
       {
         path: 'sale-invoices/:id/detail',

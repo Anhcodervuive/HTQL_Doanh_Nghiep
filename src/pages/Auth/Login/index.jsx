@@ -43,6 +43,12 @@ const LoginPage = () => {
       const originalPayload = unwrapResult(result)
       if (originalPayload) {
         console.log('originalPayload', originalPayload)
+        if (originalPayload.ROLE.IS_CUSTOMER) {
+          setTimeout(() => {
+            navigate('/customer/home', { replace: true })
+          }, 500)
+          return
+        }
         toast.success('Đăng nhập thành công!')
         // const redirect = getRedirectPath(user.ROLE)
         setTimeout(() => {
