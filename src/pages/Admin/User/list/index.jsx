@@ -63,13 +63,13 @@ export default function UserList() {
 
   console.log('Vai trò đã chọn:', selectedRole)
   console.log('Query gửi lên:', roleParam)
-
+  React.useEffect(() => { setPage(1) }, [selectedRole])
   const { data, isLoading } = useQuery({
     queryKey: ['userList', page, showedRecord, selectedRole],
     enabled: !!deviceId,
     queryFn: () => userService.search(
       { user_id, device_id: deviceId },
-      { limit: showedRecord, page: selectedRole != 'all'? 1 : page, ...roleParam }
+      { limit: showedRecord, page, ...roleParam }
     ),
     retry: false,
     refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
