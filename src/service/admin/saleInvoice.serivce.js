@@ -111,8 +111,8 @@ class SaleInvoiceService {
     })).data
   }
   async cancellingOrder(credential, id) {
-    console.log('data nè: ', credential)
-    return (await this.api.put(`/cancelling-order/${id}`, {
+    console.log('data nè: ', credential, id)
+    return (await this.api.put(`/cancelling-order/${id}`, {}, {
       headers: {
         ...credential
       },

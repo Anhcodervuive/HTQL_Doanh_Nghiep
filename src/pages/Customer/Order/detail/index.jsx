@@ -189,7 +189,7 @@ export default function OrderDetail () {
               ].filter(Boolean).join(', ')}
             </Typography>
           </Box>
-          {/* {inv.STATUS === 'DRAFT' && (
+          {inv.STATUS === 'DRAFT' && (
             <Button
               size='small'
               color='error'
@@ -203,7 +203,7 @@ export default function OrderDetail () {
             >
             Huỷ đơn
             </Button>
-          )} */}
+          )}
         </Box>
       </Paper>
     </Box>
