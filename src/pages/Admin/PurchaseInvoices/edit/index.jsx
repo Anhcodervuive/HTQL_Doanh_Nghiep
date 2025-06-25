@@ -34,6 +34,8 @@ import { PURCHASE_INVOICE_PAYMENT_METHODS, PURCHASE_INVOICE_STATUS } from '~/uti
 import SearchSupplierInput from '~/components/Admin/SearchSupplierInput'
 import { cloneDeep } from 'lodash'
 import SearchItemInput from '~/components/Admin/SearchItemInput'
+import { hasAnyPermission } from '~/utils/rolePermission'
+import useAuth from '~/hooks/useAuth'
 
 export default function EditPurchaseInvoiceForm() {
   const { id } = useParams() // INVOICE_CODE
@@ -41,6 +43,7 @@ export default function EditPurchaseInvoiceForm() {
   const location = useLocation()
   const { register, handleSubmit, formState: { errors }, watch, control } = useForm()
   const { userId: user_id } = useUserInfo()
+  const { roles } = useAuth()
   const device_id = useDeviceId()
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
   const [selectedItems, setSelectedItems] = useState([])
@@ -223,7 +226,7 @@ export default function EditPurchaseInvoiceForm() {
                           --
             </MenuItem>
             {PURCHASE_INVOICE_STATUS.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
+              <MenuItem key={option.value} value={option.value} disabled={!hasAnyPermission(roles, 'purchaseInvoice', option.needPermission)}>
                 {option.label}
               </MenuItem>
             ))}

@@ -8,7 +8,7 @@ const rolePermissions = {
     itemType: ['create', 'update', 'delete', 'read'],
     item: ['create', 'update', 'delete', 'read'],
     saleInvoice: ['create', 'update', 'delete', 'read'],
-    purchaseInvoice: ['create', 'update', 'delete', 'read'],
+    purchaseInvoice: ['create', 'update', 'delete', 'read', 'approve', 'cancel'],
     order: ['create', 'update', 'delete', 'read'],
   },
   manager: {
@@ -20,7 +20,7 @@ const rolePermissions = {
     itemType: ['create', 'update', 'delete', 'read'],
     item: ['create', 'read'],
     saleInvoice: ['create', 'update', 'delete', 'read'],
-    purchaseInvoice: ['create', 'update', 'delete', 'read'],
+    purchaseInvoice: ['create', 'update', 'delete', 'read', 'approve', 'cancel'],
     order: ['create', 'update', 'delete', 'read'],
   },
   service_staff: {
@@ -38,6 +38,7 @@ const rolePermissions = {
 }
 
 export const hasAnyPermission = (roles, resource, action) => {
+  if (!action) return true
   return roles.some(role =>
     rolePermissions[role]?.[resource]?.includes(action)
   )

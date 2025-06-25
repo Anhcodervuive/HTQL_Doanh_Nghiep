@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import invoicesService from '~/service/admin/invoices.service'
+import CheckIcon from '@mui/icons-material/Check'
 import {
   Box,
   Typography,
@@ -23,10 +24,14 @@ import dayjs from 'dayjs'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
+import { PURCHASE_INVOICE_STATUS } from '~/utils/contant'
+import { hasAnyPermission } from '~/utils/rolePermission'
+import useAuth from '~/hooks/useAuth'
 
 export default function InvoiceDetail() {
   const { id } = useParams()
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const userId = useSelector(state => state.user.currentUser?.USER_ID)
 
   const [anchorEl, setAnchorEl] = useState(null)
@@ -140,41 +145,38 @@ export default function InvoiceDetail() {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>Thông tin chung:</Typography>
-          {status?.STATUS_NAME !== 'DRAFT' &&
-            status?.STATUS_NAME !== 'REJECTED' &&
-            status?.STATUS_NAME !== 'PAYMENTED' && (
-            <Box>
-              <Button
-                variant="contained"
-                color="secondary"
-                size="small"
-                onClick={handleMenuClick}
-              >
+          <Box>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              onClick={handleMenuClick}
+            >
                   Đổi trạng thái
-              </Button>
-              <Menu
-                anchorEl={anchorEl}
-                open={openMenu}
-                onClose={handleMenuClose}
-              >
-                {status?.STATUS_NAME === 'PENDING_APPROVAL' && (
-                  <>
-                    <MenuItem onClick={() => handleChangeStatus('CONFIRMED')}>
-                        Xác nhận
-                    </MenuItem>
-                    <MenuItem onClick={() => handleChangeStatus('REJECTED')}>
-                        Từ chối
-                    </MenuItem>
-                  </>
-                )}
-                {status?.STATUS_NAME === 'CONFIRMED' && (
-                  <MenuItem onClick={() => handleChangeStatus('PAYMENTED')}>
-                      Đã thanh toán
-                  </MenuItem>
-                )}
-              </Menu>
-            </Box>
-          )}
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={openMenu}
+              onClose={handleMenuClose}
+            >
+              {PURCHASE_INVOICE_STATUS.map((option) => (
+                <MenuItem
+                  key={option.value}
+                  onClick={() => handleChangeStatus(option.value)}
+                  disabled={
+                    !hasAnyPermission(roles, 'purchaseInvoice', option.needPermission) ||
+                    !option.validate(status?.STATUS_NAME)
+                  }
+                  selected={status?.STATUS_NAME === option.value}
+                >
+                  {status?.STATUS_NAME === option.value && (
+                    <CheckIcon fontSize="small" style={{ marginRight: 8 }} />
+                  )}
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
         </Box>
         <Box sx={{ pl: 2 }}>
           <Typography><strong>Mã hóa đơn:</strong> {invoice?.INVOICE_CODE}</Typography>

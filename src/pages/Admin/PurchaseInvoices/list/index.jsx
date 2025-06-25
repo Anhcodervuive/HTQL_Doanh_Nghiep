@@ -216,7 +216,7 @@ export default function InvoiceList() {
               variant='contained'
               color='success'
               startIcon={<AddIcon />}
-              sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
+              sx={{ display: !hasAnyPermission(roles, 'purchaseInvoice', 'create') ? 'none' : '' }}
             >
               Thêm mới
             </Button>
