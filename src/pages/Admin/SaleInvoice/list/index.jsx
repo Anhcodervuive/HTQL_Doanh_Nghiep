@@ -239,6 +239,7 @@ export default function SaleInvoiceList() {
           variant='contained'
           color='success'
           startIcon={<AddIcon />}
+          sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
         >
             New
         </Button>
@@ -311,8 +312,8 @@ export default function SaleInvoiceList() {
                       </StyledTableCell>
                       <StyledTableCell align="center">
                         <ActionMenu
-                          onEdit={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' && hasAnyPermission(roles, 'saleInvoice', 'update') ? () => navigate(Routes.admin.saleInvoices.edit(invoice.INVOICE_CODE)): null}
-                          onDelete={invoice.STATUS === 'DRAFT' && invoice.PURCHASE_METHOD !== 'ONLINE' && hasAnyPermission(roles, 'saleInvoice', 'delete') ? () => handleDelete(invoice.INVOICE_CODE): null}
+                          onEdit={invoice.STATUS !== 'PAYMENTED' && invoice.STATUS !== 'CANCELLED' && invoice.PURCHASE_METHOD !== 'ONLINE' && hasAnyPermission(roles, 'saleInvoice', 'update') ? () => navigate(Routes.admin.saleInvoices.edit(invoice.INVOICE_CODE)): null}
+                          onDelete={invoice.STATUS !== 'PAYMENTED' && invoice.STATUS !== 'CANCELLED' && invoice.PURCHASE_METHOD !== 'ONLINE' && hasAnyPermission(roles, 'saleInvoice', 'delete') ? () => handleDelete(invoice.INVOICE_CODE): null}
                           onDetail={() => navigate(Routes.admin.saleInvoices.detail(invoice.INVOICE_CODE))}
                         />
                       </StyledTableCell>

@@ -216,6 +216,7 @@ export default function InvoiceList() {
               variant='contained'
               color='success'
               startIcon={<AddIcon />}
+              sx={{ display: !hasAnyPermission(roles, 'purchaseInvoice', 'create') ? 'none' : '' }}
             >
               Thêm mới
             </Button>
@@ -271,8 +272,8 @@ export default function InvoiceList() {
                     <StyledTableCell align="center">
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
                         <ActionMenu
-                          onDetail={() => navigate(Routes.admin.purchaseInvoices.invoiceDetail(invoice.INVOICE_CODE))}
-                          onEdit={hasAnyPermission(roles, 'purchaseInvoice', 'update') ? () => navigate(Routes.admin.purchaseInvoices.edit(invoice.INVOICE_CODE)) : null}
+                          onDetail={hasAnyPermission(roles, 'purchaseInvoice', 'read') ? () => navigate(Routes.admin.purchaseInvoices.invoiceDetail(invoice.INVOICE_CODE)) : null}
+                          onEdit={invoice.STATUS?.at(-1)?.STATUS_NAME === 'DRAFT' && hasAnyPermission(roles, 'purchaseInvoice', 'update') ? () => navigate(Routes.admin.purchaseInvoices.edit(invoice.INVOICE_CODE)) : null}
                           onDelete={invoice.STATUS?.at(-1)?.STATUS_NAME === 'DRAFT' && hasAnyPermission(roles, 'purchaseInvoice', 'delete') ? () => handleDelete(invoice.INVOICE_CODE) : null}
                         />
                       </Box>

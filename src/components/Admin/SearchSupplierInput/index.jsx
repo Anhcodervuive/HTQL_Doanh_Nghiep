@@ -44,6 +44,7 @@ export default function SearchSupplierInput({ index, selectedSupplier, onSelect,
           onChange={(e) => onSelect(e.target.value)}
           sx={{ mt: 1, minWidth: 200 }}
         >
+          <MenuItem value=''>--</MenuItem>
           {supplierData.data.suppliers.map((supplier) => (
             <MenuItem key={supplier._id} value={supplier._id}>
               <Box>

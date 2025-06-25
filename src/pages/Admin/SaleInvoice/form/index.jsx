@@ -71,6 +71,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
     ? {
       ...data?.STAFF_CONTACT,
       ROLES: Object.entries(data?.STAFF_CONTACT?.ROLE)
+        // eslint-disable-next-line no-unused-vars
         .filter(([_, value]) => value)
         .map(([key]) => key.replace(/^IS_/, '').toLowerCase())
     }
@@ -119,7 +120,6 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
     // staleTime: 1000 * 60 * 3
   })
 
-  console.log('form validate errors: ', errors)
   const handleUserChose = (user) => {
     const nameInfo = user.LIST_CONTACT?.at(-1)
     const emailInfo = user.LIST_EMAIL?.at(-1)
@@ -139,30 +139,39 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
   }
 
   const onSubmit = async (formData) => {
-    const saleInvoiceData = {
-      ...formData,
-      items: items.map(item => ({
-        ITEM_CODE: item.ITEM_CODE,
-        QUANTITY: item.QUANTITY,
-        PRODUCT_VOUCHER_ID: item.voucher?._id || null
-      })),
-      country: 'Việt Nam',
-      city: formData.addressSelector?.city?.name || '',
-      district: formData.addressSelector?.district?.name || '',
-      ward: formData.addressSelector?.ward?.name || '',
-      detail: formData.address,
-      voucherGlobalId: globalVoucher?._id || null,
-      customerId: selectedUser?._id || null,
-      name: formData.nameReceiver,
-      phoneNumber: formData.phoneNumberReceiver
+    let saleInvoiceData = {}
+    if (formData.status === 'DRAFT') {
+      saleInvoiceData = {
+        ...formData,
+        items: items.map(item => ({
+          ITEM_CODE: item.ITEM_CODE,
+          QUANTITY: item.QUANTITY,
+          PRODUCT_VOUCHER_ID: item.voucher?._id || null
+        })),
+        country: 'Việt Nam',
+        city: formData.addressSelector?.city?.name || '',
+        district: formData.addressSelector?.district?.name || '',
+        ward: formData.addressSelector?.ward?.name || '',
+        detail: formData.address,
+        voucherGlobalId: globalVoucher?._id || null,
+        customerId: selectedUser?._id || null,
+        name: formData.nameReceiver,
+        phoneNumber: formData.phoneNumberReceiver
+      }
+      delete saleInvoiceData.address
+      delete saleInvoiceData.addressSelector
+      delete saleInvoiceData.nameReceiver
+      delete saleInvoiceData.phoneNumberReceiver
+    } else {
+      saleInvoiceData = {
+        status: formData.status
+      }
     }
-    delete saleInvoiceData.address
-    delete saleInvoiceData.addressSelector
-    delete saleInvoiceData.nameReceiver
-    delete saleInvoiceData.phoneNumberReceiver
     console.log(saleInvoiceData)
     submit(saleInvoiceData)
   }
+
+  console.log(errors)
 
   const handleAddItem = (itemToAdd) => {
     const isItemInserted = items.find(i => i.ITEM_CODE === itemToAdd.ITEM_CODE)
@@ -293,10 +302,9 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
   [extraFee, priceAfterDecreaseByProductVoucher, taxValue, totalItemPrice, totalPriceDecreasedByGlobalVoucher]
   )
 
-
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
-      <fieldset disabled={isReadOnly} style={{ border: 'none' }}>
+      <fieldset disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'} style={{ border: 'none' }}>
         <Stack spacing={2} sx={{ minHeight: '1800px' }}>
           <Box>
             <Grid container spacing={4}>
@@ -313,7 +321,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                   <CardContent>
                     <Stack gap={2}>
                       <Stack gap={2}>
-                        {canEditUserInfo && !isReadOnly && <SearchUserInput onItemClick={handleUserChose} placeholder='Nhập tên người mua' />}
+                        {canEditUserInfo && !isReadOnly && data?.STATUS?.at(-1).STATUS_NAME === 'DRAFT' && <SearchUserInput onItemClick={handleUserChose} placeholder='Nhập tên người mua' />}
                         <Stack spacing={1} sx={{ overflow: 'hidden' }}>
                           <UserInfoItem
                             label='Họ Tên'
@@ -344,7 +352,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                             label="Địa chỉ"
                             value={selectedUser ? selectedUser?.ADDRESS_1 ?? selectedUser?.ADDRESS_2 ?? 'Chưa cập nhật' : ''}
                           />
-                          {canEditUserInfo && !isReadOnly && <Button variant='outlined' color='error' onClick={() => setSelectedUser(null)}>Xóa khách hàng</Button>}
+                          {canEditUserInfo && !isReadOnly && data?.STATUS?.at(-1).STATUS_NAME === 'DRAFT' && <Button variant='outlined' color='error' onClick={() => setSelectedUser(null)}>Xóa khách hàng</Button>}
                         </Stack>
                       </Stack>
                     </Stack>
@@ -427,7 +435,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           name="purchaseMethod"
                           control={control}
                           rules={{ required: 'Vui lòng chọn hình thức mua hàng', }}
-                          disabled={isReadOnly}
+                          disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
                           render={({ field }) => (
                             <Select
                               {...field}
@@ -466,7 +474,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                         }}
                         render={({ field, fieldState }) => (
                           <LocationSelector
-                            disable={!canEditUserInfo || isReadOnly}
+                            disable={!canEditUserInfo || isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
                             label='Phường, quận/huyện, Thành phố:'
                             value={{
                               city: data?.DELIVERY_INFORMATION?.ADDRESS?.CITY,
@@ -776,7 +784,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           name="paymentMethod"
                           control={control}
                           rules={{ required: 'Vui lòng chọn Hình thức thanh toán', }}
-                          disabled={isReadOnly}
+                          disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
                           render={({ field }) => (
                             <Select
                               {...field}
@@ -811,8 +819,14 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                 <Stack flexDirection='row' justifyContent='space-between' alignItems='center'>
                   <Typography variant="body1" fontWeight={600}>Hàng hóa: </Typography>
                   <Stack flexDirection='row' gap={2} alignItems='center'>
-                    <SearchVoucherInput searchOption='PRODUCT' available notExpired onItemClick={handleAddGlobalVoucher} />
-                    <SearchItemInput properPosition='bottom-end' searchOption='product' onItemClick={handleAddItem} />
+                    {
+                      data?.STATUS.at(-1).STATUS_NAME && (
+                        <>
+                          <SearchVoucherInput searchOption='PRODUCT' available notExpired onItemClick={handleAddGlobalVoucher} />
+                          <SearchItemInput properPosition='bottom-end' searchOption='product' onItemClick={handleAddItem} />
+                        </>
+                      )
+                    }
                   </Stack>
                 </Stack>
               }
@@ -836,7 +850,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                     {items?.map((item) => (
                       <TableRow key={item.ITEM_CODE}>
                         <TableCell>
-                          <Stack flexDirection='row' gap={2} alignItems='center'>
+                          <Stack flexDirection='row' gap={2} alignItems='center' maxWidth={400}>
                             <Box
                               sx={{
                                 width: '70px',
@@ -874,6 +888,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                             type='number'
                             name='bomMaterials'
                             sx={{ maxWidth: '100px' }}
+                            disabled={data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
                             slotProps={{
                               htmlInput: { min: 1 },
                               input: {
@@ -888,7 +903,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                         </TableCell>
                         <TableCell>
                           <Select
-                            disabled={isReadOnly}
+                            disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
                             value={item?.voucher?._id || ''}
                             onChange={(e) => handleChangeVoucher(e, item.ITEM_CODE)}
                             sx={{ width: '250px', fontSize: '0.8rem', }}
@@ -961,7 +976,10 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           </TableCell>
                           <TableCell>
                             <Typography variant='caption'>
-                              <Chip label={`- ${formatCurrency(totalPriceDecreasedByGlobalVoucher)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`} variant="outlined" onDelete={() => setGlobalVoucher(null)} />
+                              <Chip
+                                label={`- ${formatCurrency(totalPriceDecreasedByGlobalVoucher)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
+                                variant="outlined"
+                                onDelete={data?.STATUS?.at(-1).STATUS_NAME === 'DRAFT' ? () => setGlobalVoucher(null) : null} />
                             </Typography>
                           </TableCell>
                         </TableRow>
@@ -1008,22 +1026,22 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                   </TableBody>
                 </Table>
               </TableContainer>
-              {!isReadOnly && (
-                <Stack flexDirection='row' gap={2} justifyContent='center' mt={6}>
-                  <Button
-                    type='submit'
-                    variant="contained"
-                    color="success"
-                    endIcon={<CheckCircleIcon />}
-                  >
-                    Lưu
-                  </Button>
-                </Stack>
-              )}
             </CardContent>
           </Card>
         </Stack>
       </fieldset>
+      {!isReadOnly && (
+        <Stack flexDirection='row' gap={2} justifyContent='center' mt={6}>
+          <Button
+            type='submit'
+            variant="contained"
+            color="success"
+            endIcon={<CheckCircleIcon />}
+          >
+            Lưu
+          </Button>
+        </Stack>
+      )}
     </form>
   )
 }

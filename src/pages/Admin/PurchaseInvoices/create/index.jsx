@@ -33,6 +33,8 @@ import { cloneDeep } from 'lodash'
 import unitInvoiceService from '~/service/admin/unitInvoice.service'
 import { Controller, useForm } from 'react-hook-form'
 import { PURCHASE_INVOICE_PAYMENT_METHODS, PURCHASE_INVOICE_STATUS } from '~/utils/contant'
+import { hasAnyPermission } from '~/utils/rolePermission'
+import useAuth from '~/hooks/useAuth'
 
 
 export default function AddPurchaseInvoiceForm() {
@@ -41,6 +43,7 @@ export default function AddPurchaseInvoiceForm() {
   const navigate = useNavigate()
   const [selectedItems, setSelectedItems] = useState([])
   const device_id = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
   const { data: dataUnitInvoice, isLoading: isLoadingUnitInvoice, isError: isErrorUnitInvoice } = useQuery({
     queryKey: ['unitInvoiceList'],
@@ -216,7 +219,7 @@ export default function AddPurchaseInvoiceForm() {
               --
             </MenuItem>
             {PURCHASE_INVOICE_STATUS.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
+              <MenuItem key={option.value} value={option.value} disabled={!hasAnyPermission(roles, 'purchaseInvoice', option.needPermission)}>
                 {option.label}
               </MenuItem>
             ))}

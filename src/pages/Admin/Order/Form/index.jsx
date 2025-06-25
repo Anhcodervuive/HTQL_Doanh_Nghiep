@@ -71,6 +71,7 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
     ? {
       ...data?.STAFF_CONTACT,
       ROLES: Object.entries(data?.STAFF_CONTACT?.ROLE)
+        // eslint-disable-next-line no-unused-vars
         .filter(([_, value]) => value)
         .map(([key]) => key.replace(/^IS_/, '').toLowerCase())
     }
@@ -88,7 +89,7 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
     }
   const { userId: user_id } = useUserInfo()
   const extraFee = watch('extraFee')
-  const tax = Number.parseInt(watch('tax'))
+  const tax = watch('tax') ? Number.parseInt(watch('tax')) : 0
   const extraFeeUnit = watch('extraFeeUnit')
   const [selectedUser, setSelectedUser] = useState(data?.CUSTOMER_CONTACT ? {
     ...data?.CUSTOMER_CONTACT,
@@ -177,8 +178,7 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
   )
 
   const onSubmit = async (formData) => {
-
-    submit({ status: formData.status })
+    await submit({ status: formData.status })
   }
 
 
@@ -559,7 +559,7 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
                             name='extraFee'
                             fullWidth
                             type='number'
-                            disabled={isReadOnly || isEdited}
+                            disabled={isReadOnly}
                             slotProps={{
                               input: {
                                 startAdornment: (
@@ -579,7 +579,7 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
                           defaultValue={data?.EXTRA_FEE_UNIT || ''}
                           name="extraFeeUnit"
                           control={control}
-                          rules={{ required: 'Vui lòng chọn đơn vị tiền tệ', }}
+                          rules={{ required: { value: !!watch('extraFee'), message: 'Vui lòng chọn đơn vị tiền tệ' } }}
                           disabled={isReadOnly}
                           render={({ field }) => (
                             <Select
@@ -589,7 +589,6 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
                               label="Đơn vị tiền tệ"
                               labelId="extraFeeUnit"
                               name='extraFeeUnit'
-                              disabled={isReadOnly || isEdited}
                               error={!!errors.extraFeeUnit}
                             >
                               <MenuItem value=''>--</MenuItem>
@@ -611,7 +610,8 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
                         name="extraFeeNote"
                         control={control}
                         defaultValue={data?.EXTRA_FEE_NOTE || ''}
-                        rules={{}}
+                        disabled={isReadOnly}
+                        rules={{ required: { value: !!watch('extraFee'), message: 'Vui lòng chọn đơn vị tiền tệ' } }}
                         render={({ field }) => (
                           <Box sx={{ position: 'relative', width: '100%' }}>
                             <InputLabel shrink sx={{ mb: 0.5 }}>
@@ -627,7 +627,6 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
                                 type="text"
                                 multiline
                                 minRows={3}
-                                disabled={isReadOnly || isEdited}
                                 error={!!errors.extraFeeNote}
                                 helperText={errors.extraFeeNote?.message}
                               />

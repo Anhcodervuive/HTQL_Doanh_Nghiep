@@ -345,7 +345,8 @@ function Dashboard() {
     },
   }
 
-  const [fromDate, setFromDate] = useState(dayjs('2025-06-01'))
+  const today = new Date()
+  const [fromDate, setFromDate] = useState(dayjs(today))
   const { data: dataStatisticRevenueByItem, isLoading: isLoadingStatisticRevenueByItem } = useQuery({
     enabled: !!user_id && !!device_id && !!fromDate,
     queryKey: ['statistic-total-revenue-by-item', fromDate],
@@ -517,7 +518,11 @@ function Dashboard() {
                 />
               </LocalizationProvider>
             </Stack>
-            <Pie data={dataStatisticRevenueByItemFormatForChart} options={optionsStatisticRevenueByItem} />
+            {dataStatisticRevenueByItem?.data?.total > 0 ? (
+              <Pie data={dataStatisticRevenueByItemFormatForChart} options={optionsStatisticRevenueByItem} />
+            )
+              : <Typography variant='h5'>Không có dữ liệu</Typography>
+            }
           </Stack>
         </Grid>
         <Grid size={12}>

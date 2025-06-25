@@ -25,6 +25,8 @@ import { useState } from 'react'
 import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 import useUserInfo from '~/hooks/useUserInfo'
 import { Tooltip, IconButton, Avatar } from '@mui/material'
+import useAuth from '~/hooks/useAuth'
+import { hasAnyPermission } from '~/utils/rolePermission'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -55,6 +57,7 @@ export default function UserList() {
   const [selectedRole, setSelectedRole] = useState('all')
   const location = useLocation()
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
   console.log('deviceId1: ',deviceId)
   console.log('userId1: ', user_id)
@@ -120,6 +123,7 @@ export default function UserList() {
             variant='contained'
             color='success'
             startIcon={<AddIcon />}
+            sx={{ display: !hasAnyPermission(roles, 'user', 'create') ? 'none' : '' }}
           >
             Thêm người dùng
           </Button>

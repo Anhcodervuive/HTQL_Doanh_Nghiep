@@ -44,11 +44,21 @@ export const VOUCHER_SCOPES = [
 ]
 
 export const PURCHASE_INVOICE_STATUS = [
-  { label: 'Nháp', value: 'DRAFT' },
-  { label: 'Chờ xác nhận', value: 'PENDING_APPROVAL' },
-  { label: 'Đã hoàn thành', value: 'CONFIRMED' },
-  { label: 'Từ chối', value: 'REJECTED' },
-  { label: 'Đã thanh toán', value: 'PAYMENTED' }
+  { label: 'Nháp', value: 'DRAFT',
+    validate: (currentStatus) => currentStatus !== 'PENDING_APPROVAL' && currentStatus !== 'CONFIRMED' && currentStatus !== 'REJECTED' && currentStatus !== 'PAYMENTED'
+  },
+  { label: 'Chờ xác nhận', value: 'PENDING_APPROVAL',
+    validate: (currentStatus) => currentStatus !== 'CONFIRMED' && currentStatus !== 'REJECTED' && currentStatus !== 'PAYMENTED'
+  },
+  { label: 'Đã hoàn thành', value: 'CONFIRMED', needPermission: 'approve',
+    validate: (currentStatus) => currentStatus !== 'REJECTED' && currentStatus !== 'PAYMENTED'
+  },
+  { label: 'Từ chối', value: 'REJECTED', needPermission: 'cancel',
+    validate: (currentStatus) => currentStatus !== 'PAYMENTED'
+  },
+  { label: 'Đã thanh toán', value: 'PAYMENTED', needPermission: 'approve',
+    validate: (currentStatus) => currentStatus !== 'REJECTED'
+  }
 ]
 
 export const PURCHASE_INVOICE_PAYMENT_METHODS = [
