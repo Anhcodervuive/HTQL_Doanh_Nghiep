@@ -145,37 +145,40 @@ export default function InvoiceDetail() {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>Thông tin chung:</Typography>
-          <Box>
-            <Button
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={handleMenuClick}
-            >
-                  Đổi trạng thái
-            </Button>
-            <Menu
-              anchorEl={anchorEl}
-              open={openMenu}
-              onClose={handleMenuClose}
-            >
-              {PURCHASE_INVOICE_STATUS.map((option) => (
-                <MenuItem
-                  key={option.value}
-                  onClick={() => handleChangeStatus(option.value)}
-                  sx={{
-                    display: !hasAnyPermission(roles, 'purchaseInvoice', option.needPermission) ||
-                      !option.validate(status?.STATUS_NAME) ? 'none' : '' }}
-                  selected={status?.STATUS_NAME === option.value}
-                >
-                  {status?.STATUS_NAME === option.value && (
-                    <CheckIcon fontSize="small" style={{ marginRight: 8 }} />
-                  )}
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+          {status?.STATUS_NAME !== 'PAYMENTED' && status?.STATUS_NAME !== 'REJECTED' && (
+            <Box>
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                onClick={handleMenuClick}
+              >
+                Đổi trạng thái
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleMenuClose}
+              >
+                {PURCHASE_INVOICE_STATUS.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    onClick={() => handleChangeStatus(option.value)}
+                    sx={{
+                      display: !hasAnyPermission(roles, 'purchaseInvoice', option.needPermission) ||
+                        !option.validate(status?.STATUS_NAME)? 'none' : ''
+                    }}
+                    selected={status?.STATUS_NAME === option.value}
+                  >
+                    {status?.STATUS_NAME === option.value && (
+                      <CheckIcon fontSize="small" style={{ marginRight: 8 }} />
+                    )}
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          )}
         </Box>
         <Box sx={{ pl: 2 }}>
           <Typography><strong>Mã hóa đơn:</strong> {invoice?.INVOICE_CODE}</Typography>

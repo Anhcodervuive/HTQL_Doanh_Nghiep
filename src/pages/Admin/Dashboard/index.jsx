@@ -518,7 +518,11 @@ function Dashboard() {
                 />
               </LocalizationProvider>
             </Stack>
-            <Pie data={dataStatisticRevenueByItemFormatForChart} options={optionsStatisticRevenueByItem} />
+            {dataStatisticRevenueByItem?.data?.total > 0 ? (
+              <Pie data={dataStatisticRevenueByItemFormatForChart} options={optionsStatisticRevenueByItem} />
+            )
+              : <Typography variant='h5'>Không có dữ liệu</Typography>
+            }
           </Stack>
         </Grid>
         <Grid size={12}>
