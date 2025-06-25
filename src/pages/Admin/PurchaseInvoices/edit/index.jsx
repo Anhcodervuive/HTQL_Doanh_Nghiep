@@ -74,7 +74,7 @@ export default function EditPurchaseInvoiceForm() {
         QUANTITY: item.QUANTITY,
         UNIT_PRICE: item.UNIT_PRICE,
         UNIT: item.UNIT._id,
-        SUPPLIER_ID: item.SUPPLIER._id
+        SUPPLIER_ID: item?.SUPPLIER?._id
       }))
       setSelectedItems(formatedItems)
     }
@@ -165,6 +165,7 @@ export default function EditPurchaseInvoiceForm() {
       items: selectedItems
     })
   }
+
   if (!device_id || !user_id || isLoading) {
     console.log('device_id hoặc user_id chưa sẵn sàng:', { device_id, user_id })
     return <Typography>Đang tải dữ liệu hóa đơn...</Typography>
@@ -226,7 +227,13 @@ export default function EditPurchaseInvoiceForm() {
                           --
             </MenuItem>
             {PURCHASE_INVOICE_STATUS.map((option) => (
-              <MenuItem key={option.value} value={option.value} disabled={!hasAnyPermission(roles, 'purchaseInvoice', option.needPermission)}>
+              <MenuItem
+                key={option.value}
+                value={option.value}
+                sx={{
+                  display: !hasAnyPermission(roles, 'purchaseInvoice', option.needPermission)
+                    || !option.validate(invoiceData?.data?.STATUS?.at(-1)?.STATUS_NAME) ? 'none' : ''
+                }}>
                 {option.label}
               </MenuItem>
             ))}

@@ -227,6 +227,11 @@ export default [
         path: 'orders/:id/edit',
         element: <OrderEdit />,
         loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['admin', 'manager', 'service staff'])),
+      },
+      {
+        path: 'orders/:id/detail',
+        element: <OrderEdit />,
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['admin', 'manager', 'service staff'])),
       }
     ]
   },

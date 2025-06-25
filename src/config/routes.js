@@ -57,6 +57,7 @@ export default {
     orders: {
       list: '/admin/orders',
       edit: (id = '') => `/admin/orders/${id || ':id'}/edit`,
+      detail: (id = '') => `/admin/orders/${id || ':id'}/detail`,
     }
   },
   auth: {

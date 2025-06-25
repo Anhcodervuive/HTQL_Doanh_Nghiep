@@ -163,10 +163,9 @@ export default function InvoiceDetail() {
                 <MenuItem
                   key={option.value}
                   onClick={() => handleChangeStatus(option.value)}
-                  disabled={
-                    !hasAnyPermission(roles, 'purchaseInvoice', option.needPermission) ||
-                    !option.validate(status?.STATUS_NAME)
-                  }
+                  sx={{
+                    display: !hasAnyPermission(roles, 'purchaseInvoice', option.needPermission) ||
+                      !option.validate(status?.STATUS_NAME) ? 'none' : '' }}
                   selected={status?.STATUS_NAME === option.value}
                 >
                   {status?.STATUS_NAME === option.value && (

@@ -278,8 +278,8 @@ export default function OrderList() {
                       </StyledTableCell>
                       <StyledTableCell align="center">
                         <ActionMenu
-                          onEdit={invoice.STATUS === 'DRAFT' && hasAnyPermission(roles, 'supplier', 'update') ? () => navigate(Routes.admin.orders.edit(invoice.INVOICE_CODE)): null}
-                          onDetail={hasAnyPermission(roles, 'supplier', 'read') ? () => navigate(Routes.admin.orders.detail(invoice.INVOICE_CODE)) : null}
+                          onEdit={invoice.STATUS !== 'PAYMENTED' && invoice.STATUS !== 'CANCELLED' && hasAnyPermission(roles, 'order', 'update') ? () => navigate(Routes.admin.orders.edit(invoice.INVOICE_CODE)): null}
+                          onDetail={hasAnyPermission(roles, 'order', 'read') ? () => navigate(Routes.admin.orders.detail(invoice.INVOICE_CODE)) : null}
                         />
                       </StyledTableCell>
                     </StyledTableRow>)
