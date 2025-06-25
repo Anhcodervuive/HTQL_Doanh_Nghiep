@@ -28,6 +28,8 @@ import useUserInfo from '~/hooks/useUserInfo'
 import { Tooltip, IconButton } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { hasAnyPermission } from '~/utils/rolePermission'
+import useAuth from '~/hooks/useAuth'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -58,6 +60,7 @@ export default function SupplierList() {
   const [page, setPage] = useState(1)
   const location = useLocation()
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['supplierList', page, showedRecord, searchValueDebounce],
@@ -134,6 +137,7 @@ export default function SupplierList() {
             variant='contained'
             color='success'
             startIcon={<AddIcon />}
+            sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
           >
             Thêm mới
           </Button>
@@ -180,6 +184,7 @@ export default function SupplierList() {
 
                       <Tooltip title="Chỉnh sửa">
                         <IconButton
+                          disabled={!hasAnyPermission(roles, 'supplier', 'update')}
                           size="small"
                           sx={{
                             backgroundColor: '#fbc02d',
@@ -198,6 +203,7 @@ export default function SupplierList() {
 
                       <Tooltip title="Xóa">
                         <IconButton
+                          disabled={!hasAnyPermission(roles, 'supplier', 'delete')}
                           size="small"
                           color="error"
                           sx={{

@@ -239,6 +239,7 @@ export default function SaleInvoiceList() {
           variant='contained'
           color='success'
           startIcon={<AddIcon />}
+          sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
         >
             New
         </Button>

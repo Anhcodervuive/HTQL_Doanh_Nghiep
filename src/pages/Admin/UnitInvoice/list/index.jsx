@@ -25,6 +25,8 @@ import useUserInfo from '~/hooks/useUserInfo'
 import { Tooltip, IconButton } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
+import useAuth from '~/hooks/useAuth'
+import { hasAnyPermission } from '~/utils/rolePermission'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -49,6 +51,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function UnitInvoiceList() {
   const location = useLocation()
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['unitInvoiceList'],
@@ -108,6 +111,7 @@ export default function UnitInvoiceList() {
             variant='contained'
             color='success'
             startIcon={<AddIcon />}
+            sx={{ display: !hasAnyPermission(roles, 'unitInvoice', 'create') ? 'none' : '' }}
           >
             Thêm mới
           </Button>
@@ -150,6 +154,7 @@ export default function UnitInvoiceList() {
 
                       <Tooltip title="Chỉnh sửa">
                         <IconButton
+                          disabled={!hasAnyPermission(roles, 'unitInvoice', 'update')}
                           size="small"
                           sx={{
                             backgroundColor: '#fbc02d',
@@ -168,6 +173,7 @@ export default function UnitInvoiceList() {
 
                       <Tooltip title="Xóa">
                         <IconButton
+                          disabled={!hasAnyPermission(roles, 'unitInvoice', 'delete')}
                           size="small"
                           color="error"
                           sx={{

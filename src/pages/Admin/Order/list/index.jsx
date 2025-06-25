@@ -34,6 +34,8 @@ import { formatCurrency, formatToVietnamTime } from '~/utils/formatter'
 import { getColorByValue, getLabelByValue } from '~/utils/mapper'
 import { SALE_INVOICES_PURCHASE_METHODS, SALE_INVOICE_STATUS } from '~/utils/contant'
 import ActionMenu from '~/components/Admin/ActionMenu'
+import useAuth from '~/hooks/useAuth'
+import { hasAnyPermission } from '~/utils/rolePermission'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -77,6 +79,7 @@ export default function OrderList() {
   const [page, setPage] = useState(1)
   const location = useLocation()
   const deviceId = useDeviceId()
+  const { roles } = useAuth()
   const { userId: user_id } = useUserInfo()
   const { data, isLoading, error, } = useQuery({
     queryKey: ['orderList', page, showedRecord, searchValueDebounce, status, fromDate, thruDate, priceRangeDebounce],
@@ -275,8 +278,8 @@ export default function OrderList() {
                       </StyledTableCell>
                       <StyledTableCell align="center">
                         <ActionMenu
-                          onEdit={invoice.STATUS === 'DRAFT' ? () => navigate(Routes.admin.orders.edit(invoice.INVOICE_CODE)): null}
-                          onDetail={() => navigate(Routes.admin.orders.detail(invoice.INVOICE_CODE))}
+                          onEdit={invoice.STATUS === 'DRAFT' && hasAnyPermission(roles, 'supplier', 'update') ? () => navigate(Routes.admin.orders.edit(invoice.INVOICE_CODE)): null}
+                          onDetail={hasAnyPermission(roles, 'supplier', 'read') ? () => navigate(Routes.admin.orders.detail(invoice.INVOICE_CODE)) : null}
                         />
                       </StyledTableCell>
                     </StyledTableRow>)

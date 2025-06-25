@@ -1,4 +1,4 @@
-/* eslint-disable no-constant-binary-expression */
+
 
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
@@ -271,7 +271,7 @@ export default function ItemList() {
           color='success'
           startIcon={<AddIcon />}
           size='small'
-          sx={{ fontSize: '0.75rem', px: 2, py: 1 }}
+          sx={{ fontSize: '0.75rem', px: 2, py: 1, display: !hasAnyPermission(roles, 'item', 'create') ? 'none' : '' }}
         >
             Thêm mới
         </Button>

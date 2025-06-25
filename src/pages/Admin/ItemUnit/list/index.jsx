@@ -111,6 +111,7 @@ export default function ItemUnitList() {
             variant='contained'
             color='success'
             startIcon={<AddIcon />}
+            sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
           >
             New
           </Button>

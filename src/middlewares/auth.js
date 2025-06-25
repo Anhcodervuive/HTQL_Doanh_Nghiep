@@ -23,9 +23,14 @@ export const isAuthenticate = async () => {
     const device_id = localStorage.getItem('device_id')
     const user_id = getUserId()
     console.log('user id', user_id, 'device id', device_id)
-    const verifiedUser = await authService.verify({ device_id, user_id })
-    if (verifiedUser == null)
+    try {
+      const verifiedUser = await authService.verify({ device_id, user_id })
+      if (verifiedUser == null)
+        throw redirect(Routes.auth.login)
+    } catch (error) {
+      console.log(error)
       throw redirect(Routes.auth.login)
+    }
   }
 
   return null

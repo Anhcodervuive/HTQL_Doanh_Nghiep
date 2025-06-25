@@ -112,6 +112,7 @@ export default function ItemTypeList() {
             variant='contained'
             color='success'
             startIcon={<AddIcon />}
+            sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
           >
             New
           </Button>
