@@ -20,6 +20,7 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import dayjs from 'dayjs'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -206,7 +207,7 @@ function ExpenseStatistics () {
     ],
   }), [statisticTotalRevenueDataOfYearData])
 
-  const { data: dataExpenseLast7Day, isLoading: isLoadingExpenseLast7day } = useQuery({
+  const { data: dataExpenseLast7Day, isLoading: isLoadingExpenseLast7day, isError: isErrorExpenseLast7day } = useQuery({
     enabled: !!device_id && !!user_id,
     refetchOnWindowFocus: false,
     queryKey: ['expense-last-7-Day'],
@@ -327,13 +328,22 @@ function ExpenseStatistics () {
     || isLoadingExpenseLast7day
     || isLoadingPreviewPurchaseInvoice
   const isError = results.some(query => query.isError)
+    || statisticTotalRevenueDataOfYear.some(res => res.isError)
+    || isErrorExpenseLast7day
     || isErrorPreviewPurchaseInvoice
-  if (isLoading || isError || !device_id || !user_id) {
+
+  if (isLoading || !device_id || !user_id) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', minHeight: '700px', p: 3 }}>
         <CircularProgress/>
         <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
       </Box>
+    )
+  }
+
+  if (isError) {
+    return (
+      <SearchResultNotFound message='Lỗi xảy ra khi lấy dữ liệu thống kê'/>
     )
   }
 
