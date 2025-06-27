@@ -156,9 +156,10 @@ function ItemUpdateForm({ data, viewOnly }) {
       }
 
       // Update list img
+      let imageDesListToUpdate = itemDescImgFiles?.oldImages.map(img => ({ URL: img.url }))
       if (itemDescImgFiles.oldImages?.length !== data?.LIST_IMAGE?.length) {
         const oldUrlImagesUpdated = new Set(itemDescImgFiles?.oldImages.map(img => img.url))
-        const imgNeedToRemove = data?.LIST_IMAGE?.filter(img => !oldUrlImagesUpdated.has(img.url))
+        const imgNeedToRemove = data?.LIST_IMAGE?.filter(img => !oldUrlImagesUpdated.has(img.URL))
         console.log(oldUrlImagesUpdated, imgNeedToRemove)
         for (let i = 0; i < imgNeedToRemove.length; i++) {
           await imageService.delete(imgNeedToRemove[i].URL)
@@ -167,13 +168,16 @@ function ItemUpdateForm({ data, viewOnly }) {
 
       if (itemDescImgFiles?.uploadyFiles.length > 0) {
         const descImagesListRes = await imageService.upLoadListImage(itemDescImgFiles?.uploadyFiles, 'PRODUCT', data?._id,)
+        imageDesListToUpdate = [
+          ...imageDesListToUpdate,
+          ...descImagesListRes.data.urls.map(url => ({ URL: url })),
+        ]
+      }
+      if (itemDescImgFiles.oldImages?.length !== data?.LIST_IMAGE?.length || itemDescImgFiles?.uploadyFiles.length > 0) {
         await itemService.updateListDescImages(
           credential,
           data?._id,
-          [
-            ...descImagesListRes.data.urls.map(url => ({ URL: url })),
-            ...itemDescImgFiles.oldImages.map(img => ({ URL: img.url }))
-          ]
+          imageDesListToUpdate
         )
       }
       toast.success('Cập nhật ảnh thành công')
