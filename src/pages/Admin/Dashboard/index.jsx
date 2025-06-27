@@ -345,8 +345,8 @@ function Dashboard() {
     },
   }
 
-  const today = new Date()
-  const [fromDate, setFromDate] = useState(dayjs(today))
+  const lastWeek = new Date(new Date().setDate(new Date().getDate() - 7))
+  const [fromDate, setFromDate] = useState(dayjs(lastWeek))
   const { data: dataStatisticRevenueByItem, isLoading: isLoadingStatisticRevenueByItem } = useQuery({
     enabled: !!user_id && !!device_id && !!fromDate,
     queryKey: ['statistic-total-revenue-by-item', fromDate],
@@ -356,7 +356,7 @@ function Dashboard() {
 
   const listItemStatisticRevenueByItem = dataStatisticRevenueByItem?.data?.listItem || []
 
-  const labelsOfStatisticRevenueByItem = listItemStatisticRevenueByItem.map(item => item._id)
+  const labelsOfStatisticRevenueByItem = listItemStatisticRevenueByItem.map(item => item.ITEM_NAME)
   const dataValuesOfStatisticRevenueByItem = listItemStatisticRevenueByItem.map(item => item.total_amount)
 
   const dataStatisticRevenueByItemFormatForChart = {
@@ -371,21 +371,53 @@ function Dashboard() {
     ],
   }
 
+  const MAX_LABEL_LENGTH = 20 // hoặc bao nhiêu ký tự bạn thấy hợp lý
+
   const optionsStatisticRevenueByItem = {
     responsive: true,
-    maintainAspectRatio: false, // <== dòng này là bắt buộc
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'right',
         labels: {
           padding: 20,
+          generateLabels: (chart) => {
+            const data = chart.data
+            if (data.labels && data.datasets.length) {
+              return data.labels.map((label, i) => {
+                const dataset = data.datasets[0]
+                // eslint-disable-next-line no-unused-vars
+                const value = dataset.data[i]
+
+                const truncatedLabel = label.length > MAX_LABEL_LENGTH
+                  ? label.slice(0, MAX_LABEL_LENGTH) + '...'
+                  : label
+
+                return {
+                  text: truncatedLabel,
+                  fillStyle: dataset.backgroundColor[i],
+                  strokeStyle: dataset.borderColor?.[i] || dataset.backgroundColor[i],
+                  lineWidth: 1,
+                  hidden: chart.getDataVisibility(i) === false,
+                  index: i,
+                }
+              })
+            }
+            return []
+          },
         },
       },
       tooltip: {
         callbacks: {
           label: (ctx) => {
+            const index = ctx.dataIndex
+            const item = listItemStatisticRevenueByItem[index] || {}
+            const name = item.ITEM_NAME || ctx.label
+            const code = item.ITEM_CODE || '??'
             const value = ctx.raw || 0
-            return `${ctx.label}: ${value.toLocaleString('vi-VN')} VNĐ`
+
+            // Tách thành nhiều dòng
+            return [`Mã: ${code}`, `Tên: ${name}`, `Doanh thu: ${value.toLocaleString('vi-VN')} VNĐ`]
           },
         },
       },
@@ -422,6 +454,16 @@ function Dashboard() {
 
   return (
     <div>
+      <style>
+        {`
+  .chartjs-tooltip {
+    max-width: 400px !important;
+    white-space: normal !important;
+    word-wrap: break-word;
+    text-align: left;
+  }
+`}
+      </style>
       <Typography sx={{ mb: 4 }} variant='h4'>Dashboard</Typography>
       <Grid container spacing={10}>
         <Grid size={4}>
@@ -501,7 +543,7 @@ function Dashboard() {
         </Grid>
         <Grid size={6}>
           <Stack gap={2} alignItems='center'>
-            <Typography variant='h5'>Thống kê theo tuần</Typography>
+            <Typography variant='h5'>Thống kê doanh thu theo tuần</Typography>
             <Bar data={dataStatisticRevenueOfEachPurchaseMethodPerWeekChart} options={optionsOfWeekChart} />
           </Stack>
         </Grid>
