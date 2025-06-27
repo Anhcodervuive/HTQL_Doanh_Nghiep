@@ -37,6 +37,8 @@ import SaleInvoiceEdit from '~/pages/Admin/SaleInvoice/edit'
 import EditPurchaseInvoiceForm from '~/pages/Admin/PurchaseInvoices/edit'
 import OrderList from '~/pages/Admin/Order/list'
 import OrderEdit from '~/pages/Admin/Order/edit'
+import RevenueStatistic from '~/pages/Admin/Dashboard/RevenueStatistics'
+import ExpenseStatistics from '~/pages/Admin/Dashboard/ExpenseStatistics'
 
 export default [
   {
@@ -51,6 +53,16 @@ export default [
       {
         path: 'dashboard',
         element: <Dashboard />,
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
+      },
+      {
+        path: 'statistic-revenue',
+        element: <RevenueStatistic />,
+        loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
+      },
+      {
+        path: 'statistic-expense',
+        element: <ExpenseStatistics />,
         loader: composeLoaders(isAuthenticate, () => isHaveOneOfRoles(['manager', 'admin', 'service staff'])),
       },
       {

@@ -2,6 +2,8 @@
 export default {
   admin : {
     dashboard: '/admin/dashboard',
+    staticticRevenue: '/admin/statistic-revenue',
+    staticticExpense: '/admin/statistic-expense',
     user: {
       list: '/admin/user',
       create: '/admin/user/create',

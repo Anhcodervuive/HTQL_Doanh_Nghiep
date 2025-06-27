@@ -15,12 +15,12 @@ import CategoryIcon from '@mui/icons-material/Category'
 import BalanceIcon from '@mui/icons-material/Balance'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import InventoryIcon from '@mui/icons-material/Inventory'
-import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'
 import PieChartIcon from '@mui/icons-material/PieChart'
 import { LiaFileInvoiceDollarSolid } from 'react-icons/lia'
 import { LiaFileInvoiceSolid } from 'react-icons/lia'
+import MoneyOffIcon from '@mui/icons-material/MoneyOff'
 
 
 import UserMenu from './UserMenu'
@@ -36,8 +36,18 @@ const NAVIGATION = [
   },
   {
     segment: Routes.admin.dashboard.slice(1),
-    title: 'Dashboard',
+    title: 'Thống kê',
     icon: <DashboardIcon />,
+  },
+  {
+    segment: Routes.admin.staticticRevenue.slice(1),
+    title: 'Thống kê doanh thu',
+    icon: <AttachMoneyIcon />,
+  },
+  {
+    segment: Routes.admin.staticticExpense.slice(1),
+    title: 'Thống kê chi tiêu',
+    icon: <MoneyOffIcon />,
   },
   {
     segment: Routes.admin.orders.list.slice(1),
@@ -200,7 +210,6 @@ export default function DashboardLayoutBasic(props) {
   const router = useAdminRouter()
   const { haveOneOfRoles } = useAuth()
   const { window } = props
-  const user = useSelector(state => state.user.currentUser)
 
   // if (!user) {
   //   return <Navigate to="/login" replace />

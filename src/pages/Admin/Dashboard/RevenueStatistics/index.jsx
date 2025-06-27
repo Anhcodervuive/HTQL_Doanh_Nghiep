@@ -4,7 +4,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import AllInboxIcon from '@mui/icons-material/AllInbox' // hoặc Inventory2Outlined nếu muốn icon giống hộp hơn
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
-import { green, blue, red, yellow } from '@mui/material/colors'
+import { green, blue, red } from '@mui/material/colors'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -28,16 +28,46 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import saleInvoiceSerivce from '~/service/admin/saleInvoice.serivce'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
-import { formatCurrency, formatToVietnamTime } from '~/utils/formatter'
+import { formatCurrency } from '~/utils/formatter'
 import dayjs from 'dayjs'
 import { SALE_INVOICE_STATUS, SALE_INVOICES_PURCHASE_METHODS } from '~/utils/contant'
-import { getColorByValue, getLabelByValue } from '~/utils/mapper'
-import invoicesService from '~/service/admin/invoices.service'
 
 // Đăng ký các thành phần cần dùng trong ChartJS
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend)
 
 // Tuỳ chọn hiển thị
+const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'top',
+      labels: {
+        font: {
+          size: 14,
+        },
+      },
+    },
+  },
+  scales: {
+    y: {
+      ticks: {
+        callback: function (value) {
+          return value.toLocaleString('vi-VN') // định dạng số theo VN
+        },
+        font: {
+          size: 12,
+        },
+      },
+    },
+    x: {
+      ticks: {
+        font: {
+          size: 12,
+        },
+      },
+    },
+  },
+}
 
 
 const PURCHASE_METHODS = ['ONLINE', 'IN_STORE', 'DELIVERY', 'PRE_ORDER']
@@ -115,7 +145,7 @@ const transformRevenueData = (listday = []) => {
 }
 
 
-function Dashboard() {
+function RevenueStatistic() {
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
   const lastDayOfthisMonth = useMemo(() => {
@@ -203,31 +233,7 @@ function Dashboard() {
         queryKey: ['quantityOrderPreviousMonth'],
         queryFn: () => saleInvoiceSerivce.search({ user_id, device_id }, { fromDate: getFirstDayOfThisPrevFormatted, toDate: lastDayOfPreviosMonth, status: 'PAYMENTED' }),
         refetchOnWindowFocus: false,
-      },
-      {
-        enabled: !!user_id && !!device_id,
-        queryKey: ['totalExpenseLastMonth'],
-        queryFn: () => invoicesService.statisticRevenueLastFourWeeks({ user_id, device_id }, { date: lastDayOfPreviosMonth }),
-        refetchOnWindowFocus: false,
-      },
-      {
-        enabled: !!user_id && !!device_id,
-        queryKey: ['totalExpenseThisMonth'],
-        queryFn: () => invoicesService.statisticRevenueLastFourWeeks({ user_id, device_id }, { date: lastDayOfthisMonth }),
-        refetchOnWindowFocus: false,
-      },
-      // {
-      //   enabled: !!user_id && !!device_id,
-      //   queryKey: ['quantityPurchaseInvoviceThisMonth'],
-      //   queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisMonthFormatted, toDate: lastDayOfthisMonth, status: 'PAYMENTED' }),
-      //   refetchOnWindowFocus: false,
-      // },
-      // {
-      //   enabled: !!user_id && !!device_id,
-      //   queryKey: ['quantityPurchaseInvovicePreviousMonth'],
-      //   queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisPrevFormatted, toDate: lastDayOfPreviosMonth, status: 'PAYMENTED' }),
-      //   refetchOnWindowFocus: false,
-      // },
+      }
     ],
   })
 
@@ -235,20 +241,12 @@ function Dashboard() {
   const dataTotalRevenueThisMonth = results[1]?.data?.data.total ?? 0
   const dataQuantityOrderThisMonth = results[2]?.data?.data?.total
   const dataQuantityOrderPreviousMonth = results[3]?.data?.data?.total
-  const totalExpensePreviosMonth = results[4]?.data?.data?.total
-  const totalExpenseThisMonth = results[5]?.data?.data?.total
 
   const getPercentIncreaseRevenue = useMemo(() => {
     if (!dataTotalRevenuePreviousMonth || dataTotalRevenuePreviousMonth === 0) return null // tránh chia cho 0 hoặc undefined
     const growth = ((dataTotalRevenueThisMonth - dataTotalRevenuePreviousMonth) / dataTotalRevenuePreviousMonth) * 100
     return Math.round(growth * 100) / 100 // làm tròn 2 chữ số thập phân
   }, [dataTotalRevenuePreviousMonth, dataTotalRevenueThisMonth])
-
-  const getPercentIncreaseExPense = useMemo(() => {
-    if (!totalExpenseThisMonth || totalExpensePreviosMonth === 0) return null // tránh chia cho 0 hoặc undefined
-    const growth = ((totalExpenseThisMonth - totalExpensePreviosMonth) / totalExpensePreviosMonth) * 100
-    return Math.round(growth * 100) / 100 // làm tròn 2 chữ số thập phân
-  }, [totalExpensePreviosMonth, totalExpenseThisMonth])
 
   const getPercentIncreaseOrder= useMemo(() => {
     if (
@@ -288,6 +286,22 @@ function Dashboard() {
       enabled: !!user_id && !!device_id,
     })),
   })
+
+  const statisticTotalRevenueDataOfYearData = statisticTotalRevenueDataOfYear.map(data => data?.data?.data?.total)
+
+  // Dữ liệu mẫu từ ảnh: doanh thu từ tháng 1 đến tháng 4
+  const dataStatisticTotalRevenueYearGraphic = useMemo(() => ({
+    labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], // 12 tháng
+    datasets: [
+      {
+        label: 'Doanh thu các tháng (triệu VND)',
+        data: statisticTotalRevenueDataOfYearData, // chỉ 4 tháng đầu có dữ liệu
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderRadius: 5,
+        barPercentage: 0.5,
+      },
+    ],
+  }), [statisticTotalRevenueDataOfYearData])
 
   const {
     data: dataStatisticRevenueOfEachPurchaseMethodPerWeek,
@@ -409,23 +423,168 @@ function Dashboard() {
     },
   }
 
-  const { data: dataReviewSaleInvocie, isLoading: isLoadingReviewSaleInvocie } = useQuery({
-    queryKey: ['saleInvoiceList',],
-    enabled: !!device_id && !!user_id,
-    queryFn: () => saleInvoiceSerivce.search({
+  const { data: statisticRevenueThisMonth, isLoading: isLoadingStatisticRevenueThisMonth } = useQuery({
+    enabled: !!user_id && !! device_id,
+    refetchOnWindowFocus: false,
+    queryKey: ['statistic-Revenue-This-Month'],
+    queryFn: () => saleInvoiceSerivce.statisticRevenueLastFourWeeks({
       user_id,
       device_id
-    }, {
-      limits: 5,
-    }),
-    retry: false,
-    refetchOnWindowFocus: false,
+    }, { data: getFirstDayOfThisMonthFormatted })
   })
+  const revenueByWeekRawData = statisticRevenueThisMonth?.data?.listweek || []
+
+  const revenueByWeekLabels = revenueByWeekRawData.map((weekItem) => weekItem.week)
+
+  const revenueByWeekMethodsSet = new Set()
+  revenueByWeekRawData.forEach((weekItem) => {
+    weekItem.purchase_methods.forEach((pm) => revenueByWeekMethodsSet.add(pm.purchase_method_name))
+  })
+  const revenueByWeekMethods = Array.from(revenueByWeekMethodsSet)
+
+  const revenueByWeekColors = ['#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#FF7043']
+
+  const revenueByWeekDatasets = revenueByWeekMethods.map((method, methodIndex) => {
+    const dataForMethod = revenueByWeekRawData.map((weekItem) => {
+      const match = weekItem.purchase_methods.find(pm => pm.purchase_method_name === method)
+      return match ? match.total_amount : 0
+    })
+
+    return {
+      label: method,
+      data: dataForMethod,
+      backgroundColor: revenueByWeekColors[methodIndex % revenueByWeekColors.length],
+    }
+  })
+
+  const revenueByMonthBarChartData = {
+    labels: revenueByWeekLabels,
+    datasets: revenueByWeekDatasets,
+  }
+
+  const revenueByMonthBarChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 12,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const value = ctx.raw || 0
+            return `${ctx.dataset.label}: ${value.toLocaleString('vi-VN')} VNĐ`
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `${value.toLocaleString('vi-VN')} VNĐ`,
+        },
+        title: {
+          display: true,
+          text: 'Doanh thu (VNĐ)',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Tuần',
+        },
+      },
+    },
+  }
+
+  const { data: dataStatisticRevenueLastFourMonths, isLoading: isLoadingStatisticRevenueLastFourMonths } = useQuery({
+    enabled: !!user_id && !! device_id,
+    refetchOnWindowFocus: false,
+    queryKey: ['statistic-revenue-last-four-months'],
+    queryFn: () => saleInvoiceSerivce.statisticRevenueLastFourMonths({ user_id, device_id })
+  })
+
+  const revenueLastFourMonthsRawData = dataStatisticRevenueLastFourMonths?.data?.listmonth || []
+
+  const revenueLastFourMonthsLabels = revenueLastFourMonthsRawData.map((item) => item.month)
+
+  const revenueLastFourMonthsMethodSet = new Set()
+  revenueLastFourMonthsRawData.forEach((item) => {
+    item.purchase_methods.forEach((pm) => revenueLastFourMonthsMethodSet.add(pm.purchase_method_name))
+  })
+  const revenueLastFourMonthsMethods = Array.from(revenueLastFourMonthsMethodSet)
+
+  const revenueLastFourMonthsColors = ['#42A5F5', '#66BB6A', '#FFA726', '#AB47BC', '#FF7043']
+
+  const revenueLastFourMonthsDatasets = revenueLastFourMonthsMethods.map((method, index) => {
+    const data = revenueLastFourMonthsRawData.map((monthItem) => {
+      const methodData = monthItem.purchase_methods.find(pm => pm.purchase_method_name === method)
+      return methodData ? methodData.total_amount : 0
+    })
+
+    return {
+      label: method,
+      data,
+      backgroundColor: revenueLastFourMonthsColors[index % revenueLastFourMonthsColors.length],
+    }
+  })
+
+  const revenueLastFourMonthsChartData = {
+    labels: revenueLastFourMonthsLabels,
+    datasets: revenueLastFourMonthsDatasets,
+  }
+
+  const revenueLastFourMonthsChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 12,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const value = ctx.raw || 0
+            return `${ctx.dataset.label}: ${value.toLocaleString('vi-VN')} VNĐ`
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `${value.toLocaleString('vi-VN')} VNĐ`,
+        },
+        title: {
+          display: true,
+          text: 'Doanh thu (VNĐ)',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Tháng',
+        },
+      },
+    },
+  }
+
 
   const isLoading = results.some(query => query.isLoading) || statisticTotalRevenueDataOfYear.some(res => res.isLoading)
     || isLoadingStatisticRevenueOfEachPurchaseMethodPerWeek
     || isLoadingStatisticRevenueByItem
-    || isLoadingReviewSaleInvocie
+    || isLoadingStatisticRevenueThisMonth
+    || isLoadingStatisticRevenueLastFourMonths
   const isError = results.some(query => query.isError)
 
   if (isLoading || isError || !device_id || !user_id) {
@@ -449,9 +608,9 @@ function Dashboard() {
   }
 `}
       </style>
-      <Typography sx={{ mb: 4 }} variant='h4'>Thống kê</Typography>
+      <Typography sx={{ mb: 4 }} variant='h4'>Thống kê doanh thu</Typography>
       <Grid container spacing={10}>
-        <Grid size={6}>
+        <Grid size={4}>
           <Stack sx={{ height: '100%' }} gap={2} justifyContent='center' alignItems='center'>
             <Card sx={{ display: 'flex', alignItems: 'center', p: 2, borderLeft: '4px solid #4caf50' }}>
               <CardContent sx={{ flex: 1 }}>
@@ -484,78 +643,6 @@ function Dashboard() {
               </CardContent>
 
               <Avatar sx={{ bgcolor: green[500], width: 48, height: 48 }}>
-                <AccountBalanceWalletIcon />
-              </Avatar>
-            </Card>
-            <Card sx={{ display: 'flex', alignItems: 'center', p: 2, borderLeft: '4px solid #2196f3' }}>
-              <CardContent sx={{ flex: 1 }}>
-                <Typography variant="h5" fontWeight="bold">
-                  {dataQuantityOrderThisMonth}
-                </Typography>
-                <Typography color="text.secondary" fontSize="14px">
-                  Đơn hàng tháng này
-                </Typography>
-                {!!getPercentIncreaseOrder && (
-                  <Box display="flex" alignItems="center" mt={1}>
-                    {getPercentIncreaseOrder > 0
-                      ? <>
-                        <ArrowUpwardIcon fontSize="small" sx={{ color: green[500], mr: 0.5 }} />
-                        <Typography fontSize="14px" sx={{ color: green[500], mr: 0.5 }}>
-                          {getPercentIncreaseOrder}%
-                        </Typography>
-                      </>
-                      : <>
-                        <ArrowDownwardIcon fontSize="small" sx={{ color: red[500], mr: 0.5 }} />
-                        <Typography fontSize="14px" sx={{ color: red[500], mr: 0.5 }}>
-                          {Math.abs(getPercentIncreaseOrder)}%
-                        </Typography>
-                      </>}
-                    <Typography fontSize="14px" color="text.secondary">
-                      so với tháng trước
-                    </Typography>
-                  </Box>
-                )}
-              </CardContent>
-
-              <Avatar sx={{ bgcolor: blue[500], width: 48, height: 48 }}>
-                <AllInboxIcon />
-              </Avatar>
-            </Card>
-          </Stack>
-        </Grid>
-        <Grid size={6}>
-          <Stack sx={{ height: '100%' }} gap={2} justifyContent='center' alignItems='center'>
-            <Card sx={{ display: 'flex', alignItems: 'center', p: 2, borderLeft: '4px solid yellow' }}>
-              <CardContent sx={{ flex: 1 }}>
-                <Typography variant="h5" fontWeight="bold">
-                  {formatCurrency(totalExpenseThisMonth)} đ
-                </Typography>
-                <Typography color="text.secondary" fontSize="14px">
-                  Chi tiêu tháng này
-                </Typography>
-                {!!getPercentIncreaseExPense && (
-                  <Box display="flex" alignItems="center" mt={1}>
-                    {getPercentIncreaseExPense > 0
-                      ? <>
-                        <ArrowUpwardIcon fontSize="small" sx={{ color: yellow[500], mr: 0.5 }} />
-                        <Typography fontSize="14px" sx={{ color: yellow[500], mr: 0.5 }}>
-                          {getPercentIncreaseExPense}%
-                        </Typography>
-                      </>
-                      : <>
-                        <ArrowDownwardIcon fontSize="small" sx={{ color: red[500], mr: 0.5 }} />
-                        <Typography fontSize="14px" sx={{ color: red[500], mr: 0.5 }}>
-                          {Math.abs(getPercentIncreaseExPense)}%
-                        </Typography>
-                      </>}
-                    <Typography fontSize="14px" color="text.secondary">
-                      so với tháng trước
-                    </Typography>
-                  </Box>
-                )}
-              </CardContent>
-
-              <Avatar sx={{ bgcolor: yellow[500], width: 48, height: 48 }}>
                 <AccountBalanceWalletIcon />
               </Avatar>
             </Card>
@@ -595,6 +682,9 @@ function Dashboard() {
             </Card>
           </Stack>
         </Grid>
+        <Grid size={8}>
+          <Bar data={dataStatisticTotalRevenueYearGraphic} options={options} />
+        </Grid>
         <Grid size={6}>
           <Stack gap={2} alignItems='center'>
             <Typography variant='h5'>Thống kê doanh thu theo tuần</Typography>
@@ -621,83 +711,21 @@ function Dashboard() {
             }
           </Stack>
         </Grid>
-        <Grid size={12}>
-          <Typography variant='h5' mb={2}>Hóa đơn gần đây</Typography>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 700 }} aria-label="table">
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell>Mã</StyledTableCell>
-                  <StyledTableCell>Ngày bán</StyledTableCell>
-                  <StyledTableCell>Người bán</StyledTableCell>
-                  <StyledTableCell>Người mua</StyledTableCell>
-                  <StyledTableCell>Phương thức thanh toán</StyledTableCell>
-                  <StyledTableCell>Tổng giá tiền</StyledTableCell>
-                  <StyledTableCell>Hình thức mua hàng</StyledTableCell>
-                  <StyledTableCell>Trạng thái</StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {isLoadingReviewSaleInvocie
-                  ? <TableRow>
-                    <TableCell colSpan={5}>
-                      <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', mt: 5 }}>
-                        <CircularProgress size={20} />
-                        <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
-                      </Box>
-                    </ TableCell>
-                  </ TableRow>
-                  : (dataReviewSaleInvocie?.data?.results?.length === 0
-                    ? <TableRow>
-                      <TableCell colSpan={5}>
-                        <SearchResultNotFound message='Không tìm thấy hóa đơn' />
-                      </TableCell>
-                    </TableRow>
-                    : (dataReviewSaleInvocie?.data?.total === 0
-                      ? <TableRow>
-                        <TableCell colSpan={5}>
-                          <SearchResultNotFound message='Không tìm thấy hóa đơn' />
-                        </TableCell>
-                      </TableRow>
-                      : dataReviewSaleInvocie?.data?.results?.map((invoice) => (
-                        <StyledTableRow key={invoice.INVOICE_CODE}>
-                          <StyledTableCell>{invoice.INVOICE_CODE}</StyledTableCell>
-                          <StyledTableCell>{formatToVietnamTime(invoice.SELL_DATE)}</StyledTableCell>
-                          <StyledTableCell>{invoice.SOLD_BY}</StyledTableCell>
-                          <StyledTableCell>{invoice.CUSTOMER?.FULL_NAME ?? invoice.CUSTOMER?.USERNAME ?? 'Vãng lai'}</StyledTableCell>
-                          <StyledTableCell align='center'>
-                            <MUIToolTip title={invoice.PAYMENT_METHOD}>
-                              <IconButton>
-                                {invoice.PAYMENT_METHOD == 'Tiền mặt' && <PaidIcon color='success' />}
-                                {invoice.PAYMENT_METHOD == 'Chuyển khoản' && <CreditCardIcon color='info' />}
-                              </IconButton>
-                            </MUIToolTip>
-                          </StyledTableCell>
-                          <StyledTableCell>{`${formatCurrency(invoice.TOTAL_WITH_TAX_EXTRA_FEE)} đ`}</StyledTableCell>
-                          <StyledTableCell>
-                            <Chip
-                              label={getLabelByValue(invoice.PURCHASE_METHOD, SALE_INVOICES_PURCHASE_METHODS)}
-                              color={getColorByValue(invoice.PURCHASE_METHOD, SALE_INVOICES_PURCHASE_METHODS)}
-                            />
-                          </StyledTableCell>
-                          <StyledTableCell>
-                            <MUIToolTip title={getLabelByValue(invoice.STATUS, SALE_INVOICE_STATUS)}>
-                              {invoice.STATUS === 'DRAFT' && <ModeEditIcon color={getColorByValue(invoice.STATUS, SALE_INVOICE_STATUS)} />}
-                              {invoice.STATUS === 'CONFIRMED' && <CheckCircleIcon color={getColorByValue(invoice.STATUS, SALE_INVOICE_STATUS)} />}
-                              {invoice.STATUS === 'PAYMENTED' && <AttachMoneyIcon color={getColorByValue(invoice.STATUS, SALE_INVOICE_STATUS)} />}
-                              {invoice.STATUS === 'CANCELLED' && <CancelIcon color={getColorByValue(invoice.STATUS, SALE_INVOICE_STATUS)} />}
-                            </MUIToolTip>
-                          </StyledTableCell>
-                        </StyledTableRow>)
-                      ))
-                  )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+        <Grid size={6}>
+          <Stack gap={2} height={400} alignItems='center'>
+            <Typography variant='h6'>Thống kê doanh thu tuần tháng này</Typography>
+            <Bar data={revenueByMonthBarChartData} options={revenueByMonthBarChartOptions} />
+          </Stack>
+        </Grid>
+        <Grid size={6}>
+          <Stack gap={2} height={400} alignItems='center'>
+            <Typography variant='h6'>Thống kê doanh thu 4 tháng gần nhất</Typography>
+            <Bar data={revenueLastFourMonthsChartData} options={revenueLastFourMonthsChartOptions} />
+          </Stack>
         </Grid>
       </Grid>
     </div>
   )
 }
 
-export default Dashboard
+export default RevenueStatistic
