@@ -99,6 +99,15 @@ class ItemService {
       withCredentials: true
     })).data
   }
+
+  async updateItemStock(credential, id, quantity) {
+    return (await this.api.put(`/stock/${id}`, { quantity }, {
+      headers: {
+        ...credential
+      },
+      withCredentials: true
+    })).data
+  }
 }
 
 export default new ItemService

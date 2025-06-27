@@ -19,7 +19,7 @@ import MyEditor from '~/components/MyEditor'
 import itemUnitService from '~/service/admin/itemUnit.service'
 import { Accordion, AccordionDetails, AccordionSummary, Backdrop, CircularProgress } from '@mui/material'
 import itemService from '~/service/admin/item.service'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Routes } from '~/config'
 import ImagesUploader from '~/components/ImagesUploader'
@@ -27,14 +27,13 @@ import imageService from '~/service/image.service'
 import BomMaterialUpdate from './BomMaterialUpdate'
 import ShowImagePanel from './ShowImagePanel'
 
-function ItemUpdateForm({ data, viewOnly }) {
+function ItemUpdateForm({ data, viewOnly, refetch }) {
   const {
     control,
     handleSubmit,
     formState: { errors }
   } = useForm()
   const [isUpdating, setIsUpdating] = useState(false)
-  const navigate = useNavigate()
   const [itemAvtFile, setItemAvtFile] = useState(null)
   const [itemDescImgFiles, setItemDescImgFiles] = useState([])
   const [description, setDescription] = useState(data?.DESCRIPTION ?? '')
@@ -88,7 +87,19 @@ function ItemUpdateForm({ data, viewOnly }) {
       .then(res => {
         console.log(res)
         toast.success('Cập nhật thông tin cơ bản thành công')
-        navigate(Routes.admin.item.list)
+        refetch()
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error(err?.response?.data?.message)
+      })
+  }
+
+  const submitQuantiyInfo = async (quantityInfo) => {
+    itemService.updateItemStock({ user_id, device_id }, data?._id, quantityInfo.quantity)
+      .then(() => {
+        toast.success('Cập nhật hàng hóa thành công')
+        refetch()
       })
       .catch(err => {
         console.log(err)
@@ -118,6 +129,7 @@ function ItemUpdateForm({ data, viewOnly }) {
     ])
       .then(() => {
         toast.success('Cập nhật hàng hóa thành công')
+        refetch()
       })
       .catch(err => {
         console.log(err)
@@ -181,6 +193,7 @@ function ItemUpdateForm({ data, viewOnly }) {
         )
       }
       toast.success('Cập nhật ảnh thành công')
+      refetch()
 
       setIsUpdating(false)
     } catch (error) {
@@ -386,6 +399,50 @@ function ItemUpdateForm({ data, viewOnly }) {
                     fullWidth
                     error={!!errors.price}
                     helperText={errors.price?.message}
+                  />
+                )}
+              />
+              {!viewOnly && <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+                <Button variant="outlined" color="secondary" type="reset"
+                  LinkComponent={Link} to={Routes.admin.item.list}
+                >
+                  Hủy
+                </Button>
+                <Button variant="contained" color="primary" type="submit">
+                  Lưu
+                </Button>
+              </Box>}
+            </Box>
+          </form>
+        </AccordionDetails>
+      </Accordion>
+      {/* Tồn kho */}
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel-price-unit-info-content"
+          id="panel-price-unit-info-header"
+        >
+          <Typography component="span">Tồn kho:</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <form noValidate onSubmit={handleSubmit(submitQuantiyInfo)}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Controller
+                disabled={viewOnly}
+                name="quantity"
+                defaultValue={data?.ITEM_STOCKS.QUANTITY ?? 0}
+                control={control}
+                rules={{ required: 'Vui lòng nhập số lượng', }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Số lượng"
+                    name='quantity'
+                    type='number'
+                    fullWidth
+                    error={!!errors.quantity}
+                    helperText={errors.quantity?.message}
                   />
                 )}
               />

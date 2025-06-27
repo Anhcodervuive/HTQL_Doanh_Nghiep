@@ -14,7 +14,7 @@ function ItemEdit() {
   const location = useLocation()
   const device_id = useDeviceId()
   const { userId: user_id } = useUserInfo()
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['item', id],
     enabled: !!user_id && !!device_id,
     queryFn: () => itemService.search({
@@ -56,7 +56,7 @@ function ItemEdit() {
       <Typography variant="h4" sx={{ mb: 5, mx: 20, textAlign: 'center' }}>
         Chỉnh sửa hàng hóa
       </Typography>
-      <ItemUpdateForm data={data?.data?.items[0]}/>
+      <ItemUpdateForm data={data?.data?.items[0]} refetch={refetch}/>
     </Box>
   )
 }
