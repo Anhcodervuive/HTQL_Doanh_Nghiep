@@ -414,7 +414,7 @@ function ItemUpdateForm({ data, viewOnly }) {
               </Box>}
               {!viewOnly ? <Box>
                 <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh mô tả</Typography>
-                <ImagesUploader handleChange={handleChangeDescFiles} data={[{ url: data?.AVATAR_IMAGE_URL }]} />
+                <ImagesUploader handleChange={handleChangeDescFiles} data={data?.LIST_IMAGE?.map(oldImg => ({ url: oldImg.URL }))} />
               </Box> : <Box>
                 <Typography variant='h6' mb={2}>Ảnh mô tả:</Typography>
                 <ShowImagePanel images={data?.LIST_IMAGE} />
