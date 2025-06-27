@@ -138,22 +138,28 @@ function ItemUpdateForm({ data, viewOnly }) {
     setIsUpdating(true)
     try {
       // Update avt img
+      let imageAvtUrlAfterUpdate = null
       if (itemAvtFile?.uploadyFiles.length > 0) {
         console.log(itemAvtFile.uploadyFiles[0])
         const newImageAvtRes = await imageService.uploadAvatarItem(itemAvtFile.uploadyFiles[0], data?._id, data?.AVATAR_IMAGE_URL)
+        imageAvtUrlAfterUpdate = newImageAvtRes.data.url
+      } else if (itemAvtFile?.oldImages?.length === 0 && data?.AVATAR_IMAGE_URL) {
+        await imageService.delete(data?.AVATAR_IMAGE_URL)
+        imageAvtUrlAfterUpdate = ''
+      }
+      if (imageAvtUrlAfterUpdate !== null) {
         await itemService.update(
           credential,
           data?._id,
-          { avatarImageUrl: newImageAvtRes.data.url }
+          { avatarImageUrl: imageAvtUrlAfterUpdate }
         )
       }
 
       // Update list img
-
       if (itemDescImgFiles.oldImages?.length !== data?.LIST_IMAGE?.length) {
         const oldUrlImagesUpdated = new Set(itemDescImgFiles?.oldImages.map(img => img.url))
         const imgNeedToRemove = data?.LIST_IMAGE?.filter(img => !oldUrlImagesUpdated.has(img.url))
-
+        console.log(oldUrlImagesUpdated, imgNeedToRemove)
         for (let i = 0; i < imgNeedToRemove.length; i++) {
           await imageService.delete(imgNeedToRemove[i].URL)
         }

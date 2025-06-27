@@ -94,7 +94,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
   const [selectedUser, setSelectedUser] = useState(data?.CUSTOMER_CONTACT ? {
     ...data?.CUSTOMER_CONTACT,
   } : null)
-  const canEditUserInfo = !isEdited || data?.PURCHASE_METHOD !== 'ONLINE'
+  const canEditUserInfo = data?.PURCHASE_METHOD !== 'ONLINE' && !isReadOnly && data?.STATUS !== 'CONFIRMED'
   const [globalVoucher, setGlobalVoucher] = useState(null)
   const [items, setItems] = useState(data?.ITEMS
     ? data?.ITEMS.map(item => {
@@ -119,6 +119,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
     refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
     // staleTime: 1000 * 60 * 3
   })
+
 
   const handleUserChose = (user) => {
     const nameInfo = user.LIST_CONTACT?.at(-1)
@@ -304,7 +305,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
-      <fieldset disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'} style={{ border: 'none' }}>
+      <fieldset disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')} style={{ border: 'none' }}>
         <Stack spacing={2} sx={{ minHeight: '1800px' }}>
           <Box>
             <Grid container spacing={4}>
@@ -321,7 +322,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                   <CardContent>
                     <Stack gap={2}>
                       <Stack gap={2}>
-                        {canEditUserInfo && !isReadOnly && data?.STATUS?.at(-1).STATUS_NAME === 'DRAFT' && <SearchUserInput onItemClick={handleUserChose} placeholder='Nhập tên người mua' />}
+                        {canEditUserInfo && <SearchUserInput onItemClick={handleUserChose} placeholder='Nhập tên người mua' />}
                         <Stack spacing={1} sx={{ overflow: 'hidden' }}>
                           <UserInfoItem
                             label='Họ Tên'
@@ -352,7 +353,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                             label="Địa chỉ"
                             value={selectedUser ? selectedUser?.ADDRESS_1 ?? selectedUser?.ADDRESS_2 ?? 'Chưa cập nhật' : ''}
                           />
-                          {canEditUserInfo && !isReadOnly && data?.STATUS?.at(-1).STATUS_NAME === 'DRAFT' && <Button variant='outlined' color='error' onClick={() => setSelectedUser(null)}>Xóa khách hàng</Button>}
+                          {canEditUserInfo && <Button variant='outlined' color='error' onClick={() => setSelectedUser(null)}>Xóa khách hàng</Button>}
                         </Stack>
                       </Stack>
                     </Stack>
@@ -435,7 +436,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           name="purchaseMethod"
                           control={control}
                           rules={{ required: 'Vui lòng chọn hình thức mua hàng', }}
-                          disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
+                          disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')}
                           render={({ field }) => (
                             <Select
                               {...field}
@@ -474,7 +475,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                         }}
                         render={({ field, fieldState }) => (
                           <LocationSelector
-                            disable={!canEditUserInfo || isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
+                            disable={!canEditUserInfo || isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')}
                             label='Phường, quận/huyện, Thành phố:'
                             value={{
                               city: data?.DELIVERY_INFORMATION?.ADDRESS?.CITY,
@@ -696,7 +697,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           name="extraFeeUnit"
                           control={control}
                           rules={{ required: 'Vui lòng chọn đơn vị tiền tệ', }}
-                          disabled={isReadOnly}
+                          disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')}
                           render={({ field }) => (
                             <Select
                               {...field}
@@ -784,7 +785,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                           name="paymentMethod"
                           control={control}
                           rules={{ required: 'Vui lòng chọn Hình thức thanh toán', }}
-                          disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
+                          disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')}
                           render={({ field }) => (
                             <Select
                               {...field}
@@ -888,7 +889,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                             type='number'
                             name='bomMaterials'
                             sx={{ maxWidth: '100px' }}
-                            disabled={data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
+                            disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')}
                             slotProps={{
                               htmlInput: { min: 1 },
                               input: {
@@ -903,7 +904,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                         </TableCell>
                         <TableCell>
                           <Select
-                            disabled={isReadOnly || data?.STATUS?.at(-1).STATUS_NAME !== 'DRAFT'}
+                            disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')}
                             value={item?.voucher?._id || ''}
                             onChange={(e) => handleChangeVoucher(e, item.ITEM_CODE)}
                             sx={{ width: '250px', fontSize: '0.8rem', }}
@@ -979,7 +980,7 @@ function SaleInvoiceForm({ submit, data, isEdited, isReadOnly }) {
                               <Chip
                                 label={`- ${formatCurrency(totalPriceDecreasedByGlobalVoucher)} ${items?.at(0)?.UNIT_INVOICE.UNIT_ABB}`}
                                 variant="outlined"
-                                onDelete={data?.STATUS?.at(-1).STATUS_NAME === 'DRAFT' ? () => setGlobalVoucher(null) : null} />
+                                onDelete={data?.STATUS === 'DRAFT' ? () => setGlobalVoucher(null) : null} />
                             </Typography>
                           </TableCell>
                         </TableRow>

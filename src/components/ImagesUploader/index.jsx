@@ -48,7 +48,7 @@ const UploadListener = ({ uploadyFiles, setUploadyFiles, limit }) => {
 
 const ImagesUploader = ({ handleChange, limit, data, }) => {
   const [uploadyFiles, setUploadyFiles] = useState([])
-  const [oldImages, setOldImage] = useState(data ?? [])
+  const [oldImages, setOldImage] = useState(data?.filter(oldImg => !!oldImg?.url) ?? [])
 
   const removePreview = (id) => {
     setUploadyFiles((prevFiles) => prevFiles.filter((file) => file.id !== id))

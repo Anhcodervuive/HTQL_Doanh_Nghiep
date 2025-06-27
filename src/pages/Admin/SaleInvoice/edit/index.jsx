@@ -62,7 +62,7 @@ function SaleInvoiceEdit() {
       <Typography variant="h4" sx={{ mb: 5 }}>
         {isWatch ? 'Chi tiết' : 'Chỉnh sửa'} hóa đơn
       </Typography>
-      <SaleInvoiceForm submit={submit} data={data?.data} isReadOnly={isWatch}/>
+      <SaleInvoiceForm submit={submit} data={data?.data} isReadOnly={isWatch} isEdited={!isWatch}/>
     </Box>
   )
 }
