@@ -149,6 +149,16 @@ class SaleInvoiceService {
       withCredentials: true,
     })).data
   }
+
+  async statisticRevenueLastFourMonths(credential) {
+    return (await this.api.get('/statistic-revenue-last-four-months', {
+      headers: {
+        ...credential
+      },
+      withCredentials: true,
+    })).data
+  }
+
   async cancellingOrder(credential, id) {
     console.log('data nè: ', credential, id)
     return (await this.api.put(`/cancelling-order/${id}`, {}, {

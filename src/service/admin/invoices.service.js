@@ -63,6 +63,33 @@ class InvoicesService {
       withCredentials: true
     })).data
   }
+  async statisticRevenueLastFourWeeks(credential, query = {}) {
+    return (await this.api.get('/statistic-revenue-last-four-weeks', {
+      headers: {
+        ...credential
+      },
+      params: {
+        ...query
+      },
+      withCredentials: true,
+    })).data
+  }
+  async statisticstatisticRevenueLastSevenDays(credential) {
+    return (await this.api.get('/statistic-revenue-last-seven-days', {
+      headers: {
+        ...credential
+      },
+      withCredentials: true,
+    })).data
+  }
+  async statisticstatisticRevenueLastFourMonths(credential) {
+    return (await this.api.get('/statistic-revenue-last-four-months', {
+      headers: {
+        ...credential
+      },
+      withCredentials: true,
+    })).data
+  }
 
 }
 export default new InvoicesService
