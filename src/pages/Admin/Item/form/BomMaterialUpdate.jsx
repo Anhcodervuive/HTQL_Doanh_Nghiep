@@ -14,8 +14,8 @@ import useUserInfo from '~/hooks/useUserInfo'
 import { useDeviceId } from '~/hooks/useDeviceId'
 import { toast } from 'react-toastify'
 
-export default function BomMaterialUpdate({ data = [], itemId, viewOnly }) {
-  const [itemMaterials, setItemMaterials] = useState(data)
+export default function BomMaterialUpdate({ data, itemId, viewOnly }) {
+  const [itemMaterials, setItemMaterials] = useState(data ?? [])
   const { userId: user_id } = useUserInfo()
   const device_id = useDeviceId()
 

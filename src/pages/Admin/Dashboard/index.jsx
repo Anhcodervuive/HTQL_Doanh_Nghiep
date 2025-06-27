@@ -33,6 +33,7 @@ import dayjs from 'dayjs'
 import { SALE_INVOICE_STATUS, SALE_INVOICES_PURCHASE_METHODS } from '~/utils/contant'
 import { getColorByValue, getLabelByValue } from '~/utils/mapper'
 import invoicesService from '~/service/admin/invoices.service'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 
 // Đăng ký các thành phần cần dùng trong ChartJS
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend)
@@ -292,6 +293,7 @@ function Dashboard() {
   const {
     data: dataStatisticRevenueOfEachPurchaseMethodPerWeek,
     isLoading: isLoadingStatisticRevenueOfEachPurchaseMethodPerWeek,
+    isError: isErrorStatisticRevenueOfEachPurchaseMethodPerWeek
   } = useQuery({
     enabled: !!user_id && !!device_id,
     queryKey: ['statisticRevenueOfEachPurchaseMethodPerWeek'],
@@ -332,7 +334,7 @@ function Dashboard() {
 
   const lastWeek = new Date(new Date().setDate(new Date().getDate() - 7))
   const [fromDate, setFromDate] = useState(dayjs(lastWeek))
-  const { data: dataStatisticRevenueByItem, isLoading: isLoadingStatisticRevenueByItem } = useQuery({
+  const { data: dataStatisticRevenueByItem, isLoading: isLoadingStatisticRevenueByItem, isError: isErrorStatisticRevenueByItem } = useQuery({
     enabled: !!user_id && !!device_id && !!fromDate,
     queryKey: ['statistic-total-revenue-by-item', fromDate],
     queryFn: () => saleInvoiceSerivce.statisticTotalRevenuePerItem({ user_id, device_id }, { fromDate: fromDate.format('YYYY-MM-DD') }),
@@ -409,7 +411,7 @@ function Dashboard() {
     },
   }
 
-  const { data: dataReviewSaleInvocie, isLoading: isLoadingReviewSaleInvocie } = useQuery({
+  const { data: dataReviewSaleInvocie, isLoading: isLoadingReviewSaleInvocie, isError: isErrorReviewSaleInvocie } = useQuery({
     queryKey: ['saleInvoiceList',],
     enabled: !!device_id && !!user_id,
     queryFn: () => saleInvoiceSerivce.search({
@@ -427,13 +429,23 @@ function Dashboard() {
     || isLoadingStatisticRevenueByItem
     || isLoadingReviewSaleInvocie
   const isError = results.some(query => query.isError)
+    || statisticTotalRevenueDataOfYear.some(res => res.isError)
+    || isErrorStatisticRevenueOfEachPurchaseMethodPerWeek
+    || isErrorStatisticRevenueByItem
+    || isErrorReviewSaleInvocie
 
-  if (isLoading || isError || !device_id || !user_id) {
+  if (isLoading || !device_id || !user_id) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', minHeight: '700px', p: 3 }}>
         <CircularProgress/>
         <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
       </Box>
+    )
+  }
+
+  if (isError) {
+    return (
+      <SearchResultNotFound message='Lỗi xảy ra khi lấy dữ liệu thống kê' />
     )
   }
 

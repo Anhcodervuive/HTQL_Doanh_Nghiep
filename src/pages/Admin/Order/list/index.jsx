@@ -216,6 +216,16 @@ export default function OrderList() {
           </Box>
           <PriceRangeInput onChange={priceRange => setPriceRange(priceRange)}/>
         </Box>
+        <Button
+          LinkComponent={Link}
+          to={Routes.admin.itemUnit.create}
+          variant='contained'
+          color='success'
+          startIcon={<AddIcon />}
+          sx={{ display: !hasAnyPermission(roles, 'order', 'create') ? 'none' : '' }}
+        >
+                  New
+        </Button>
       </Box>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="table">

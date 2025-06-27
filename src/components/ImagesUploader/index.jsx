@@ -48,7 +48,7 @@ const UploadListener = ({ uploadyFiles, setUploadyFiles, limit }) => {
 
 const ImagesUploader = ({ handleChange, limit, data, }) => {
   const [uploadyFiles, setUploadyFiles] = useState([])
-  const [oldImages, setOldImage] = useState(data ?? [])
+  const [oldImages, setOldImage] = useState(data?.filter(oldImg => !!oldImg?.url) ?? [])
 
   const removePreview = (id) => {
     setUploadyFiles((prevFiles) => prevFiles.filter((file) => file.id !== id))
@@ -85,40 +85,35 @@ const ImagesUploader = ({ handleChange, limit, data, }) => {
       {/* Old image */}
       {oldImages?.length > 0 && <div style={{ marginTop: '20px' }}>
         <Typography variant='h6'>Ảnh cũ</Typography>
-        {oldImages.map((oldImage, index) => (
-          <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, border: '1px solid #d8e2ef', borderRadius: '8px', padding: '10px', marginBottom: '10px' }} className={cx('preview-container')}>
-            <div style={{ backgroundImage: `url(${oldImage.url})` }} className={cx('preview-image')} />
-            <IconButton sx={{ justifySelf: 'flex-end' }} onClick={() => {
-              const newArr = [...oldImages]
-              newArr.splice(index, 1)
-              setOldImage(newArr)
-            }}>
-              <ClearIcon></ClearIcon>
-            </IconButton>
-          </Box>
-        ))}
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          {oldImages.map((oldImage, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', border: '1px solid #d8e2ef', borderRadius: '8px', padding: '5px', marginBottom: '10px' }} className={cx('preview-container')}>
+              <div style={{ backgroundImage: `url(${oldImage.url})` }} className={cx('preview-image')} />
+              <IconButton sx={{ position: 'absolute', right: '-2px', top: '-2px' }} onClick={() => {
+                const newArr = [...oldImages]
+                newArr.splice(index, 1)
+                setOldImage(newArr)
+              }}>
+                <ClearIcon></ClearIcon>
+              </IconButton>
+            </Box>
+          ))}
+        </Box>
       </div>}
 
       {/* New image upload */}
       <div style={{ marginTop: '20px' }}>
         {uploadyFiles.length > 0 && <Typography variant='h6'>Ảnh mới</Typography>}
-        {uploadyFiles.map((uploadyFile) => (
-          <Box key={uploadyFile.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, border: '1px solid #d8e2ef', borderRadius: '8px', padding: '10px', marginBottom: '10px' }} className={cx('preview-container')}>
-            <div style={{ backgroundImage: `url(${uploadyFile.previewUrl})` }} className={cx('preview-image')}/>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px', gap: 1 }}>
-              <Typography variant="body2" sx={{ textAlign: 'start' }}>
-                {uploadyFile?.file?.name}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'gray', textAlign: 'start' }}>
-                size: {Math.round(uploadyFile?.file?.size / 1024)} KB
-              </Typography>
-
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          {uploadyFiles.map((uploadyFile) => (
+            <Box key={uploadyFile.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', border: '1px solid #d8e2ef', borderRadius: '8px', padding: '5px', }}>
+              <div style={{ backgroundImage: `url(${uploadyFile.previewUrl})` }} className={cx('preview-image')} />
+              <IconButton sx={{ position: 'absolute', right: '-2px', top: '-2px' }} onClick={() => removePreview(uploadyFile.id)}>
+                <ClearIcon></ClearIcon>
+              </IconButton>
             </Box>
-            <IconButton sx={{ justifySelf: 'flex-end' }} onClick={() => removePreview(uploadyFile.id)}>
-              <ClearIcon></ClearIcon>
-            </IconButton>
-          </Box>
-        ))}
+          ))}
+        </Box>
       </div>
 
     </Uploady>

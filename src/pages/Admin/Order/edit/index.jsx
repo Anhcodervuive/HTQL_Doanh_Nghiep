@@ -62,7 +62,7 @@ function OrderEdit() {
       <Typography variant="h4" sx={{ mb: 5 }}>
         {isWatch ? 'Chi tiết' : 'Chỉnh sửa'} đơn hàng
       </Typography>
-      <OrderForm submit={submit} data={data?.data} isReadOnly={isWatch} isEdited/>
+      <OrderForm submit={submit} data={data?.data} isReadOnly={isWatch} isEdited={!isWatch}/>
     </Box>
   )
 }

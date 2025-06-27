@@ -21,7 +21,7 @@ function SaleInvoiceCreate() {
       )
 
       toast.success('Tạo hóa đơn bán hàng thành công')
-      // navigate(Routes.admin.saleInvoices.list)
+      navigate(Routes.admin.saleInvoices.list)
     } catch (error) {
       console.log(error)
       toast.error(error.response.data.message)

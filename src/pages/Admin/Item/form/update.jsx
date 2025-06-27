@@ -19,7 +19,7 @@ import MyEditor from '~/components/MyEditor'
 import itemUnitService from '~/service/admin/itemUnit.service'
 import { Accordion, AccordionDetails, AccordionSummary, Backdrop, CircularProgress } from '@mui/material'
 import itemService from '~/service/admin/item.service'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Routes } from '~/config'
 import ImagesUploader from '~/components/ImagesUploader'
@@ -27,14 +27,13 @@ import imageService from '~/service/image.service'
 import BomMaterialUpdate from './BomMaterialUpdate'
 import ShowImagePanel from './ShowImagePanel'
 
-function ItemUpdateForm({ data, viewOnly }) {
+function ItemUpdateForm({ data, viewOnly, refetch }) {
   const {
     control,
     handleSubmit,
     formState: { errors }
   } = useForm()
   const [isUpdating, setIsUpdating] = useState(false)
-  const navigate = useNavigate()
   const [itemAvtFile, setItemAvtFile] = useState(null)
   const [itemDescImgFiles, setItemDescImgFiles] = useState([])
   const [description, setDescription] = useState(data?.DESCRIPTION ?? '')
@@ -88,7 +87,19 @@ function ItemUpdateForm({ data, viewOnly }) {
       .then(res => {
         console.log(res)
         toast.success('Cập nhật thông tin cơ bản thành công')
-        navigate(Routes.admin.item.list)
+        refetch()
+      })
+      .catch(err => {
+        console.log(err)
+        toast.error(err?.response?.data?.message)
+      })
+  }
+
+  const submitQuantiyInfo = async (quantityInfo) => {
+    itemService.updateItemStock({ user_id, device_id }, data?._id, quantityInfo.quantity)
+      .then(() => {
+        toast.success('Cập nhật hàng hóa thành công')
+        refetch()
       })
       .catch(err => {
         console.log(err)
@@ -118,6 +129,7 @@ function ItemUpdateForm({ data, viewOnly }) {
     ])
       .then(() => {
         toast.success('Cập nhật hàng hóa thành công')
+        refetch()
       })
       .catch(err => {
         console.log(err)
@@ -138,22 +150,29 @@ function ItemUpdateForm({ data, viewOnly }) {
     setIsUpdating(true)
     try {
       // Update avt img
+      let imageAvtUrlAfterUpdate = null
       if (itemAvtFile?.uploadyFiles.length > 0) {
         console.log(itemAvtFile.uploadyFiles[0])
         const newImageAvtRes = await imageService.uploadAvatarItem(itemAvtFile.uploadyFiles[0], data?._id, data?.AVATAR_IMAGE_URL)
+        imageAvtUrlAfterUpdate = newImageAvtRes.data.url
+      } else if (itemAvtFile?.oldImages?.length === 0 && data?.AVATAR_IMAGE_URL) {
+        await imageService.delete(data?.AVATAR_IMAGE_URL)
+        imageAvtUrlAfterUpdate = ''
+      }
+      if (imageAvtUrlAfterUpdate !== null) {
         await itemService.update(
           credential,
           data?._id,
-          { avatarImageUrl: newImageAvtRes.data.url }
+          { avatarImageUrl: imageAvtUrlAfterUpdate }
         )
       }
 
       // Update list img
-
+      let imageDesListToUpdate = itemDescImgFiles?.oldImages.map(img => ({ URL: img.url }))
       if (itemDescImgFiles.oldImages?.length !== data?.LIST_IMAGE?.length) {
         const oldUrlImagesUpdated = new Set(itemDescImgFiles?.oldImages.map(img => img.url))
-        const imgNeedToRemove = data?.LIST_IMAGE?.filter(img => !oldUrlImagesUpdated.has(img.url))
-
+        const imgNeedToRemove = data?.LIST_IMAGE?.filter(img => !oldUrlImagesUpdated.has(img.URL))
+        console.log(oldUrlImagesUpdated, imgNeedToRemove)
         for (let i = 0; i < imgNeedToRemove.length; i++) {
           await imageService.delete(imgNeedToRemove[i].URL)
         }
@@ -161,16 +180,20 @@ function ItemUpdateForm({ data, viewOnly }) {
 
       if (itemDescImgFiles?.uploadyFiles.length > 0) {
         const descImagesListRes = await imageService.upLoadListImage(itemDescImgFiles?.uploadyFiles, 'PRODUCT', data?._id,)
+        imageDesListToUpdate = [
+          ...imageDesListToUpdate,
+          ...descImagesListRes.data.urls.map(url => ({ URL: url })),
+        ]
+      }
+      if (itemDescImgFiles.oldImages?.length !== data?.LIST_IMAGE?.length || itemDescImgFiles?.uploadyFiles.length > 0) {
         await itemService.updateListDescImages(
           credential,
           data?._id,
-          [
-            ...descImagesListRes.data.urls.map(url => ({ URL: url })),
-            ...itemDescImgFiles.oldImages.map(img => ({ URL: img.url }))
-          ]
+          imageDesListToUpdate
         )
       }
       toast.success('Cập nhật ảnh thành công')
+      refetch()
 
       setIsUpdating(false)
     } catch (error) {
@@ -393,6 +416,50 @@ function ItemUpdateForm({ data, viewOnly }) {
           </form>
         </AccordionDetails>
       </Accordion>
+      {/* Tồn kho */}
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel-price-unit-info-content"
+          id="panel-price-unit-info-header"
+        >
+          <Typography component="span">Tồn kho:</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <form noValidate onSubmit={handleSubmit(submitQuantiyInfo)}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Controller
+                disabled={viewOnly}
+                name="quantity"
+                defaultValue={data?.ITEM_STOCKS.QUANTITY ?? 0}
+                control={control}
+                rules={{ required: 'Vui lòng nhập số lượng', }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Số lượng"
+                    name='quantity'
+                    type='number'
+                    fullWidth
+                    error={!!errors.quantity}
+                    helperText={errors.quantity?.message}
+                  />
+                )}
+              />
+              {!viewOnly && <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+                <Button variant="outlined" color="secondary" type="reset"
+                  LinkComponent={Link} to={Routes.admin.item.list}
+                >
+                  Hủy
+                </Button>
+                <Button variant="contained" color="primary" type="submit">
+                  Lưu
+                </Button>
+              </Box>}
+            </Box>
+          </form>
+        </AccordionDetails>
+      </Accordion>
       {/* Hình ảnh */}
       <Accordion>
         <AccordionSummary
@@ -414,7 +481,7 @@ function ItemUpdateForm({ data, viewOnly }) {
               </Box>}
               {!viewOnly ? <Box>
                 <Typography variant="h6" mb={2} fontWeight={600}>Thêm ảnh mô tả</Typography>
-                <ImagesUploader handleChange={handleChangeDescFiles} data={[{ url: data?.AVATAR_IMAGE_URL }]} />
+                <ImagesUploader handleChange={handleChangeDescFiles} data={data?.LIST_IMAGE?.map(oldImg => ({ url: oldImg.URL }))} />
               </Box> : <Box>
                 <Typography variant='h6' mb={2}>Ảnh mô tả:</Typography>
                 <ShowImagePanel images={data?.LIST_IMAGE} />
