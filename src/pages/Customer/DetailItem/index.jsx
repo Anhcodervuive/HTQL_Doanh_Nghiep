@@ -71,11 +71,14 @@ export default function DetailItem() {
 
 
   const item = data?.data?.items?.[0] || {}
-  const thumbnails = item.LIST_IMAGE?.map(i => i.URL) || []
-  const avatar = item.AVATAR_IMAGE_URL || defaultImage
+  
+  const avatar = item.AVATAR_IMAGE_URL || null
+  console.log(avatar)
+  const thumbnails = avatar ? [avatar] : []
+  item.LIST_IMAGE?.map(i => thumbnails.push(i.URL))
   const price = item.PRICE?.at(-1)?.PRICE_AMOUNT ?? 0
   // console.log('avatar: ', avatar)
-
+  console.log('thumbnails', thumbnails)
   const vouchers = item.LIST_VOUCHER_ACTIVE || []
   const bestDiscount = vouchers.reduce((max, v) => {
     let d = v.TYPE === 'FIXED_AMOUNT'
@@ -120,10 +123,18 @@ export default function DetailItem() {
     },
     // onError: () => toast.error('Thêm vào giỏ hàng thất bại!'),
   })
+  const getLatestPrice = (product) => {
+    if (!Array.isArray(product.PRICE) || product.PRICE.length === 0) return 0
+    const latest = product.PRICE.reduce((latest, current) =>
+      new Date(current.FROM_DATE) > new Date(latest.FROM_DATE) ? current : latest
+    )
+    return latest.PRICE_AMOUNT ?? 0
+  }
+
 
   const IMG_H = { xs: 280, md: 400 }
   const THUMB = { xs: 48, sm: 60 }
-
+  console.log(item)
   return (
     <>
       <Box
@@ -144,7 +155,7 @@ export default function DetailItem() {
           <Box sx={{ width: '100%', height: { xs:240, md:400 }, maxHeight: { xs: '60vh', md: 400 }, borderRadius: 2, overflow: 'hidden', mb: { xs: 0.5, md: 1 } }}>
             <CardMedia
               component="img"
-              image={selectedImage}
+              image={selectedImage }
               alt={item.ITEM_NAME}
               sx={{
                 width: '100%',
@@ -168,7 +179,7 @@ export default function DetailItem() {
                 scrollbarWidth: 'none',
               }}
             >
-              {[avatar, ...thumbnails].map((url, i) => (
+              {thumbnails.map((url, i) => (
                 <Box
                   key={i}
                   onClick={() => setSelectedImage(url)}
@@ -315,7 +326,7 @@ export default function DetailItem() {
               ]}
             >
               {relatedItems.map(p => {
-                const base = p.PRICE?.[0]?.PRICE_AMOUNT ?? 0
+                const base = getLatestPrice(p)
 
                 const bestDisc = (p.LIST_VOUCHER_ACTIVE ?? []).reduce((max, v) => {
                   let d = 0

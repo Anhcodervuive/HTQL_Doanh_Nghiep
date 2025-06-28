@@ -114,7 +114,7 @@ export default function ItemTypeList() {
             startIcon={<AddIcon />}
             sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
           >
-            New
+            Thêm mới
           </Button>
         </Box>
       </Box>

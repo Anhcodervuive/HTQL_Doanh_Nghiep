@@ -104,11 +104,23 @@ function VoucherForm({ submit, data, disableCode = false, isSubmitting = false }
         <Controller
           name="VALUE"
           control={control}
-          rules={{ required: 'Vui lòng nhập giá trị' }}
+          rules={{
+            required: 'Vui lòng nhập giá trị',
+            validate: (value) => {
+              const num = Number(value)
+              if (selectedType === 'PERCENTAGE' && num > 100) {
+                return 'Phần trăm giảm giá không được vượt quá 100%'
+              }
+              if (num <= 0) {
+                return 'Giá trị phải lớn hơn 0'
+              }
+              return true
+            }
+          }}
           render={({ field }) => (
             <TextField
               {...field}
-              label="Giá trị"
+              label={selectedType === 'PERCENTAGE' ? 'Phần trăm (%)' : 'Số tiền (₫)'}
               type="number"
               fullWidth
               sx={{ mb: 2 }}
@@ -118,6 +130,7 @@ function VoucherForm({ submit, data, disableCode = false, isSubmitting = false }
             />
           )}
         />
+
         <Controller
           name="APPLY_SCOPE"
           control={control}

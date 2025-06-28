@@ -241,7 +241,7 @@ export default function SaleInvoiceList() {
           startIcon={<AddIcon />}
           sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
         >
-            New
+            Thêm mới
         </Button>
       </Box>
       <TableContainer component={Paper}>

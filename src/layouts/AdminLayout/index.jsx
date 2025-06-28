@@ -51,7 +51,7 @@ const NAVIGATION = [
   },
   {
     segment: Routes.admin.orders.list.slice(1),
-    title: 'Orders',
+    title: 'Đơn hàng',
     icon: <ShoppingCartIcon />,
   },
   // {
@@ -110,7 +110,7 @@ const NAVIGATION = [
   },
   {
     segment: Routes.admin.user.list.slice(1),
-    title: 'user',
+    title: 'Người dùng',
     icon: <PeopleIcon />,
     requireRoles: ['admin']
   },

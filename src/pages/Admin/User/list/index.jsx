@@ -52,7 +52,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 export default function UserList() {
-  const [showedRecord, setShowedRecord] = useState(2)
+  const [showedRecord, setShowedRecord] = useState(5)
   const [page, setPage] = useState(1)
   const [selectedRole, setSelectedRole] = useState('all')
   const location = useLocation()

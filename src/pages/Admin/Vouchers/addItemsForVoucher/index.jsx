@@ -80,6 +80,14 @@ export default function VoucherAddItem() {
     const itemIds = selectedItems.map((item) => item._id)
     mutation.mutate(itemIds)
   }
+  const getLatestPrice = (product) => {
+    if (!Array.isArray(product.PRICE) || product.PRICE.length === 0) return 0
+    const latest = product.PRICE.reduce((latest, current) =>
+      new Date(current.FROM_DATE) > new Date(latest.FROM_DATE) ? current : latest
+    )
+    return latest.PRICE_AMOUNT ?? 0
+  }
+
 
   return (
     <Paper sx={{ p: 4, maxWidth: 900, mx: 'auto' }}>
@@ -124,7 +132,7 @@ export default function VoucherAddItem() {
                   <TableCell>{item.ITEM_CODE}</TableCell>
                   <TableCell>{item.ITEM_NAME}</TableCell>
                   <TableCell>
-                    {item.PRICE?.[0]?.PRICE_AMOUNT?.toLocaleString() || 0}
+                    {getLatestPrice(item).toLocaleString()} VND
                   </TableCell>
                   <TableCell>
                     {item.ITEM_STOCKS?.QUANTITY || 0}
