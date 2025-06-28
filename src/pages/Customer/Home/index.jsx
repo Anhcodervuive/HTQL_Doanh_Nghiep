@@ -16,18 +16,32 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import useUserInfo from '~/hooks/useUserInfo'
 import { useNavigate } from 'react-router-dom'
 
-/* ---------- data hooks ---------- */
 const useSaleProducts = (cred) =>
   useQuery({
     queryKey: ['sale-products'],
-    queryFn: () =>
-      itemService.search(cred, {
-        page: 1,
-        size: 12,
-        isActive: true,
-        isProduct: true,
-      }),
+    queryFn: async () => {
+      const pageSize = 10
+      const totalPages = 3
+
+      const allPages = await Promise.all(
+        Array.from({ length: totalPages }, (_, i) =>
+          itemService.search(cred, {
+            page: i + 1,
+            size: pageSize,
+            isActive: true,
+            isProduct: true,
+          })
+        )
+      )
+
+      const allItems = allPages.flatMap((res) => res.data.items)
+
+      return {
+        items: allItems.filter((p) => p.LIST_VOUCHER_ACTIVE?.length > 0),
+      }
+    },
   })
+
 
 const useCategories = (cred) =>
   useQuery({
@@ -49,7 +63,6 @@ const useProductsByCategory = (cred, id, page) =>
       }),
   })
 
-/* ---------- slick settings ---------- */
 const sliderSettings = {
   dots: false,
   infinite: true,
@@ -63,7 +76,6 @@ const sliderSettings = {
 }
 
 const HomePage = () => {
-  /* credentials */
   const device_id = useDeviceId()
   const { userId } = useUserInfo()
   const cred = useMemo(() => ({ user_id: userId ?? '', device_id }), [userId, device_id])
@@ -73,7 +85,6 @@ const HomePage = () => {
   const CARD_W = { xs: 140, md: 200 }
   const CARD_H = { xs: 250, md: 300 }
   const IMG_H = { xs: 150, md: 180 }
-  /* queries */
   const { data: saleData, isLoading: saleLoading } = useSaleProducts(cred)
   const { data: catData, isLoading: catLoading } = useCategories(cred)
 
@@ -90,8 +101,18 @@ const HomePage = () => {
   const { data: catProdData, isLoading: catProdLoading } =
     useProductsByCategory(cred, activeCat, catPage)
 
-  const getBasePrice = (product) =>
-    product.PRICE?.at(-1)?.PRICE_AMOUNT ?? 0
+  const getBasePrice = (product) => {
+    if (!Array.isArray(product.PRICE) || product.PRICE.length === 0) return 0
+
+    const latest = product.PRICE.reduce((latest, current) => {
+      const latestDate = new Date(latest.FROM_DATE)
+      const currentDate = new Date(current.FROM_DATE)
+      return currentDate > latestDate ? current : latest
+    })
+
+    return latest.PRICE_AMOUNT ?? 0
+  }
+
 
   const applyVoucher = (price, voucher) => {
     if (!voucher) return { final: price, discount: 0 }
@@ -168,7 +189,6 @@ const HomePage = () => {
               height: '100%',
             }}
           >
-            {/* Góc phải: nhãn giảm giá xéo */}
             {bestDiscount > 0 && (
               <Box
                 sx={{
@@ -279,7 +299,7 @@ const HomePage = () => {
       {/* ---------- Banner carousel ---------- */}
       <Slider {...sliderSettings}>
         {[banner1, banner2, banner3].map((src) => (
-          <Box key={src} sx={{ width: '100%' /* khung slide */ }}>
+          <Box key={src} sx={{ width: '100%' }}>
             <Box
               component="img"
               src={src}
@@ -322,11 +342,10 @@ const HomePage = () => {
           <Box textAlign="center"><CircularProgress /></Box>
         ) : (
           <Grid container spacing={{ xs: 2, md: 3 }}>
-            {saleData?.data?.items
-              ?.filter((p) => p.LIST_VOUCHER_ACTIVE?.length > 0)
-              ?.slice(0, 8)
-              .map(renderCard)}
+            {saleData?.items?.slice(0, 8).map(renderCard)
+            }
           </Grid>
+
         )}
       </Container>
 

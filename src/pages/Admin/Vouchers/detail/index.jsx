@@ -101,6 +101,14 @@ export default function VoucherDetail() {
       </Box>
     )
   }
+  const getLatestPrice = (product) => {
+    if (!Array.isArray(product.PRICE) || product.PRICE.length === 0) return 0
+    const latest = product.PRICE.reduce((latest, current) =>
+      new Date(current.FROM_DATE) > new Date(latest.FROM_DATE) ? current : latest
+    )
+    return latest.PRICE_AMOUNT ?? 0
+  }
+
 
   return (
     <Paper sx={{ p: 4, maxWidth: 700, mx: 'auto', borderRadius: 3, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', background: 'linear-gradient(to right, #ffffff, #f9f9f9)' }}>
@@ -211,7 +219,7 @@ export default function VoucherDetail() {
                         <TableCell>{item.ITEM_NAME}</TableCell>
                         <TableCell>{item.ITEM_STOCKS?.QUANTITY ?? 0}</TableCell>
                         <TableCell>
-                          {item.PRICE?.[0]?.PRICE_AMOUNT?.toLocaleString() ?? 'N/A'} VND
+                          {getLatestPrice(item).toLocaleString()} VND
                         </TableCell>
                         <TableCell>
                           <Button

@@ -322,7 +322,7 @@ export default function ItemList() {
                         <Button variant="outlined" size="small" sx={{ mr: 1 }} LinkComponent={Link} to={Routes.admin.item.edit(item._id)}>Edit</Button>
                         <Button variant="contained" size="small" color="error" onClick={() => handleDelete(item._id)}>Delete</Button>
                       </StyledTableCell> */}
-                      <StyledTableCell align="center">
+                      <StyledTableCell sx={{ width: 160 }} align="center">
                         <Tooltip title="Chi tiết">
                           <IconButton
                             disabled={!hasAnyPermission(roles, 'item', 'read')}

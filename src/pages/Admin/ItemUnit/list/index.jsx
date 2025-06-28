@@ -113,7 +113,7 @@ export default function ItemUnitList() {
             startIcon={<AddIcon />}
             sx={{ display: !hasAnyPermission(roles, 'itemType', 'create') ? 'none' : '' }}
           >
-            New
+            Thêm mới
           </Button>
         </Box>
       </Box>
@@ -121,7 +121,7 @@ export default function ItemUnitList() {
         <Table sx={{ minWidth: 700 }} aria-label="itemType table">
           <TableHead>
             <TableRow>
-              <StyledTableCell>ID</StyledTableCell>
+              <StyledTableCell>Mã</StyledTableCell>
               <StyledTableCell>Tên</StyledTableCell>
               <StyledTableCell>Tên tiếng Anh</StyledTableCell>
               <StyledTableCell>Tên viết tắt</StyledTableCell>

@@ -59,14 +59,20 @@ export default function OrderSummary() {
     }, {
       isActive: true,
       filterByExpiration: true,
+      filterByUsage: true,
       applyScope: 'GLOBAL'
     })
   })
   const vouchers = voucherData?.data?.vouchers ?? []
-  const voucherDiscount = selectedVoucher?.VALUE && selectedVoucher?.TYPE === 'PERCENTAGE'
-    ? Math.min((selectedVoucher.VALUE / 100) * totalPrice, selectedVoucher.MAX_DISCOUNT)
-    : 0
-  const finalTotal = totalPrice - voucherDiscount
+  const voucherDiscount =
+    selectedVoucher?.TYPE === 'PERCENTAGE'
+      ? Math.min((selectedVoucher.VALUE / 100) * totalPrice, selectedVoucher.MAX_DISCOUNT ?? Infinity)
+      : selectedVoucher?.TYPE === 'FIXED_AMOUNT'
+        ? selectedVoucher.VALUE
+        : 0
+
+  const finalTotal = Math.max(totalPrice - voucherDiscount, 0)
+  const totalPrice1 = Math.min(totalPrice , voucherDiscount)
   const handleOrder = async () => {
     try {
       const payload = {
@@ -293,7 +299,7 @@ export default function OrderSummary() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography>Tổng cộng Voucher giảm giá</Typography>
             <Typography color="primary">
-              -₫{voucherDiscount.toLocaleString()}
+              -₫{totalPrice1.toLocaleString()}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
@@ -317,7 +323,7 @@ export default function OrderSummary() {
         >
           <Typography fontSize={13}>
             Nhấn <strong>"Đặt hàng"</strong> đồng nghĩa với việc bạn đồng ý tuân theo{' '}
-            <Link href="#" underline="hover">
+            <Link href="" underline="hover">
               Điều khoản 5Trendz
             </Link>
           </Typography>
