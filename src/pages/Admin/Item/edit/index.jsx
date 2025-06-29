@@ -8,6 +8,7 @@ import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import ItemUpdateForm from '../form/update'
 import useUserInfo from '~/hooks/useUserInfo'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 
 function ItemEdit() {
   const { id } = useParams()
@@ -33,7 +34,11 @@ function ItemEdit() {
       <CircularProgress/>
       <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
     </Box>)
-  if (error) return <div>Error: {error.message}</div>
+  if (error) return (
+    <Box sx={{ minHeight: '90vh' }}>
+      <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+    </Box>
+  )
 
 
   return (

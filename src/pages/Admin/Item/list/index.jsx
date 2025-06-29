@@ -135,7 +135,7 @@ export default function ItemList() {
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
   const getFullPrice = (item) => {
-    return `${item.PRICE?.at(-1)?.PRICE_AMOUNT?.toLocaleString()} ${item.PRICE?.at(-1)?.PRICE_AMOUNT ? item.PRICE?.at(-1)?.UNIT_ABB : ''}`
+    return `${item.PRICE?.at(-1)?.PRICE_AMOUNT?.toLocaleString()} ${item.PRICE?.at(-1)?.PRICE_AMOUNT ? item.PRICE?.at(-1)?.UNIT_ABB || '' : ''}`
   }
 
   console.log(roles, hasAnyPermission(roles, 'item', 'delete'))
@@ -155,7 +155,13 @@ export default function ItemList() {
       })
   }
 
-  if (error) return <div>Error: {error.message}</div>
+  if (error) {
+    return (
+      <Box sx={{ minHeight: '90vh' }}>
+        <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+      </Box>
+    )
+  }
   return (
     <Box>
       <Box sx={{ mb: 2 }}>

@@ -1,6 +1,7 @@
 import { Avatar, Box, Card, CardContent, CircularProgress, Grid, Paper, Stack, styled, Table, TableBody, TableCell, tableCellClasses, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
-import { red, yellow } from '@mui/material/colors'
+import { green, orange, red, yellow } from '@mui/material/colors'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import AllInboxIcon from '@mui/icons-material/AllInbox'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import { useQueries, useQuery } from '@tanstack/react-query'
@@ -131,6 +132,34 @@ function ExpenseStatistics () {
     return `${formattedYear}-${formattedMonth}-${day}`
   }, [])
 
+  const getFirstDayOfThisMonthFormatted = useMemo(() => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = today.getMonth() // 0-11
+
+    const firstDay = new Date(year, month, 1)
+
+    const day = String(firstDay.getDate()).padStart(2, '0')
+    const formattedMonth = String(firstDay.getMonth() + 1).padStart(2, '0')
+    const formattedYear = firstDay.getFullYear()
+
+    return `${formattedYear}-${formattedMonth}-${day}`
+  }, [])
+
+  const getFirstDayOfThisPrevFormatted = useMemo(() => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = today.getMonth() // 0-11
+
+    const firstDayPrevMonth = new Date(year, month - 1, 1)
+
+    const day = String(firstDayPrevMonth.getDate()).padStart(2, '0')
+    const formattedMonth = String(firstDayPrevMonth.getMonth() + 1).padStart(2, '0')
+    const formattedYear = firstDayPrevMonth.getFullYear()
+
+    return `${formattedYear}-${formattedMonth}-${day}`
+  }, [])
+
   const results = useQueries({
     queries: [
       {
@@ -145,23 +174,26 @@ function ExpenseStatistics () {
         queryFn: () => invoicesService.statisticRevenueLastFourWeeks({ user_id, device_id }, { date: lastDayOfthisMonth }),
         refetchOnWindowFocus: false,
       },
-      // {
-      //   enabled: !!user_id && !!device_id,
-      //   queryKey: ['quantityPurchaseInvoviceThisMonth'],
-      //   queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisMonthFormatted, toDate: lastDayOfthisMonth, status: 'PAYMENTED' }),
-      //   refetchOnWindowFocus: false,
-      // },
-      // {
-      //   enabled: !!user_id && !!device_id,
-      //   queryKey: ['quantityPurchaseInvovicePreviousMonth'],
-      //   queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisPrevFormatted, toDate: lastDayOfPreviosMonth, status: 'PAYMENTED' }),
-      //   refetchOnWindowFocus: false,
-      // },
+      {
+        enabled: !!user_id && !!device_id,
+        queryKey: ['quantityPurchaseInvoviceThisMonth'],
+        queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisMonthFormatted, toDate: lastDayOfthisMonth, status: 'PAYMENTED' }),
+        refetchOnWindowFocus: false,
+      },
+      {
+        enabled: !!user_id && !!device_id,
+        queryKey: ['quantityPurchaseInvovicePreviousMonth'],
+        queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisPrevFormatted, toDate: lastDayOfPreviosMonth, status: 'PAYMENTED' }),
+        refetchOnWindowFocus: false,
+      },
     ],
   })
 
+
   const totalExpensePreviosMonth = results[0]?.data?.data?.total
   const totalExpenseThisMonth = results[1]?.data?.data?.total
+  const dataQuantityPurchaseInvoiceThisMonth = results[2]?.data?.data?.total
+  const dataQuantityPurchaseInvoicePreviousMonth = results[3]?.data?.data?.total
 
   const getPercentIncreaseExPense = useMemo(() => {
     if (!totalExpenseThisMonth || totalExpensePreviosMonth === 0) return null // tránh chia cho 0 hoặc undefined
@@ -169,6 +201,22 @@ function ExpenseStatistics () {
     return Math.round(growth * 100) / 100 // làm tròn 2 chữ số thập phân
   }, [totalExpensePreviosMonth, totalExpenseThisMonth])
 
+  const getPercentIncreasePurchaseInvoice = useMemo(() => {
+    if (
+      !dataQuantityPurchaseInvoicePreviousMonth ||
+      dataQuantityPurchaseInvoicePreviousMonth === 0 ||
+      dataQuantityPurchaseInvoiceThisMonth == null
+    ) {
+      return null
+    }
+
+    const growth =
+      ((dataQuantityPurchaseInvoiceThisMonth - dataQuantityPurchaseInvoicePreviousMonth) /
+        dataQuantityPurchaseInvoicePreviousMonth) *
+      100
+
+    return Math.round(growth * 100) / 100 // Làm tròn 2 chữ số
+  }, [dataQuantityPurchaseInvoicePreviousMonth, dataQuantityPurchaseInvoiceThisMonth])
 
   const getFirstDay = (monthOffset = 0) => {
     const date = new Date()
@@ -396,6 +444,40 @@ function ExpenseStatistics () {
 
               <Avatar sx={{ bgcolor: yellow[500], width: 48, height: 48 }}>
                 <AccountBalanceWalletIcon />
+              </Avatar>
+            </Card>
+            <Card sx={{ display: 'flex', alignItems: 'center', p: 2, borderLeft: '4px solid orange' }}>
+              <CardContent sx={{ flex: 1 }}>
+                <Typography variant="h5" fontWeight="bold">
+                  {dataQuantityPurchaseInvoiceThisMonth}
+                </Typography>
+                <Typography color="text.secondary" fontSize="14px">
+                              Đơn hàng tháng này
+                </Typography>
+                {!!getPercentIncreasePurchaseInvoice && (
+                  <Box display="flex" alignItems="center" mt={1}>
+                    {getPercentIncreasePurchaseInvoice > 0
+                      ? <>
+                        <ArrowUpwardIcon fontSize="small" sx={{ color: green[500], mr: 0.5 }} />
+                        <Typography fontSize="14px" sx={{ color: green[500], mr: 0.5 }}>
+                          {getPercentIncreasePurchaseInvoice}%
+                        </Typography>
+                      </>
+                      : <>
+                        <ArrowDownwardIcon fontSize="small" sx={{ color: red[500], mr: 0.5 }} />
+                        <Typography fontSize="14px" sx={{ color: red[500], mr: 0.5 }}>
+                          {Math.abs(getPercentIncreasePurchaseInvoice)}%
+                        </Typography>
+                      </>}
+                    <Typography fontSize="14px" color="text.secondary">
+                                  so với tháng trước
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+
+              <Avatar sx={{ bgcolor: orange[500], width: 48, height: 48 }}>
+                <AllInboxIcon />
               </Avatar>
             </Card>
           </Stack>

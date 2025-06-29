@@ -16,7 +16,8 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
-  InputAdornment
+  InputAdornment,
+  CircularProgress
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
@@ -36,6 +37,7 @@ import { cloneDeep } from 'lodash'
 import SearchItemInput from '~/components/Admin/SearchItemInput'
 import { hasAnyPermission } from '~/utils/rolePermission'
 import useAuth from '~/hooks/useAuth'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 
 export default function EditPurchaseInvoiceForm() {
   const { id } = useParams() // INVOICE_CODE
@@ -49,7 +51,7 @@ export default function EditPurchaseInvoiceForm() {
   const [selectedItems, setSelectedItems] = useState([])
 
   // Fetch hóa đơn hiện tại
-  const { data: invoiceData, isLoading, isError } = useQuery({
+  const { data: invoiceData, isLoading, error } = useQuery({
     enabled: !!device_id,
     queryKey: ['invoiceDetail', id],
     queryFn: () => invoicesService.getInvoiceDetail(id, { device_id, user_id }),
@@ -192,9 +194,18 @@ export default function EditPurchaseInvoiceForm() {
 
   if (!device_id || !user_id || isLoading) {
     console.log('device_id hoặc user_id chưa sẵn sàng:', { device_id, user_id })
-    return <Typography>Đang tải dữ liệu hóa đơn...</Typography>
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', minHeight: '700px', p: 3 }}>
+        <CircularProgress/>
+        <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
+      </Box>
+    )
   }
-  if (isError) return <Typography color="error">Không thể tải hóa đơn.</Typography>
+  if (error) return (
+    <Box sx={{ minHeight: '90vh' }}>
+      <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+    </Box>
+  )
 
   return (
     <form onSubmit={handleSubmit(submit)}>
