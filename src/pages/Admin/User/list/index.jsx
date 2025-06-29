@@ -67,7 +67,7 @@ export default function UserList() {
   console.log('Vai trò đã chọn:', selectedRole)
   console.log('Query gửi lên:', roleParam)
   React.useEffect(() => { setPage(1) }, [selectedRole])
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['userList', page, showedRecord, selectedRole],
     enabled: !!deviceId,
     queryFn: () => userService.search(
@@ -78,6 +78,12 @@ export default function UserList() {
     refetchOnWindowFocus: false, // Khi chuyển màn hình sẽ k bị refetch dữ liệu
     // staleTime: 1000 * 60 * 3
   })
+
+  if (error) return (
+    <Box sx={{ minHeight: '90vh' }}>
+      <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+    </Box>
+  )
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
   return (
     <Box>

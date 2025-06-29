@@ -115,14 +115,7 @@ export default function InvoiceList() {
       })
   }
 
-  // Nếu deviceId hoặc user_id chưa sẵn sàng, có thể hiển thị loading spinner (tuỳ bạn)
-  if (!deviceId || !user_id || isLoading) {
-    console.log('deviceId hoặc user_id chưa sẵn sàng:', { deviceId, user_id })
-    return <div>Loading...</div>
-  }
-
-  if (error) return <div>Error: {error.message}</div>
-
+  
   const getStatusColor = (status) => {
     switch (status) {
     case 'DRAFT':
@@ -138,6 +131,25 @@ export default function InvoiceList() {
     default:
       return '#757575'
     }
+  }
+
+  // Nếu deviceId hoặc user_id chưa sẵn sàng, có thể hiển thị loading spinner (tuỳ bạn)
+  if (!deviceId || !user_id || isLoading) {
+    console.log('deviceId hoặc user_id chưa sẵn sàng:', { deviceId, user_id })
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', minHeight: '700px', p: 3 }}>
+        <CircularProgress />
+        <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ minHeight: '90vh' }}>
+        <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+      </Box>
+    )
   }
 
 

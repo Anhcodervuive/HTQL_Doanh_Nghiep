@@ -1,5 +1,5 @@
 import { useLocation, Link, useNavigate, useParams, matchPath } from 'react-router-dom'
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Typography } from '@mui/material'
 import { findBreadcrumbs, routeTree } from '~/config/routeTree'
 import VoucherForm from '../form'
 import vouchersService from '~/service/admin/vouchers.service'
@@ -8,6 +8,7 @@ import { Routes } from '~/config'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import useUserInfo from '~/hooks/useUserInfo'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 
 function EditVoucher() {
   const { id } = useParams()
@@ -31,13 +32,24 @@ function EditVoucher() {
         toast.success('Cập nhật voucher thành công')
       })
       .catch(err => {
-        const message = error.response?.data?.message || 'Cập nhật voucher thất bại!';
+        const message = err.response?.data?.message || 'Cập nhật voucher thất bại!';
         toast.error(message)
       })
   }
 
-  if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', minHeight: '700px', p: 3 }}>
+        <CircularProgress/>
+        <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
+      </Box>
+    )
+  }
+  if (error) return (
+    <Box sx={{ minHeight: '90vh' }}>
+      <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+    </Box>
+  )
 
   return (
     <Box sx={{ minHeight: '700px', p: 3 }}>

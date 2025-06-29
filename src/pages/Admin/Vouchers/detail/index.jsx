@@ -21,6 +21,7 @@ import { useDeviceId } from '~/hooks/useDeviceId'
 import { useSelector } from 'react-redux'
 import { Routes } from '~/config'
 import { toast } from 'react-toastify'
+import SearchResultNotFound from '~/components/Error/SearchResultNotFond'
 
 const getStatusColor = (isActive) => {
   return isActive ? 'success' : 'error'
@@ -83,13 +84,11 @@ export default function VoucherDetail() {
     )
   }
 
-  if (error) {
-    return (
-      <Box textAlign="center" mt={4}>
-        <Typography color="error">Lỗi khi tải dữ liệu: {error.message}</Typography>
-      </Box>
-    )
-  }
+  if (error) return (
+    <Box sx={{ minHeight: '90vh' }}>
+      <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+    </Box>
+  )
 
   const voucher = data?.data
   if (!voucher || !voucher.VOUCHER_CODE) {

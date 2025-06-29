@@ -155,7 +155,13 @@ export default function ItemList() {
       })
   }
 
-  if (error) return <div>Error: {error.message}</div>
+  if (error) {
+    return (
+      <Box sx={{ minHeight: '90vh' }}>
+        <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+      </Box>
+    )
+  }
   return (
     <Box>
       <Box sx={{ mb: 2 }}>

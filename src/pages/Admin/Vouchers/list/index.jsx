@@ -134,10 +134,19 @@ export default function VouchersList() {
 
   if (!deviceId || !user_id) {
     console.log('deviceId hoặc user_id chưa sẵn sàng:', { deviceId, user_id })
-    return <div>Loading...</div>
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%', minHeight: '700px', p: 3 }}>
+        <CircularProgress/>
+        <Typography variant='body1' sx={{ color: 'grey' }}>Đang tải dữ liệu...</Typography>
+      </Box>
+    )
   }
 
-  if (error) return <div>Error: {error.message}</div>
+  if (error) return (
+    <Box sx={{ minHeight: '90vh' }}>
+      <SearchResultNotFound message={error?.response?.data?.message || 'Lỗi khi lấy dữ liệu'} />
+    </Box>
+  )
 
   return (
     <Box>
@@ -326,7 +335,7 @@ export default function VouchersList() {
                         >
                           Chi tiết
                         </Button>
-                        {vouchers.IS_ACTIVE ? 
+                        {vouchers.IS_ACTIVE ?
                           <Button
                             variant="contained"
                             size="small"
