@@ -135,7 +135,7 @@ export default function ItemList() {
   const breadcrumbs = findBreadcrumbs(location.pathname, routeTree)
 
   const getFullPrice = (item) => {
-    return `${item.PRICE?.at(-1)?.PRICE_AMOUNT?.toLocaleString()} ${item.PRICE?.at(-1)?.PRICE_AMOUNT ? item.PRICE?.at(-1)?.UNIT_ABB : ''}`
+    return `${item.PRICE?.at(-1)?.PRICE_AMOUNT?.toLocaleString()} ${item.PRICE?.at(-1)?.PRICE_AMOUNT ? item.PRICE?.at(-1)?.UNIT_ABB || '' : ''}`
   }
 
   console.log(roles, hasAnyPermission(roles, 'item', 'delete'))

@@ -4,7 +4,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import AllInboxIcon from '@mui/icons-material/AllInbox' // hoặc Inventory2Outlined nếu muốn icon giống hộp hơn
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
-import { green, blue, red, yellow } from '@mui/material/colors'
+import { green, blue, red, yellow, orange } from '@mui/material/colors'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -217,18 +217,18 @@ function Dashboard() {
         queryFn: () => invoicesService.statisticRevenueLastFourWeeks({ user_id, device_id }, { date: lastDayOfthisMonth }),
         refetchOnWindowFocus: false,
       },
-      // {
-      //   enabled: !!user_id && !!device_id,
-      //   queryKey: ['quantityPurchaseInvoviceThisMonth'],
-      //   queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisMonthFormatted, toDate: lastDayOfthisMonth, status: 'PAYMENTED' }),
-      //   refetchOnWindowFocus: false,
-      // },
-      // {
-      //   enabled: !!user_id && !!device_id,
-      //   queryKey: ['quantityPurchaseInvovicePreviousMonth'],
-      //   queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisPrevFormatted, toDate: lastDayOfPreviosMonth, status: 'PAYMENTED' }),
-      //   refetchOnWindowFocus: false,
-      // },
+      {
+        enabled: !!user_id && !!device_id,
+        queryKey: ['quantityPurchaseInvoviceThisMonth'],
+        queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisMonthFormatted, toDate: lastDayOfthisMonth, status: 'PAYMENTED' }),
+        refetchOnWindowFocus: false,
+      },
+      {
+        enabled: !!user_id && !!device_id,
+        queryKey: ['quantityPurchaseInvovicePreviousMonth'],
+        queryFn: () => invoicesService.search({ user_id, device_id }, { fromDate: getFirstDayOfThisPrevFormatted, toDate: lastDayOfPreviosMonth, status: 'PAYMENTED' }),
+        refetchOnWindowFocus: false,
+      },
     ],
   })
 
@@ -238,6 +238,8 @@ function Dashboard() {
   const dataQuantityOrderPreviousMonth = results[3]?.data?.data?.total
   const totalExpensePreviosMonth = results[4]?.data?.data?.total
   const totalExpenseThisMonth = results[5]?.data?.data?.total
+  const dataQuantityPurchaseInvoiceThisMonth = results[6]?.data?.data?.total
+  const dataQuantityPurchaseInvoicePreviousMonth = results[7]?.data?.data?.total
 
   const getPercentIncreaseRevenue = useMemo(() => {
     if (!dataTotalRevenuePreviousMonth || dataTotalRevenuePreviousMonth === 0) return null // tránh chia cho 0 hoặc undefined
@@ -267,6 +269,23 @@ function Dashboard() {
 
     return Math.round(growth * 100) / 100 // Làm tròn 2 chữ số
   }, [dataQuantityOrderPreviousMonth, dataQuantityOrderThisMonth])
+
+  const getPercentIncreasePurchaseInvoice = useMemo(() => {
+    if (
+      !dataQuantityPurchaseInvoicePreviousMonth ||
+      dataQuantityPurchaseInvoicePreviousMonth === 0 ||
+      dataQuantityPurchaseInvoiceThisMonth == null
+    ) {
+      return null
+    }
+
+    const growth =
+      ((dataQuantityPurchaseInvoiceThisMonth - dataQuantityPurchaseInvoicePreviousMonth) /
+        dataQuantityPurchaseInvoicePreviousMonth) *
+      100
+
+    return Math.round(growth * 100) / 100 // Làm tròn 2 chữ số
+  }, [dataQuantityPurchaseInvoicePreviousMonth, dataQuantityPurchaseInvoiceThisMonth])
 
 
   const getFirstDay = (monthOffset = 0) => {
@@ -571,27 +590,27 @@ function Dashboard() {
                 <AccountBalanceWalletIcon />
               </Avatar>
             </Card>
-            <Card sx={{ display: 'flex', alignItems: 'center', p: 2, borderLeft: '4px solid #2196f3' }}>
+            <Card sx={{ display: 'flex', alignItems: 'center', p: 2, borderLeft: '4px solid orange' }}>
               <CardContent sx={{ flex: 1 }}>
                 <Typography variant="h5" fontWeight="bold">
-                  11
+                  {dataQuantityPurchaseInvoiceThisMonth}
                 </Typography>
                 <Typography color="text.secondary" fontSize="14px">
                   Đơn hàng tháng này
                 </Typography>
-                {!!getPercentIncreaseOrder && (
+                {!!getPercentIncreasePurchaseInvoice && (
                   <Box display="flex" alignItems="center" mt={1}>
-                    {getPercentIncreaseOrder > 0
+                    {getPercentIncreasePurchaseInvoice > 0
                       ? <>
                         <ArrowUpwardIcon fontSize="small" sx={{ color: green[500], mr: 0.5 }} />
                         <Typography fontSize="14px" sx={{ color: green[500], mr: 0.5 }}>
-                          {getPercentIncreaseOrder}%
+                          {getPercentIncreasePurchaseInvoice}%
                         </Typography>
                       </>
                       : <>
                         <ArrowDownwardIcon fontSize="small" sx={{ color: red[500], mr: 0.5 }} />
                         <Typography fontSize="14px" sx={{ color: red[500], mr: 0.5 }}>
-                          {Math.abs(getPercentIncreaseOrder)}%
+                          {Math.abs(getPercentIncreasePurchaseInvoice)}%
                         </Typography>
                       </>}
                     <Typography fontSize="14px" color="text.secondary">
@@ -601,7 +620,7 @@ function Dashboard() {
                 )}
               </CardContent>
 
-              <Avatar sx={{ bgcolor: blue[500], width: 48, height: 48 }}>
+              <Avatar sx={{ bgcolor: orange[500], width: 48, height: 48 }}>
                 <AllInboxIcon />
               </Avatar>
             </Card>
