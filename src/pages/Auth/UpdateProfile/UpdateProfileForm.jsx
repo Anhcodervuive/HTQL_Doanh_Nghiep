@@ -27,7 +27,8 @@ function UpdateProfileForm() {
   const {
     nameInfo,
     gender,
-    phoneNumberInfo
+    phoneNumberInfo,
+    addressInfo
   } = useUserInfo()
 
   const [avatarFile, setAvatarFile] = useState(null)
@@ -68,6 +69,7 @@ function UpdateProfileForm() {
       setValue('address1', user.ADDRESS.ADDRESS_1 || '')
       setValue('address2', user.ADDRESS.ADDRESS_2 || '')
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nameInfo, gender, phoneNumberInfo, setValue])
 
   useEffect(() => {
@@ -246,6 +248,7 @@ function UpdateProfileForm() {
                 name="addressSelector"
                 control={control}
                 rules={{
+                  // eslint-disable-next-line no-unused-vars
                   validate: (value) => {
                     // if (!value || Object.keys(value?.city)?.length === 0) {
                     //   return 'Vui lòng nhập vào Thành phố/Tỉnh'
@@ -259,9 +262,9 @@ function UpdateProfileForm() {
                 render={({ field, fieldState }) => (
                   <LocationSelector
                     value={{
-                      city: 'Cần Thơ',
-                      district: 'Ninh Kiều',
-                      ward: 'An Khánh',
+                      city: addressInfo?.CITY,
+                      district: addressInfo?.DISTRICT,
+                      ward: addressInfo?.WARD,
                     }}
                     onChange={field.onChange}
                     error={fieldState.error}
