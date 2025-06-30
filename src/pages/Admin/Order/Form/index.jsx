@@ -184,7 +184,7 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
-      <fieldset disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')} style={{ border: 'none' }}>
+      <fieldset disabled={isReadOnly || (isEdited)} style={{ border: 'none' }}>
         <Stack spacing={2} sx={{ minHeight: '1800px' }}>
           <Box>
             <Grid container spacing={4}>
@@ -580,7 +580,7 @@ function OrderForm({ submit, data, isEdited, isReadOnly }) {
                           name="extraFeeUnit"
                           control={control}
                           rules={{ required: { value: !!watch('extraFee'), message: 'Vui lòng chọn đơn vị tiền tệ' } }}
-                          disabled={isReadOnly || (isEdited && data?.STATUS !== 'DRAFT')}
+                          disabled={isReadOnly || (isEdited)}
                           render={({ field }) => (
                             <Select
                               {...field}

@@ -224,7 +224,7 @@ export default function OrderList() {
         </Box>
         <Button
           LinkComponent={Link}
-          to={Routes.admin.itemUnit.create}
+          to={Routes.admin.orders.create}
           variant='contained'
           color='success'
           startIcon={<AddIcon />}
